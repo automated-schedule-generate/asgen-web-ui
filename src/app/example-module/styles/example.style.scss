@@ -1,0 +1,20 @@
+/* 
+  ARQUIVO DE ESTILO SCSS DE EXEMPLO 
+  Siga a convenção: nome-do-modulo.style.scss
+*/
+
+$example-color: #ff8c00;
+
+.example-wrapper {
+  margin-top: 2rem;
+  
+  .title {
+    color: $example-color;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  &:hover {
+    border-color: darken($example-color, 10%);
+  }
+}
