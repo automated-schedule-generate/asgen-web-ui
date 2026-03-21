@@ -1,0 +1,35 @@
+name: Validate Branch Name
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get branch name
+        id: branch
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ steps.branch.outputs.branch }}"
+
+          echo "Branch: $BRANCH_NAME"
+
+          if [[ ! "$BRANCH_NAME" =~ ^(feat|fix|hotfix|release)/[a-z0-9._-]+$ ]]; then
+            echo "❌ Nome de branch inválido!"
+            echo "Use: feat/, fix/, hotfix/, release/"
+            exit 1
+          fi
+
+          echo "✅ Nome de branch válido"

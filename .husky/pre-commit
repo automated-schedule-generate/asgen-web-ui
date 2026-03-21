@@ -1,0 +1,11 @@
+# #!/bin/sh
+
+# branch=$(git rev-parse --abbrev-ref HEAD)
+
+# if ! echo "$branch" | grep -E "^(feat|fix|hotfix|release)/[a-z0-9._-]+$"; then
+#   echo "❌ Nome da branch inválido!"
+#   echo "Use: feat/, fix/, hotfix/, release/"
+#   exit 1
+# fi
+
+# npm run format
