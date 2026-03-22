@@ -3,15 +3,17 @@
 Este diretório é apenas um **template de referência**. Ele não deve ser utilizado como um módulo real da aplicação.
 
 ## Propósito
+
 Demonstrar a **Arquitetura Modular (feature-based)** do projeto, conforme definido no [README principal da pasta app](../README.md).
 
 ## Estrutura Implementada:
-- **components/**: `example-form.component.tsx`, `example-card.component.tsx`
-- **services/**: `example.service.ts`
-- **hooks/**: `use-example.hook.ts`
-- **utils/**: `format-example.util.ts`
-- **types/**: `example.type.ts`
-- **styles/**: `example.style.css`, `example.style.scss`
+
+- **\_components/**: `example-form.component.tsx`, `example-card.component.tsx`
+- **\_services/**: `example.service.ts`
+- **\_hooks/**: `use-example.hook.ts`
+- **\_utils/**: `format-example.util.ts`
+- **\_types/**: `example.type.ts`
+- **\_styles/**: `example.style.css`, `example.style.scss`
 - **(routes)/**: Estrutura de rotas isolada (`page.tsx`, `create/`, `[id]/`)
 
 > [!IMPORTANT]
