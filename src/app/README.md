@@ -20,23 +20,23 @@ Abaixo está um exemplo da estrutura recomendada para um módulo chamado **`user
 
 ```text
 user
-├─ components/          # Componentes React específicos do módulo
+├─ _components/          # Componentes React específicos do módulo
 │  ├─ user-form.component.tsx
 │  └─ user-card.component.tsx
 │
-├─ services/            # Integração com API e lógica de serviços
+├─ _services/            # Integração com API e lógica de serviços
 │  └─ user.service.ts
 │
-├─ hooks/               # Custom hooks exclusivos do módulo
+├─ _hooks/               # Custom hooks exclusivos do módulo
 │  └─ use-user.hook.ts
 │
-├─ utils/               # Funções utilitárias e helpers
+├─ _utils/               # Funções utilitárias e helpers
 │  └─ format-user.util.ts
 │
-├─ types/               # Tipagens e interfaces do domínio
+├─ _types/               # Tipagens e interfaces do domínio
 │  └─ user.type.ts
 │
-├─ styles/              # Arquivos de estilização (CSS/SCSS)
+├─ _styles/              # Arquivos de estilização (CSS/SCSS)
 │  ├─ user.style.css
 │  └─ user.style.scss
 │
