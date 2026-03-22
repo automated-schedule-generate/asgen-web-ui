@@ -3,7 +3,7 @@
  * Simula a integração com uma API.
  */
 
-import { IExample } from '../types/example.type';
+import { IExample } from '../_types/example.type';
 
 export const exampleService = {
   getExamples: async (): Promise<IExample[]> => {

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { exampleService } from '../services/example.service';
-import { IExample } from '../types/example.type';
+import { exampleService } from '../_services/example.service';
+import { IExample } from '../_types/example.type';
 
 /**
  * ESTE É UM HOOK DE EXEMPLO
