@@ -1,11 +1,11 @@
 'use client';
 
-import { ExampleCardComponent } from '../components/example-card.component';
-import { useExampleHook } from '../hooks/use-example.hook';
+import { ExampleCardComponent } from '../_components/example-card.component';
+import { useExampleHook } from '../_hooks/use-example.hook';
 
 /**
  * PÁGINA DE EXEMPLO
- * Localizada em src/app/_example-module/(routes)/page.tsx
+ * Localizada em src/app/example-module/(routes)/page.tsx
  * Nota: O prefixo '_' na pasta pai evita que o Next.js crie uma rota real.
  */
 export default function ExamplePage() {

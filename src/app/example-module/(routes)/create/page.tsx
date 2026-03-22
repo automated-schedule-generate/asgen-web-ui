@@ -1,4 +1,4 @@
-import { ExampleFormComponent } from '../../components/example-form.component';
+import { ExampleFormComponent } from '../../_components/example-form.component';
 
 /**
  * PÁGINA DE CRIAÇÃO (EXEMPLO)
