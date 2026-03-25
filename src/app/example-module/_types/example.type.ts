@@ -2,10 +2,10 @@
  * ESTAS SÃO TIPAGENS DE EXEMPLO
  */
 
-export interface IExample {
+import type { ExampleTypeSchema } from '../_schemas/example.schema';
+
+export interface IExample extends ExampleTypeSchema {
   id: number;
-  name: string;
-  description?: string;
   createdAt?: Date;
 }
 

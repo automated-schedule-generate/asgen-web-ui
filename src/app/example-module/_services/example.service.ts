@@ -3,10 +3,11 @@
  * Simula a integração com uma API.
  */
 
-import { IExample } from '../_types/example.type';
+import type { ExampleTypeSchema } from '../_schemas/example.schema';
+import type { IExample } from '../_types/example.type';
 
 export const exampleService = {
-  getExamples: async (): Promise<IExample[]> => {
+  async getExamples(): Promise<IExample[]> {
     // Simulação de delay de API
     await new Promise((resolve) => setTimeout(resolve, 500));
     return [
@@ -15,7 +16,7 @@ export const exampleService = {
     ];
   },
 
-  createExample: async (data: IExample) => {
+  async createExample(data: ExampleTypeSchema) {
     console.log('[EXEMPLO] Criando dado:', data);
     return { success: true };
   },
