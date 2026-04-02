@@ -26,9 +26,9 @@ jobs:
 
           echo "Branch: $BRANCH_NAME"
 
-          if [[ ! "$BRANCH_NAME" =~ ^(feat|fix|hotfix|release)/[a-z0-9._-]+$ ]]; then
+          if [[ ! "$BRANCH_NAME" =~ ^(feat|feature|fix|hotfix|release|bugfix|docs|refactor|test)/[a-z0-9._-]+$ ]]; then
             echo "❌ Nome de branch inválido!"
-            echo "Use: feat/, fix/, hotfix/, release/"
+            echo "Use: feat/, feature/, fix/, hotfix/, release/, bugfix/, docs/, refactor/, test/"
             exit 1
           fi
 
