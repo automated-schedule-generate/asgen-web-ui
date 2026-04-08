@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './globals.css';
+import MuiProvider from '@/components/providers/mui-provider.component';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,7 +31,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        <MuiProvider>{children}</MuiProvider>
         <ToastContainer theme="colored" />
       </body>
     </html>
