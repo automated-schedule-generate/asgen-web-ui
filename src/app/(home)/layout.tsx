@@ -15,10 +15,16 @@ export default function CustomLayout({ children }: LayoutProps) {
 
   const handleOpenAuthDialog = () => {
     setOpenAuthDialog(true);
+    if (openRegisterDialog) {
+      setOpenRegisterDialog(false);
+    }
   };
 
   const handleOpenRegisterDialog = () => {
     setOpenRegisterDialog(true);
+    if (openAuthDialog) {
+      setOpenAuthDialog(false);
+    }
   };
 
   return (
@@ -37,6 +43,7 @@ export default function CustomLayout({ children }: LayoutProps) {
             <AuthForm
               open={openAuthDialog}
               onClose={() => setOpenAuthDialog(false)}
+              openRegisterDialog={handleOpenRegisterDialog}
             />
             <Button
               onClick={handleOpenRegisterDialog}
@@ -48,6 +55,7 @@ export default function CustomLayout({ children }: LayoutProps) {
             <RegisterForm
               open={openRegisterDialog}
               onClose={() => setOpenRegisterDialog(false)}
+              openAuthDialog={handleOpenAuthDialog}
             />
           </div>
         </Toolbar>

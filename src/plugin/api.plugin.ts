@@ -1,16 +1,24 @@
 'use server';
 
 import axios from 'axios';
+import http2 from 'http2-wrapper';
 import { createHTTP2Adapter } from 'axios-http2-adapter';
 import { getCookie } from './cookie.plugin';
-import { env } from './env.plugin';
+import { getEnv } from './env.plugin';
+
+const adapterConfig = {
+  agent: new http2.Agent({
+    /* options */
+  }),
+  force: true,
+};
 
 const api = axios.create({
-  baseURL: env.api_url,
+  baseURL: (await getEnv()).api_url,
   headers: {
     'Content-Type': 'application/json',
   },
-  adapter: createHTTP2Adapter(),
+  adapter: createHTTP2Adapter(adapterConfig),
 });
 
 api.interceptors.request.use(async (config) => {
@@ -20,5 +28,8 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-export { api };
+export async function getApi() {
+  return api;
+}

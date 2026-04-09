@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
+import { IMaskInput } from 'react-imask';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -19,18 +20,20 @@ import {
   StepLabel,
 } from '@mui/material';
 import {
-  ArrowLeft,
-  ArrowRight,
+  ArrowBack,
+  ArrowForward,
   Visibility,
   VisibilityOff,
 } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Logo } from '@/components/layout/logo.component';
 import { User, userSchema } from '../_schemas/user.schema';
+import { register } from '../_services/user.service';
 
 export function RegisterForm({
   open,
   onClose,
+  openAuthDialog,
 }: {
   open: boolean;
   onClose: () => void;
@@ -65,8 +68,8 @@ export function RegisterForm({
   const [activeStep, setActiveStep] = useState(0);
 
   const stepFields = [
-    ['name', 'email'],
-    ['cpf'],
+    ['name', 'surname'],
+    ['cpf', 'email'],
     ['password', 'confirmPassword'],
   ];
   const handleNext = async () => {
@@ -78,7 +81,10 @@ export function RegisterForm({
   };
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  async function submit(data: User) {}
+  async function submit(data: User) {
+    await register(data);
+    router.push('/dashboard');
+  }
 
   return (
     <Dialog
@@ -120,7 +126,7 @@ export function RegisterForm({
           <Box sx={{ mt: 2, minHeight: '200px' }}>
             {activeStep === 0 && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <label htmlFor="name">Nome completo:</label>
+                <label htmlFor="name">Nome:</label>
                 <Controller
                   name="name"
                   control={control}
@@ -129,7 +135,7 @@ export function RegisterForm({
                       <OutlinedInput
                         {...field}
                         id="name"
-                        placeholder="Digite seu nome completo"
+                        placeholder="Digite seu nome"
                         fullWidth
                         error={!!fieldState.error}
                         required
@@ -142,6 +148,33 @@ export function RegisterForm({
                     </>
                   )}
                 />
+                <label htmlFor="surname">Sobrenome:</label>
+                <Controller
+                  name="surname"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <OutlinedInput
+                        {...field}
+                        id="surname"
+                        placeholder="Digite seu sobrenome"
+                        fullWidth
+                        error={!!fieldState.error}
+                        required
+                      />
+                      {fieldState.error && (
+                        <Typography color="error" variant="caption">
+                          {fieldState.error.message}
+                        </Typography>
+                      )}
+                    </>
+                  )}
+                />
+              </Box>
+            )}
+
+            {activeStep === 1 && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <label htmlFor="email">Email:</label>
                 <Controller
                   name="email"
@@ -164,11 +197,6 @@ export function RegisterForm({
                     </>
                   )}
                 />
-              </Box>
-            )}
-
-            {activeStep === 1 && (
-              <Box>
                 <label htmlFor="cpf">CPF:</label>
 
                 <Controller
@@ -179,11 +207,15 @@ export function RegisterForm({
                       <OutlinedInput
                         {...field}
                         id="cpf"
-                        placeholder="Digite seu CPF"
+                        inputComponent={IMaskInput as any}
+                        inputProps={{
+                          mask: '000.000.000-00',
+                        }}
                         fullWidth
                         error={!!fieldState.error}
-                        required
+                        placeholder="Digite seu CPF"
                       />
+
                       {fieldState.error && (
                         <Typography color="error" variant="caption">
                           {fieldState.error.message}
@@ -237,10 +269,6 @@ export function RegisterForm({
                 <Controller
                   name="confirmPassword"
                   control={control}
-                  rules={{
-                    validate: (value) =>
-                      value === watch('password') || 'As senhas não coincidem',
-                  }}
                   render={({ field, fieldState }) => (
                     <>
                       <OutlinedInput
@@ -283,23 +311,24 @@ export function RegisterForm({
         </form>
       </DialogContent>
 
-      <DialogActions sx={{ p: 3, justifyContent: 'space-between' }}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowLeft />}
-          color="secondary"
-          onClick={handleBack}
-          disabled={activeStep === 0}
-          sx={{ textTransform: 'none' }}
-        >
-          Voltar
-        </Button>
-
+      <DialogActions sx={{ px: 3, py: 0, justifyContent: 'space-between' }}>
+        <Box>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBack />}
+            color="secondary"
+            onClick={handleBack}
+            disabled={activeStep === 0}
+            sx={{ textTransform: 'none' }}
+          >
+            Voltar
+          </Button>
+        </Box>
         <Box>
           <Button
             variant="contained"
             color="secondary"
-            endIcon={<ArrowRight />}
+            endIcon={<ArrowForward />}
             onClick={
               activeStep === steps.length - 1
                 ? handleSubmit(submit)
@@ -311,6 +340,14 @@ export function RegisterForm({
           </Button>
         </Box>
       </DialogActions>
+      <Box sx={{ px: 3, py: 2, textAlign: 'center' }}>
+        <a
+          onClick={() => openAuthDialog()}
+          className="text-sm text-blue-500 text-center"
+        >
+          Já tem uma conta? Faça login.
+        </a>
+      </Box>
     </Dialog>
   );
 }

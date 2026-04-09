@@ -1,14 +1,20 @@
 'use server';
-import { api } from '@/plugin/api.plugin';
+import { getApi } from '@/plugin/api.plugin';
 import { AuthSchema } from '../_schemas/auth-schema.schema';
 import { cookies } from 'next/headers';
 
 export async function login(payload: AuthSchema) {
+  console.log('Login payload:', payload);
+  const api = await getApi();
   try {
-    const response = await api.post('/auth/login', payload);
+    const response = await api.post('/auth/login', {
+      ...payload,
+      login: payload.email,
+      login_type: 'email',
+    });
     return response.data;
   } catch (error) {
-    console.error('Login error:', error);
+    console.log('Login error:', error);
     throw error;
   }
 }

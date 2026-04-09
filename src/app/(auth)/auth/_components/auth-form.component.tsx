@@ -13,6 +13,7 @@ import {
   InputAdornment,
   IconButton,
   Button,
+  Box,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,6 +22,7 @@ import { Logo } from '@/components/layout/logo.component';
 export function AuthForm({
   open,
   onClose,
+  openRegisterDialog,
 }: {
   open: boolean;
   onClose: () => void;
@@ -35,7 +37,12 @@ export function AuthForm({
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   async function submit(data: AuthSchema) {
-    await login(data);
+    try {
+      await login(data);
+    } catch (error) {
+      console.log('Login failed:', error);
+      return;
+    }
     router.push('/dashboard');
   }
 
@@ -59,58 +66,54 @@ export function AuthForm({
         </div>
         <h2 className="text-2xl text-center font-bold mb-4">Login</h2>
         <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
-          <Controller
-            name="email"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <OutlinedInput
-                {...field}
-                id="email"
-                type="email"
-                placeholder="Email"
-              />
-            )}
-          />
-          <label htmlFor="password" className="text-sm font-medium">
-            Password
-          </label>
-          <Controller
-            name="password"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <OutlinedInput
-                {...field}
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={
-                        showPassword
-                          ? 'hide the password'
-                          : 'display the password'
-                      }
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            )}
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <label htmlFor="email">Email</label>
+            <Controller
+              name="email"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <OutlinedInput
+                  {...field}
+                  id="email"
+                  type="email"
+                  placeholder="Email"
+                />
+              )}
+            />
+            <label htmlFor="password">Password</label>
+            <Controller
+              name="password"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <OutlinedInput
+                  {...field}
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword ? 'Esconder senha' : 'Mostrar senha'
+                        }
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              )}
+            />
+          </Box>
           <Button type="submit" variant="contained" color="secondary">
             Login
           </Button>
           <a
-            onClick={() => onClose()}
+            onClick={() => openRegisterDialog()}
             className="text-sm text-blue-500 text-center"
           >
             Não tem uma conta? Registre-se.
