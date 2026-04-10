@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './globals.css';
 import MuiProvider from '@/components/providers/mui-provider.component';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,14 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="PT-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <MuiProvider>{children}</MuiProvider>
-        <ToastContainer theme="colored" />
-      </body>
-    </html>
+    <AppRouterCacheProvider>
+      <html
+        lang="PT-BR"
+        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      >
+        <body className="min-h-full flex flex-col">
+          <MuiProvider>{children}</MuiProvider>
+          <ToastContainer theme="colored" />
+        </body>
+      </html>
+    </AppRouterCacheProvider>
   );
 }

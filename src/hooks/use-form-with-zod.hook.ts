@@ -24,10 +24,14 @@ function generateDefaultValues<T extends z.ZodObject>(
   defaultValues: Record<string, string | number | object | null> = {},
 ): Record<string, string | number | object | null> {
   let obj = null;
-  if (schema.toJSONSchema) {
-    obj = schema.toJSONSchema()?.properties;
+  if ('toJSONSchema' in schema) {
+    try {
+      obj = schema.toJSONSchema()?.properties;
+    } catch (e) {
+      obj = {};
+    }
   } else if ('properties' in schema) {
-    obj = schema.properties;
+    obj = schema?.properties as any;
   }
   const entries = Object.entries(obj ?? {});
   for (const [key, value] of entries) {

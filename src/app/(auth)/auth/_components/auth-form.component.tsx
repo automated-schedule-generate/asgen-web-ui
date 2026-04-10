@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { login } from '../_services/auth.service';
-import { authSchema, AuthSchema } from '../_schemas/auth-schema.schema';
+import { authSchema, AuthType } from '../_schemas/auth-schema.schema';
 import {
   Dialog,
   DialogContent,
@@ -15,9 +14,9 @@ import {
   Button,
   Box,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Visibility, VisibilityOff, Close } from '@mui/icons-material';
 import { Logo } from '@/components/layout/logo.component';
+import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 
 export function AuthForm({
   open,
@@ -27,16 +26,13 @@ export function AuthForm({
   open: boolean;
   onClose: () => void;
 }) {
-  const { control, handleSubmit } = useForm({
-    mode: 'onChange',
-    resolver: zodResolver(authSchema),
-  });
+  const { control, handleSubmit } = useFormWithZod(authSchema);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  async function submit(data: AuthSchema) {
+  async function submit(data: AuthType) {
     try {
       await login(data);
     } catch (error) {
@@ -58,7 +54,7 @@ export function AuthForm({
           color: theme.palette.grey[500],
         })}
       >
-        <CloseIcon />
+        <Close />
       </IconButton>
       <DialogContent className="w-[500px]">
         <div className="flex justify-center mt-4 mb-6">

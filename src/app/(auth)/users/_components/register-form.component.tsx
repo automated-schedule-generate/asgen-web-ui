@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { IMaskInput } from 'react-imask';
 import { useRouter } from 'next/navigation';
 import {
@@ -24,11 +23,12 @@ import {
   ArrowForward,
   Visibility,
   VisibilityOff,
+  Close,
 } from '@mui/icons-material';
-import CloseIcon from '@mui/icons-material/Close';
 import { Logo } from '@/components/layout/logo.component';
-import { User, userSchema } from '../_schemas/user.schema';
+import { UserType, userSchema } from '../_schemas/user.schema';
 import { register } from '../_services/user.service';
+import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 
 export function RegisterForm({
   open,
@@ -38,17 +38,7 @@ export function RegisterForm({
   open: boolean;
   onClose: () => void;
 }) {
-  const { control, handleSubmit, watch, trigger } = useForm({
-    mode: 'onChange',
-    resolver: zodResolver(userSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      cpf: '',
-      password: '',
-      confirmPassword: '',
-    },
-  });
+  const { control, handleSubmit, watch, trigger } = useFormWithZod(userSchema);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
@@ -81,7 +71,7 @@ export function RegisterForm({
   };
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  async function submit(data: User) {
+  async function submit(data: UserType) {
     await register(data);
     router.push('/dashboard');
   }
@@ -108,7 +98,7 @@ export function RegisterForm({
           color: theme.palette.grey[500],
         })}
       >
-        <CloseIcon />
+        <Close />
       </IconButton>
       <DialogContent>
         <div className="flex justify-center mt-4 mb-2">

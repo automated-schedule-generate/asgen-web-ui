@@ -1,0 +1,61 @@
+'use client';
+import React from 'react';
+import { Logo } from '@/components/layout/logo.component';
+import { Button, Toolbar, AppBar } from '@mui/material';
+import { AuthForm } from '@/app/(auth)/auth/_components/auth-form.component';
+import { RegisterForm } from '@/app/(auth)/users/_components/register-form.component';
+
+export function HomeAppBar() {
+  const [openAuthDialog, setOpenAuthDialog] = React.useState(false);
+  const [openRegisterDialog, setOpenRegisterDialog] = React.useState(false);
+
+  const handleOpenAuthDialog = () => {
+    setOpenAuthDialog(true);
+    if (openRegisterDialog) {
+      setOpenRegisterDialog(false);
+    }
+  };
+
+  const handleOpenRegisterDialog = () => {
+    setOpenRegisterDialog(true);
+    if (openAuthDialog) {
+      setOpenAuthDialog(false);
+    }
+  };
+
+  return (
+    <div className="layout-container">
+      <AppBar position="static" color="default" elevation={0}>
+        <Toolbar>
+          <Logo orientation="horizontal" theme="dark" width={200} />
+          <div className="flex flex-row gap-2 ml-auto">
+            <Button
+              onClick={handleOpenAuthDialog}
+              color="secondary"
+              variant="contained"
+            >
+              Fazer Login
+            </Button>
+            <AuthForm
+              open={openAuthDialog}
+              onClose={() => setOpenAuthDialog(false)}
+              openRegisterDialog={handleOpenRegisterDialog}
+            />
+            <Button
+              onClick={handleOpenRegisterDialog}
+              color="secondary"
+              variant="contained"
+            >
+              Registrar
+            </Button>
+            <RegisterForm
+              open={openRegisterDialog}
+              onClose={() => setOpenRegisterDialog(false)}
+              openAuthDialog={handleOpenAuthDialog}
+            />
+          </div>
+        </Toolbar>
+      </AppBar>
+    </div>
+  );
+}

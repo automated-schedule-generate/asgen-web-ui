@@ -1,10 +1,9 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
-import { AuthSchema } from '../_schemas/auth-schema.schema';
+import { AuthType } from '../_schemas/auth-schema.schema';
 import { cookies } from 'next/headers';
 
-export async function login(payload: AuthSchema) {
-  console.log('Login payload:', payload);
+export async function login(payload: AuthType) {
   const api = await getApi();
   try {
     const response = await api.post('/auth/login', {
