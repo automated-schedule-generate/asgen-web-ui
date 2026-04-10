@@ -1,24 +1,34 @@
 'use server';
 
 import axios from 'axios';
+import http2 from 'http2-wrapper';
 import { createHTTP2Adapter } from 'axios-http2-adapter';
 import { getCookie } from './cookie.plugin';
-import { env } from './env.plugin';
+import { getEnv } from './env.plugin';
 
-const api = axios.create({
-  baseURL: env.api_url,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  adapter: createHTTP2Adapter(),
-});
+const adapterConfig = {
+  agent: new http2.Agent({
+    /* options */
+  }),
+  force: true,
+};
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-api.interceptors.request.use(async (config) => {
-  const token = await getCookie('token');
-  if (token.trim() !== '') {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+export async function getApi() {
+  const api = axios.create({
+    baseURL: (await getEnv()).api_url,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    adapter: createHTTP2Adapter(adapterConfig),
+  });
 
-export { api };
+  api.interceptors.request.use(async (config) => {
+    const token = await getCookie('token');
+    if (token.trim() !== '') {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+  return api;
+}
