@@ -1,1 +1,5 @@
+#!/bin/sh
+
+echo "Verificando mensagem de commit..."
 npx --no-install commitlint --edit $1
+echo "Mensagem de commit verificada!"

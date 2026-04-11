@@ -1,11 +1,23 @@
 #!/bin/sh
 
+echo "Atualizando branch com developer..."
+git pull origin developer
+echo "Branch atualizada!"
+
+echo "Verificando nome da branch..."
 branch=$(git rev-parse --abbrev-ref HEAD)
 
-if ! echo "$branch" | grep -E "^(feature|fix|hotfix|release|bugfix|docs|refactor|test)/[a-z0-9._-]+$"; then
+if ! echo "$branch" | grep -E "^(feat|feature|fix|hotfix|release|bugfix|docs|refactor|test)/[a-z0-9._-]+$"; then
   echo "❌ Nome da branch inválido!"
-  echo "Use: feature/, fix/, hotfix/, release/, bugfix/, docs/, refactor/, test/"
+  echo "Use: feat/, feature/, fix/, hotfix/, release/, bugfix/, docs/, refactor/, test/"
   exit 1
 fi
+echo "Nome da branch verificado!"
 
-npm run format
+echo "Executando lint-staged..."
+npx lint-staged
+echo "Lint-staged executado!"
+
+echo "Adicionando arquivos..."
+git add -A
+echo "Arquivos adicionados!"

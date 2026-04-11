@@ -25,11 +25,7 @@ function generateDefaultValues<T extends z.ZodObject>(
 ): Record<string, string | number | object | null> {
   let obj = null;
   if ('toJSONSchema' in schema) {
-    try {
-      obj = schema.toJSONSchema()?.properties;
-    } catch (e) {
-      obj = {};
-    }
+    obj = (schema as any).toJSONSchema({ unrepresentable: 'any' })?.properties ?? {};
   } else if ('properties' in schema) {
     obj = schema?.properties as any;
   }
