@@ -12,11 +12,11 @@
     "postinstall": "npm run prepare"
   },
   "lint-staged": {
-    "*.{ts,js}": [
+    "**/*.{ts,tsx,js,jsx}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,md,yml}": [
+    "**/*.{json,md,yml}": [
       "prettier --write"
     ]
   },

@@ -1,6 +1,11 @@
 'use client';
 
-import { useForm, type UseFormProps } from 'react-hook-form';
+import {
+  DefaultValues,
+  Resolver,
+  useForm,
+  type UseFormProps,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
@@ -10,12 +15,17 @@ export function useFormWithZod<T extends z.ZodObject>(
 ) {
   return useForm<z.infer<T>>({
     mode: 'onChange',
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema) as Resolver<
+      z.core.output<T>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      any,
+      z.infer<T>
+    >,
     ...props,
     defaultValues: {
       ...generateDefaultValues(schema),
       ...(props?.defaultValues ?? {}),
-    } as any,
+    } as DefaultValues<z.core.output<T>>,
   });
 }
 
@@ -25,9 +35,9 @@ function generateDefaultValues<T extends z.ZodObject>(
 ): Record<string, string | number | object | null> {
   let obj = null;
   if ('toJSONSchema' in schema) {
-    obj = (schema as any).toJSONSchema({ unrepresentable: 'any' })?.properties ?? {};
+    obj = schema.toJSONSchema({ unrepresentable: 'any' })?.properties ?? {};
   } else if ('properties' in schema) {
-    obj = schema?.properties as any;
+    obj = schema?.properties;
   }
   const entries = Object.entries(obj ?? {});
   for (const [key, value] of entries) {
@@ -52,7 +62,8 @@ function generateDefaultValues<T extends z.ZodObject>(
           break;
         }
         defaultValue = {};
-        generateDefaultValues(value, defaultValue as any);
+
+        generateDefaultValues(value, defaultValue as object);
         break;
       case 'null':
         defaultValue = null;
