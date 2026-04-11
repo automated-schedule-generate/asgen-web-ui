@@ -11,6 +11,15 @@
     "prepare": "husky",
     "postinstall": "npm run prepare"
   },
+  "lint-staged": {
+    "**/*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,md,yml}": [
+      "prettier --write"
+    ]
+  },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
@@ -42,6 +51,7 @@
     "eslint-config-next": "16.2.1",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier-plugin-organize-imports": "^4.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
