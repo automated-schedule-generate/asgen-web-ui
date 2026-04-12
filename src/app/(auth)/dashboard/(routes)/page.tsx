@@ -74,7 +74,7 @@ export default function DashboardPage() {
         component="nav"
         sx={{
           width: 88,
-          bgcolor: '#1f3650',
+          bgcolor: '#2c5aa0',
           color: '#f7fafc',
           display: 'flex',
           flexDirection: 'column',
@@ -93,9 +93,9 @@ export default function DashboardPage() {
             key={label}
             sx={{
               color: '#f7fafc',
-              bgcolor: '#1f3650',
+              bgcolor: '#2c5aa0',
               borderRadius: 2,
-              '&:hover': { bgcolor: '#2c4a6b' },
+              '&:hover': { bgcolor: '#1e3a7a' },
             }}
             aria-label={label}
           >
@@ -132,7 +132,7 @@ export default function DashboardPage() {
               sx={{
                 width: 32,
                 height: 32,
-                bgcolor: 'primary.main',
+                bgcolor: '#2c5aa0',
                 color: '#fff',
               }}
             >
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                 >
                   <Avatar
                     sx={{
-                      bgcolor: '#2f4f74',
+                      bgcolor: '#2c5aa0',
                       width: 48,
                       height: 48,
                       color: '#fff',
