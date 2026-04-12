@@ -10,6 +10,7 @@ import {
   Avatar,
   IconButton,
 } from '@mui/material';
+import { Logo } from '../../../../../components/layout/logo.component';
 import {
   School as SchoolIcon,
   MenuBook as MenuBookIcon,
@@ -87,12 +88,7 @@ export default function DashboardPage() {
           boxShadow: 2,
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: 0.5 }}
-        >
-          ASgen
-        </Typography>
+        <Logo orientation="horizontal" theme="light" width={160} />
         <Box
           sx={{
             display: 'flex',
