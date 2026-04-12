@@ -175,31 +175,15 @@ export default function DashboardPage() {
         >
           <Typography
             variant="h5"
-            sx={{
-              mb: 3,
-              fontWeight: 700,
-              color: '#fff',
-              bgcolor: '#2c5aa0',
-              px: 3,
-              py: 1.5,
-              borderRadius: 2,
-            }}
+            sx={{ mb: 3, fontWeight: 700, color: '#333' }}
           >
             Seja bem-vindo, {userName || 'Usuário'}
           </Typography>
 
           <Typography
             variant="subtitle1"
-            sx={{
-              mb: 4,
-              fontWeight: 600,
-              textAlign: 'center',
-              color: '#fff',
-              bgcolor: '#2c5aa0',
-              px: 3,
-              py: 1,
-              borderRadius: 2,
-            }}
+            color="text.secondary"
+            sx={{ mb: 4, textAlign: 'center' }}
           >
             Painel de controle
           </Typography>
