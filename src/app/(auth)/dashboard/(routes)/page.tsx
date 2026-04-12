@@ -97,11 +97,13 @@ export default function DashboardPage() {
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: 1.5,
-            px: 2,
+            gap: 2,
+            px: 2.5,
             py: 1,
-            border: '2px solid rgba(247, 250, 252, 0.5)',
-            borderRadius: 4,
+            bgcolor: '#03017D',
+            borderRadius: 999,
+            boxShadow: '0 10px 20px rgba(0, 0, 0, 0.12)',
+            whiteSpace: 'nowrap',
           }}
         >
           <Typography
@@ -109,20 +111,21 @@ export default function DashboardPage() {
             sx={{
               fontWeight: 700,
               textTransform: 'uppercase',
-              fontSize: '0.875rem',
+              fontSize: '0.9rem',
               letterSpacing: 0.5,
+              color: '#fff',
             }}
           >
             {userName || 'Usuário'}
           </Typography>
           <Avatar
             sx={{
-              width: 36,
-              height: 36,
-              bgcolor: '#03017D',
-              color: '#fff',
+              width: 40,
+              height: 40,
+              bgcolor: '#fff',
+              color: '#03017D',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '0.95rem',
             }}
           >
             {initials || 'U'}
