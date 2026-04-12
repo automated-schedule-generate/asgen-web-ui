@@ -9,7 +9,6 @@ import {
   CardContent,
   Avatar,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import {
   School as SchoolIcon,
   MenuBook as MenuBookIcon,
@@ -48,9 +47,19 @@ export default function DashboardPage() {
           Painel de controle
         </Typography>
 
-        <Grid container spacing={3}>
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 3,
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, minmax(0, 1fr))',
+              md: 'repeat(3, minmax(0, 1fr))',
+            },
+          }}
+        >
           {dashboardCards.map(({ title, icon: Icon }) => (
-            <Grid xs={12} sm={6} md={4} key={title}>
+            <Box key={title}>
               <Card sx={{ borderRadius: 3, boxShadow: 2, overflow: 'hidden' }}>
                 <CardActionArea
                   sx={{
@@ -82,9 +91,9 @@ export default function DashboardPage() {
                   </CardContent>
                 </CardActionArea>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       </Box>
     </Container>
   );
