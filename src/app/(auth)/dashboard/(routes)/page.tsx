@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   Container,
   Typography,
@@ -10,7 +11,6 @@ import {
   Avatar,
   IconButton,
 } from '@mui/material';
-import { Logo } from '../../../../../components/layout/logo.component';
 import {
   School as SchoolIcon,
   MenuBook as MenuBookIcon,
@@ -88,7 +88,13 @@ export default function DashboardPage() {
           boxShadow: 2,
         }}
       >
-        <Logo orientation="horizontal" theme="light" width={160} />
+        <Image
+          src="/images/asgen-horizontal-light.svg"
+          alt="ASgen"
+          width={160}
+          height={40}
+          style={{ width: 'auto', height: '40px' }}
+        />
         <Box
           sx={{
             display: 'flex',
