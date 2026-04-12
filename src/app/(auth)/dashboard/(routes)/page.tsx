@@ -175,7 +175,15 @@ export default function DashboardPage() {
         >
           <Typography
             variant="h5"
-            sx={{ mb: 3, fontWeight: 700, color: '#333' }}
+            sx={{
+              mb: 3,
+              fontWeight: 700,
+              color: '#fff',
+              bgcolor: '#2c5aa0',
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+            }}
           >
             Seja bem-vindo, {userName || 'Usuário'}
           </Typography>
@@ -186,7 +194,11 @@ export default function DashboardPage() {
               mb: 4,
               fontWeight: 600,
               textAlign: 'center',
-              color: '#2c5aa0',
+              color: '#fff',
+              bgcolor: '#2c5aa0',
+              px: 3,
+              py: 1,
+              borderRadius: 2,
             }}
           >
             Painel de controle
