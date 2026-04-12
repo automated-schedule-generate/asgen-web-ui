@@ -34,6 +34,9 @@ const sidebarItems = [
   { label: 'Cursos', icon: SchoolIcon },
   { label: 'Disciplinas', icon: MenuBookIcon },
   { label: 'Turmas', icon: GroupsIcon },
+  { label: 'Gestão', icon: ShieldIcon },
+  { label: 'Gerar grades', icon: AutoStoriesIcon },
+  { label: 'Visualização das grades', icon: VisibilityIcon },
 ];
 
 const formatName = (name: string) =>
@@ -46,6 +49,7 @@ const formatName = (name: string) =>
     .join(' ');
 
 export default function DashboardPage() {
+  const [activeTab, setActiveTab] = useState('Home');
   const [userName] = useState(() => {
     if (typeof window === 'undefined') {
       return 'Usuário';
@@ -127,18 +131,15 @@ export default function DashboardPage() {
             gap: 2,
           }}
         >
-          <Avatar
-            sx={{ bgcolor: '#fff', color: '#1f3650', width: 48, height: 48 }}
-          >
-            AS
-          </Avatar>
           {sidebarItems.map(({ label, icon: Icon }) => (
             <IconButton
               key={label}
+              onClick={() => setActiveTab(label)}
               sx={{
                 color: '#f7fafc',
-                bgcolor: '#2c5aa0',
+                bgcolor: activeTab === label ? '#1e3a7a' : '#2c5aa0',
                 borderRadius: 2,
+                border: activeTab === label ? '2px solid #fff' : 'none',
                 '&:hover': { bgcolor: '#1e3a7a' },
               }}
               aria-label={label}
