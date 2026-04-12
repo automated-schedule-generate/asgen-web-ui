@@ -119,8 +119,8 @@ export default function DashboardPage() {
             sx={{
               width: 36,
               height: 36,
-              bgcolor: '#7db3e6',
-              color: '#2c5aa0',
+              bgcolor: '#03017D',
+              color: '#fff',
               fontWeight: 700,
               fontSize: '0.9rem',
             }}
@@ -135,7 +135,7 @@ export default function DashboardPage() {
           component="nav"
           sx={{
             width: 88,
-            bgcolor: '#2c5aa0',
+            bgcolor: '#03017D',
             color: '#f7fafc',
             display: 'flex',
             flexDirection: 'column',
@@ -150,10 +150,10 @@ export default function DashboardPage() {
               onClick={() => setActiveTab(label)}
               sx={{
                 color: '#f7fafc',
-                bgcolor: activeTab === label ? '#1e3a7a' : '#2c5aa0',
+                bgcolor: activeTab === label ? '#020159' : '#03017D',
                 borderRadius: 2,
                 border: activeTab === label ? '2px solid #fff' : 'none',
-                '&:hover': { bgcolor: '#1e3a7a' },
+                '&:hover': { bgcolor: '#020159' },
               }}
               aria-label={label}
             >
@@ -234,7 +234,7 @@ export default function DashboardPage() {
                   >
                     <Avatar
                       sx={{
-                        bgcolor: '#2c5aa0',
+                        bgcolor: '#03017D',
                         width: 64,
                         height: 64,
                         color: '#fff',
