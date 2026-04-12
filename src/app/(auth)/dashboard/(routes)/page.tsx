@@ -1,151 +1,90 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Container,
   Typography,
   Box,
-  Tabs,
-  Tab,
-  Divider,
+  Grid,
   Card,
-  IconButton,
+  CardActionArea,
+  CardContent,
+  Avatar,
 } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  School as SchoolIcon,
+  MenuBook as MenuBookIcon,
+  Groups as GroupsIcon,
+  Shield as ShieldIcon,
+  AutoStories as AutoStoriesIcon,
+  Visibility as VisibilityIcon,
+} from '@mui/icons-material';
 
-interface SchoolClass {
-  id: string | number;
-  course_semester: number;
-  course_id: string;
-  turn: string;
-}
-
-interface Subject {
-  id: string | number;
-  name: string;
-}
-
-interface Course {
-  id: string | number;
-  name: string;
-}
+const dashboardCards = [
+  { title: 'Cursos', icon: SchoolIcon },
+  { title: 'Disciplinas', icon: MenuBookIcon },
+  { title: 'Turmas', icon: GroupsIcon },
+  { title: 'Gestão', icon: ShieldIcon },
+  { title: 'Gerar grades', icon: AutoStoriesIcon },
+  { title: 'Visualização das grades', icon: VisibilityIcon },
+];
 
 export default function DashboardPage() {
-  const [tabValue, setTabValue] = useState(0);
-  const [classes, setClasses] = useState<SchoolClass[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-
-  const uppercaseFirstLetter = (text: string) =>
-    text ? text.charAt(0).toUpperCase() + text.slice(1) : '';
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
+  const userName = 'Vera';
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Olá, {uppercaseFirstLetter('usuario')}!
-      </Typography>
-
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box
         sx={{
-          width: '100%',
-          mt: 3,
-          bgcolor: 'background.paper',
-          borderRadius: 1,
-          boxShadow: 1,
+          bgcolor: '#f4f6fa',
+          p: { xs: 3, md: 4 },
+          borderRadius: 4,
+          minHeight: 'calc(100vh - 64px)',
         }}
       >
-        <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth">
-          <Tab label="Turmas" />
-          <Tab label="Disciplinas" />
-          <Tab label="Cursos" />
-        </Tabs>
-        <Divider />
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+          Seja bem-vinda, {userName}
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
+          Painel de controle
+        </Typography>
 
-        <Box sx={{ p: 1, minHeight: '30vh' }}>
-          {/* ABA 0: TURMAS */}
-          {tabValue === 0 &&
-            classes.map((item) => (
-              <Box key={item.id}>
-                <Card
+        <Grid container spacing={3}>
+          {dashboardCards.map(({ title, icon: Icon }) => (
+            <Grid item xs={12} sm={6} md={4} key={title}>
+              <Card sx={{ borderRadius: 3, boxShadow: 2, overflow: 'hidden' }}>
+                <CardActionArea
                   sx={{
+                    py: 5,
+                    px: 2,
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    p: 3,
-                    boxShadow: 0,
                   }}
                 >
-                  <Typography sx={{ flexGrow: 1 }}>
-                    {item.course_semester}º período - {item.course_id} -{' '}
-                    {item.turn}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small" color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </Card>
-                <Divider />
-              </Box>
-            ))}
-
-          {/* ABA 1: DISCIPLINAS */}
-          {tabValue === 1 &&
-            subjects.map((item) => (
-              <Box key={item.id}>
-                <Card
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    p: 3,
-                    boxShadow: 0,
-                  }}
-                >
-                  <Typography sx={{ flexGrow: 1 }}>{item.name}</Typography>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small" color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </Card>
-                <Divider />
-              </Box>
-            ))}
-
-          {/* ABA 2: CURSOS */}
-          {tabValue === 2 &&
-            courses.map((item) => (
-              <Box key={item.id}>
-                <Card
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    p: 3,
-                    boxShadow: 0,
-                  }}
-                >
-                  <Typography sx={{ flexGrow: 1 }}>{item.name}</Typography>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small" color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </Card>
-                <Divider />
-              </Box>
-            ))}
-        </Box>
+                  <Avatar
+                    sx={{
+                      bgcolor: 'primary.main',
+                      width: 64,
+                      height: 64,
+                      mb: 2,
+                    }}
+                  >
+                    <Icon fontSize="large" />
+                  </Avatar>
+                  <CardContent sx={{ px: 2, py: 0 }}>
+                    <Typography
+                      variant="subtitle1"
+                      align="center"
+                      sx={{ fontWeight: 600 }}
+                    >
+                      {title}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Container>
   );
