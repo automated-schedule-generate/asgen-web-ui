@@ -153,7 +153,7 @@ export default function DashboardPage() {
           }}
         >
           <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-            Seja bem-vinda, {userName || 'Usuário'}
+            Seja bem-vindo, {userName || 'Usuário'}
           </Typography>
           <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
             Painel de controle
@@ -188,30 +188,30 @@ export default function DashboardPage() {
               >
                 <CardActionArea
                   sx={{
-                    py: 3,
+                    py: 4,
                     px: 2,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
+                    justifyContent: 'flex-start',
+                    gap: 3,
                     minHeight: 220,
                   }}
                 >
                   <Avatar
                     sx={{
-                      bgcolor: 'primary.main',
-                      width: 48,
-                      height: 48,
-                      mb: 2,
+                      bgcolor: '#000',
+                      width: 56,
+                      height: 56,
+                      color: '#fff',
                     }}
                   >
                     <Icon fontSize="medium" />
                   </Avatar>
-                  <CardContent sx={{ px: 2, py: 0, width: '100%' }}>
+                  <CardContent sx={{ px: 2, py: 0, textAlign: 'center' }}>
                     <Typography
-                      variant="subtitle2"
-                      align="center"
-                      sx={{ fontWeight: 600 }}
+                      variant="body2"
+                      sx={{ fontWeight: 700, color: '#333' }}
                     >
                       {title}
                     </Typography>
