@@ -35,6 +35,9 @@ export function AuthForm({
   async function submit(data: AuthType) {
     try {
       await login(data);
+      window.localStorage.setItem('userEmail', data.email);
+      const userLabel = data.email.split('@')[0];
+      window.localStorage.setItem('userName', userLabel);
     } catch (error) {
       console.log('Login failed:', error);
       return;
