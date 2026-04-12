@@ -164,10 +164,11 @@ export default function DashboardPage() {
               display: 'grid',
               gap: 3,
               justifyContent: 'center',
+              gridAutoRows: '1fr',
               gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, minmax(0, 240px))',
-                md: 'repeat(3, minmax(0, 240px))',
+                xs: 'repeat(2, minmax(0, 180px))',
+                sm: 'repeat(3, minmax(0, 180px))',
+                md: 'repeat(3, minmax(0, 220px))',
               },
             }}
           >
@@ -179,30 +180,36 @@ export default function DashboardPage() {
                   boxShadow: 2,
                   overflow: 'hidden',
                   width: '100%',
+                  maxWidth: 220,
+                  minHeight: 220,
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
                 <CardActionArea
                   sx={{
-                    py: 4,
+                    py: 3,
                     px: 2,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    justifyContent: 'space-between',
+                    minHeight: 220,
                   }}
                 >
                   <Avatar
                     sx={{
                       bgcolor: 'primary.main',
-                      width: 56,
-                      height: 56,
+                      width: 48,
+                      height: 48,
                       mb: 2,
                     }}
                   >
-                    <Icon fontSize="large" />
+                    <Icon fontSize="medium" />
                   </Avatar>
-                  <CardContent sx={{ px: 2, py: 0 }}>
+                  <CardContent sx={{ px: 2, py: 0, width: '100%' }}>
                     <Typography
-                      variant="subtitle1"
+                      variant="subtitle2"
                       align="center"
                       sx={{ fontWeight: 600 }}
                     >
