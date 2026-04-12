@@ -18,7 +18,6 @@ import {
   AutoStories as AutoStoriesIcon,
   Visibility as VisibilityIcon,
   Home as HomeIcon,
-  AccountCircle as AccountCircleIcon,
 } from '@mui/icons-material';
 
 const dashboardCards = [
@@ -37,22 +36,37 @@ const sidebarItems = [
   { label: 'Turmas', icon: GroupsIcon },
 ];
 
+const formatName = (name: string) =>
+  name
+    .trim()
+    .split(/\s+/)
+    .map(
+      (word) => `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`,
+    )
+    .join(' ');
+
 export default function DashboardPage() {
-  const [userName, setUserName] = useState(() => {
+  const [userName] = useState(() => {
     if (typeof window === 'undefined') {
       return 'Usuário';
     }
 
     const storedName = window.localStorage.getItem('userName');
     if (storedName) {
-      return storedName;
+      return formatName(storedName);
     }
 
-    const defaultName = window.localStorage.getItem('userEmail')
-      ? (window.localStorage.getItem('userEmail')?.split('@')[0] ?? '')
-      : '';
-    return defaultName || 'Usuário';
+    const email = window.localStorage.getItem('userEmail') || '';
+    const defaultName = email ? email.split('@')[0] : '';
+    return defaultName ? formatName(defaultName) : 'Usuário';
   });
+
+  const initials = userName
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word[0].toUpperCase())
+    .slice(0, 2)
+    .join('');
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#e8edf5' }}>
@@ -114,8 +128,15 @@ export default function DashboardPage() {
               boxShadow: 1,
             }}
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-              <AccountCircleIcon />
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: 'primary.main',
+                color: '#fff',
+              }}
+            >
+              {initials || 'U'}
             </Avatar>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
               {userName || 'Usuário'}
