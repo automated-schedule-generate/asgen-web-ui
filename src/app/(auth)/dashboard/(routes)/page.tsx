@@ -162,13 +162,23 @@ export default function DashboardPage() {
           ))}
         </Box>
 
-        <Container maxWidth="xl" sx={{ py: 3, px: 4 }}>
+        <Container
+          maxWidth="lg"
+          sx={{
+            py: 2,
+            px: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <Box
             sx={{
               bgcolor: '#fff',
               borderRadius: 4,
               boxShadow: 2,
-              p: { xs: 3, md: 4 },
+              p: 3,
+              width: 'fit-content',
             }}
           >
             <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
@@ -185,14 +195,10 @@ export default function DashboardPage() {
             <Box
               sx={{
                 display: 'grid',
-                gap: 2,
+                gap: 3,
                 justifyContent: 'center',
                 gridAutoRows: '1fr',
-                gridTemplateColumns: {
-                  xs: 'repeat(2, minmax(0, 140px))',
-                  sm: 'repeat(3, minmax(0, 140px))',
-                  md: 'repeat(3, minmax(0, 160px))',
-                },
+                gridTemplateColumns: 'repeat(3, 1fr)',
               }}
             >
               {dashboardCards.map(({ title, icon: Icon }) => (
@@ -202,38 +208,37 @@ export default function DashboardPage() {
                     borderRadius: 3,
                     boxShadow: 1,
                     overflow: 'hidden',
-                    width: '100%',
-                    maxWidth: 160,
-                    minHeight: 160,
+                    width: 200,
+                    height: 200,
                     display: 'flex',
                     flexDirection: 'column',
                   }}
                 >
                   <CardActionArea
                     sx={{
-                      py: 2,
-                      px: 1,
+                      py: 3,
+                      px: 2,
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'flex-start',
-                      gap: 1.5,
-                      minHeight: 160,
+                      justifyContent: 'center',
+                      gap: 2,
+                      height: '100%',
                     }}
                   >
                     <Avatar
                       sx={{
                         bgcolor: '#2c5aa0',
-                        width: 48,
-                        height: 48,
+                        width: 64,
+                        height: 64,
                         color: '#fff',
                       }}
                     >
-                      <Icon fontSize="small" />
+                      <Icon fontSize="large" />
                     </Avatar>
                     <CardContent sx={{ px: 1, py: 0, textAlign: 'center' }}>
                       <Typography
-                        variant="caption"
+                        variant="body2"
                         sx={{ fontWeight: 600, color: '#333' }}
                       >
                         {title}
