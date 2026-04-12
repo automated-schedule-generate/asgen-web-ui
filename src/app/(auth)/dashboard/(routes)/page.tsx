@@ -69,159 +69,169 @@ export default function DashboardPage() {
     .join('');
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#e8edf5' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Box
-        component="nav"
+        component="header"
         sx={{
-          width: 88,
           bgcolor: '#2c5aa0',
           color: '#f7fafc',
+          px: 3,
+          py: 2,
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          py: 3,
-          gap: 2,
+          justifyContent: 'space-between',
+          boxShadow: 2,
         }}
       >
-        <Avatar
-          sx={{ bgcolor: '#fff', color: '#1f3650', width: 48, height: 48 }}
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 700, fontSize: '1.5rem', letterSpacing: 0.5 }}
         >
-          AS
-        </Avatar>
-        {sidebarItems.map(({ label, icon: Icon }) => (
-          <IconButton
-            key={label}
-            sx={{
-              color: '#f7fafc',
-              bgcolor: '#2c5aa0',
-              borderRadius: 2,
-              '&:hover': { bgcolor: '#1e3a7a' },
-            }}
-            aria-label={label}
-          >
-            <Icon />
-          </IconButton>
-        ))}
-      </Box>
-
-      <Container maxWidth="xl" sx={{ py: 3, px: 4 }}>
+          ASgen
+        </Typography>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            mb: 3,
+            gap: 1.5,
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            ASgen
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {userName || 'Usuário'}
           </Typography>
-          <Box
+          <Avatar
             sx={{
-              bgcolor: 'background.paper',
-              px: 2,
-              py: 1,
-              borderRadius: 3,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              boxShadow: 1,
+              width: 36,
+              height: 36,
+              bgcolor: '#2c5aa0',
+              color: '#fff',
+              fontWeight: 600,
             }}
           >
-            <Avatar
+            {initials || 'U'}
+          </Avatar>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', flex: 1, bgcolor: '#e8edf5' }}>
+        <Box
+          component="nav"
+          sx={{
+            width: 88,
+            bgcolor: '#2c5aa0',
+            color: '#f7fafc',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            py: 3,
+            gap: 2,
+          }}
+        >
+          <Avatar
+            sx={{ bgcolor: '#fff', color: '#1f3650', width: 48, height: 48 }}
+          >
+            AS
+          </Avatar>
+          {sidebarItems.map(({ label, icon: Icon }) => (
+            <IconButton
+              key={label}
               sx={{
-                width: 32,
-                height: 32,
+                color: '#f7fafc',
                 bgcolor: '#2c5aa0',
-                color: '#fff',
+                borderRadius: 2,
+                '&:hover': { bgcolor: '#1e3a7a' },
+              }}
+              aria-label={label}
+            >
+              <Icon />
+            </IconButton>
+          ))}
+        </Box>
+
+        <Container maxWidth="xl" sx={{ py: 3, px: 4 }}>
+          <Box
+            sx={{
+              bgcolor: '#fff',
+              borderRadius: 4,
+              boxShadow: 2,
+              p: { xs: 3, md: 4 },
+            }}
+          >
+            <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
+              Seja bem-vindo, {userName || 'Usuário'}
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              sx={{ mb: 4 }}
+            >
+              Painel de controle
+            </Typography>
+
+            <Box
+              sx={{
+                display: 'grid',
+                gap: 2,
+                justifyContent: 'center',
+                gridAutoRows: '1fr',
+                gridTemplateColumns: {
+                  xs: 'repeat(2, minmax(0, 140px))',
+                  sm: 'repeat(3, minmax(0, 140px))',
+                  md: 'repeat(3, minmax(0, 160px))',
+                },
               }}
             >
-              {initials || 'U'}
-            </Avatar>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              {userName || 'Usuário'}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            bgcolor: '#fff',
-            borderRadius: 4,
-            boxShadow: 2,
-            p: { xs: 3, md: 4 },
-          }}
-        >
-          <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-            Seja bem-vindo, {userName || 'Usuário'}
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
-            Painel de controle
-          </Typography>
-
-          <Box
-            sx={{
-              display: 'grid',
-              gap: 2,
-              justifyContent: 'center',
-              gridAutoRows: '1fr',
-              gridTemplateColumns: {
-                xs: 'repeat(2, minmax(0, 140px))',
-                sm: 'repeat(3, minmax(0, 140px))',
-                md: 'repeat(3, minmax(0, 160px))',
-              },
-            }}
-          >
-            {dashboardCards.map(({ title, icon: Icon }) => (
-              <Card
-                key={title}
-                sx={{
-                  borderRadius: 3,
-                  boxShadow: 1,
-                  overflow: 'hidden',
-                  width: '100%',
-                  maxWidth: 160,
-                  minHeight: 160,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <CardActionArea
+              {dashboardCards.map(({ title, icon: Icon }) => (
+                <Card
+                  key={title}
                   sx={{
-                    py: 2,
-                    px: 1,
+                    borderRadius: 3,
+                    boxShadow: 1,
+                    overflow: 'hidden',
+                    width: '100%',
+                    maxWidth: 160,
+                    minHeight: 160,
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    gap: 1.5,
-                    minHeight: 160,
                   }}
                 >
-                  <Avatar
+                  <CardActionArea
                     sx={{
-                      bgcolor: '#2c5aa0',
-                      width: 48,
-                      height: 48,
-                      color: '#fff',
+                      py: 2,
+                      px: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                      gap: 1.5,
+                      minHeight: 160,
                     }}
                   >
-                    <Icon fontSize="small" />
-                  </Avatar>
-                  <CardContent sx={{ px: 1, py: 0, textAlign: 'center' }}>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 600, color: '#333' }}
+                    <Avatar
+                      sx={{
+                        bgcolor: '#2c5aa0',
+                        width: 48,
+                        height: 48,
+                        color: '#fff',
+                      }}
                     >
-                      {title}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            ))}
+                      <Icon fontSize="small" />
+                    </Avatar>
+                    <CardContent sx={{ px: 1, py: 0, textAlign: 'center' }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ fontWeight: 600, color: '#333' }}
+                      >
+                        {title}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              ))}
+            </Box>
           </Box>
-        </Box>
-      </Container>
+        </Container>
+      </Box>
     </Box>
   );
 }
