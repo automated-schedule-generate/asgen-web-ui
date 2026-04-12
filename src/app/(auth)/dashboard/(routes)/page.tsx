@@ -4,12 +4,12 @@ import {
   Container,
   Typography,
   Box,
-  Grid,
   Card,
   CardActionArea,
   CardContent,
   Avatar,
 } from '@mui/material';
+import Grid from '@mui/material/Unstable_Grid2';
 import {
   School as SchoolIcon,
   MenuBook as MenuBookIcon,
@@ -50,7 +50,7 @@ export default function DashboardPage() {
 
         <Grid container spacing={3}>
           {dashboardCards.map(({ title, icon: Icon }) => (
-            <Grid item xs={12} sm={6} md={4} key={title}>
+            <Grid xs={12} sm={6} md={4} key={title}>
               <Card sx={{ borderRadius: 3, boxShadow: 2, overflow: 'hidden' }}>
                 <CardActionArea
                   sx={{
