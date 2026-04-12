@@ -182,8 +182,12 @@ export default function DashboardPage() {
 
           <Typography
             variant="subtitle1"
-            color="text.secondary"
-            sx={{ mb: 4, fontWeight: 600, textAlign: 'center' }}
+            sx={{
+              mb: 4,
+              fontWeight: 600,
+              textAlign: 'center',
+              color: '#2c5aa0',
+            }}
           >
             Painel de controle
           </Typography>
@@ -193,7 +197,7 @@ export default function DashboardPage() {
               bgcolor: '#fff',
               borderRadius: 4,
               boxShadow: 2,
-              p: 3,
+              p: 4,
               width: 'fit-content',
             }}
           >
@@ -211,7 +215,8 @@ export default function DashboardPage() {
                   key={title}
                   sx={{
                     borderRadius: 3,
-                    boxShadow: 1,
+                    boxShadow: 'none',
+                    border: '1px solid #e0e0e0',
                     overflow: 'hidden',
                     width: 200,
                     height: 200,
