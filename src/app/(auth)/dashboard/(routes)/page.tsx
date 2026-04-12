@@ -162,13 +162,13 @@ export default function DashboardPage() {
           <Box
             sx={{
               display: 'grid',
-              gap: 3,
+              gap: 2,
               justifyContent: 'center',
               gridAutoRows: '1fr',
               gridTemplateColumns: {
-                xs: 'repeat(2, minmax(0, 180px))',
-                sm: 'repeat(3, minmax(0, 180px))',
-                md: 'repeat(3, minmax(0, 220px))',
+                xs: 'repeat(2, minmax(0, 140px))',
+                sm: 'repeat(3, minmax(0, 140px))',
+                md: 'repeat(3, minmax(0, 160px))',
               },
             }}
           >
@@ -177,41 +177,41 @@ export default function DashboardPage() {
                 key={title}
                 sx={{
                   borderRadius: 3,
-                  boxShadow: 2,
+                  boxShadow: 1,
                   overflow: 'hidden',
                   width: '100%',
-                  maxWidth: 220,
-                  minHeight: 220,
+                  maxWidth: 160,
+                  minHeight: 160,
                   display: 'flex',
                   flexDirection: 'column',
                 }}
               >
                 <CardActionArea
                   sx={{
-                    py: 4,
-                    px: 2,
+                    py: 2,
+                    px: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'flex-start',
-                    gap: 3,
-                    minHeight: 220,
+                    gap: 1.5,
+                    minHeight: 160,
                   }}
                 >
                   <Avatar
                     sx={{
-                      bgcolor: '#000',
-                      width: 56,
-                      height: 56,
+                      bgcolor: '#2f4f74',
+                      width: 48,
+                      height: 48,
                       color: '#fff',
                     }}
                   >
-                    <Icon fontSize="medium" />
+                    <Icon fontSize="small" />
                   </Avatar>
-                  <CardContent sx={{ px: 2, py: 0, textAlign: 'center' }}>
+                  <CardContent sx={{ px: 1, py: 0, textAlign: 'center' }}>
                     <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 700, color: '#333' }}
+                      variant="caption"
+                      sx={{ fontWeight: 600, color: '#333' }}
                     >
                       {title}
                     </Typography>
