@@ -77,7 +77,7 @@ export default function DashboardPage() {
       <Box
         component="header"
         sx={{
-          bgcolor: '#2c5aa0',
+          bgcolor: '#03017D',
           color: '#f7fafc',
           px: 3,
           py: 2,
