@@ -168,10 +168,26 @@ export default function DashboardPage() {
             py: 2,
             px: 2,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
+          <Typography
+            variant="h5"
+            sx={{ mb: 3, fontWeight: 700, color: '#333' }}
+          >
+            Seja bem-vindo, {userName || 'Usuário'}
+          </Typography>
+
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            sx={{ mb: 4, fontWeight: 600, textAlign: 'center' }}
+          >
+            Painel de controle
+          </Typography>
+
           <Box
             sx={{
               bgcolor: '#fff',
@@ -181,17 +197,6 @@ export default function DashboardPage() {
               width: 'fit-content',
             }}
           >
-            <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-              Seja bem-vindo, {userName || 'Usuário'}
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              color="text.secondary"
-              sx={{ mb: 4 }}
-            >
-              Painel de controle
-            </Typography>
-
             <Box
               sx={{
                 display: 'grid',
