@@ -1,273 +1,132 @@
 'use client';
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import {
-  Container,
-  Typography,
-  Box,
-  Card,
-  CardActionArea,
-  CardContent,
-  Avatar,
-  IconButton,
+import { 
+  Container, 
+  Typography, 
+  Box, 
+  Card, 
+  CardActionArea, 
+  Avatar, 
+  IconButton 
 } from '@mui/material';
-import {
-  School as SchoolIcon,
-  MenuBook as MenuBookIcon,
-  Groups as GroupsIcon,
-  Shield as ShieldIcon,
-  AutoStories as AutoStoriesIcon,
-  Visibility as VisibilityIcon,
+import { 
+  School as SchoolIcon, 
+  MenuBook as MenuBookIcon, 
+  Groups as GroupsIcon, 
+  Shield as ShieldIcon, 
+  Visibility as VisibilityIcon, 
   Home as HomeIcon,
+  AutoStories as AutoStoriesIcon
 } from '@mui/icons-material';
 
 const dashboardCards = [
-  { title: 'Cursos', icon: SchoolIcon },
-  { title: 'Disciplinas', icon: MenuBookIcon },
-  { title: 'Turmas', icon: GroupsIcon },
-  { title: 'Gestão', icon: ShieldIcon },
-  { title: 'Gerar grades', icon: AutoStoriesIcon },
-  { title: 'Visualização das grades', icon: VisibilityIcon },
+  { title: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Disciplinas', icon: <MenuBookIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Gestão', icon: <ShieldIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Gerar grades', icon: <AutoStoriesIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Visualização das grades', icon: <VisibilityIcon sx={{ fontSize: 30 }} /> },
 ];
 
 const sidebarItems = [
-  { label: 'Home', icon: HomeIcon },
-  { label: 'Cursos', icon: SchoolIcon },
-  { label: 'Disciplinas', icon: MenuBookIcon },
-  { label: 'Turmas', icon: GroupsIcon },
-  { label: 'Gestão', icon: ShieldIcon },
-  { label: 'Gerar grades', icon: AutoStoriesIcon },
-  { label: 'Visualização das grades', icon: VisibilityIcon },
+  { label: 'Home', icon: <HomeIcon sx={{ fontSize: 24 }} /> },
+  { label: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 24 }} /> },
+  { label: 'Disciplinas', icon: <MenuBookIcon sx={{ fontSize: 24 }} /> },
+  { label: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 24 }} /> },
+  { label: 'Gestão', icon: <ShieldIcon sx={{ fontSize: 24 }} /> },
+  { label: 'Gerar grades', icon: <AutoStoriesIcon sx={{ fontSize: 24 }} /> },
+  { label: 'Visualização das grades', icon: <VisibilityIcon sx={{ fontSize: 24 }} /> },
 ];
 
 const formatName = (name: string) =>
-  name
-    .trim()
-    .split(/\s+/)
-    .map(
-      (word) => `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`,
-    )
-    .join(' ');
+  name.trim().split(/\s+/).map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`).join(' ');
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('Home');
+  const [userName, setUserName] = useState('Usuário');
 
-  const [userName] = useState(() => {
-    if (typeof window === 'undefined') return 'Usuário';
+  useEffect(() => {
     const storedName = window.localStorage.getItem('userName');
-    if (storedName) return formatName(storedName);
     const email = window.localStorage.getItem('userEmail') || '';
-    const defaultName = email ? email.split('@')[0] : '';
-    return defaultName ? formatName(defaultName) : 'Usuário';
-  });
+    const rawName = storedName || (email ? email.split('@')[0] : 'Usuário');
+    const finalName = formatName(rawName);
 
-  const initials = userName
-    .split(' ')
-    .filter(Boolean)
-    .map((word) => word[0].toUpperCase())
-    .slice(0, 2)
-    .join('');
+    if (finalName !== userName) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUserName(finalName);
+    }
+  }, [userName]);
+
+  const initials = userName.charAt(0).toUpperCase();
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        bgcolor: '#e8edf5',
-      }}
-    >
-      {/* HEADER SUPERIOR */}
-      <Box
-        component="header"
-        sx={{
-          bgcolor: '#03017D',
-          color: '#fff',
-          px: 3,
-          py: 1.5,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          zIndex: 1100,
-          boxShadow: 3,
-        }}
-      >
-        <Image
-          src="/images/asgen-horizontal-light.svg"
-          alt="ASgen"
-          width={140}
-          height={35}
-          style={{ width: 'auto', height: '35px' }}
-        />
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            bgcolor: 'rgba(255,255,255,0.1)',
-            px: 2,
-            py: 0.5,
-            borderRadius: 10,
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 700, textTransform: 'uppercase' }}
-          >
-            {userName}
-          </Typography>
-          <Avatar
-            sx={{
-              width: 35,
-              height: 35,
-              bgcolor: '#fff',
-              color: '#03017D',
-              fontWeight: 700,
-              fontSize: '0.8rem',
-            }}
-          >
-            {initials}
-          </Avatar>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#e8edf5' }}>
+      <Box component="header" sx={{ bgcolor: '#03017D', color: '#fff', px: 3, py: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1100 }}>
+        <Image src="/images/asgen-horizontal-light.svg" alt="ASgen" width={120} height={30} style={{ width: 'auto', height: '30px' }} unoptimized />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: 'rgba(255,255,255,0.1)', px: 2, py: 0.5, borderRadius: 10 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>{userName.toUpperCase()}</Typography>
+          <Avatar sx={{ width: 32, height: 32, bgcolor: '#fff', color: '#03017D', fontWeight: 700, fontSize: '0.9rem' }}>{initials}</Avatar>
         </Box>
       </Box>
 
       <Box sx={{ display: 'flex', flex: 1 }}>
-        {/* SIDEBAR LATERAL */}
-        <Box
-          component="nav"
-          sx={{
-            width: 80,
-            bgcolor: '#03017D',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            py: 3,
-            gap: 2,
-          }}
-        >
-          {sidebarItems.map(({ label, icon: Icon }) => (
-            <IconButton
-              key={label}
-              onClick={() => setActiveTab(label)}
-              sx={{
-                color: '#fff',
-                bgcolor: activeTab === label ? '#020159' : 'transparent',
-                borderRadius: 2,
-                border: activeTab === label ? '1px solid #fff' : 'none',
-                '&:hover': { bgcolor: '#020159' },
-                p: 1.5,
-              }}
-              aria-label={label}
+        <Box component="nav" sx={{ width: 70, bgcolor: '#03017D', display: 'flex', flexDirection: 'column', alignItems: 'center', py: 3, gap: 2 }}>
+          {sidebarItems.map(({ label, icon }) => (
+            <IconButton 
+              key={label} 
+              onClick={() => setActiveTab(label)} 
+              sx={{ color: '#fff', bgcolor: activeTab === label ? '#020159' : 'transparent', borderRadius: 2, p: 1 }}
             >
-              <Icon sx={{ fontSize: 24 }} />
+              {icon}
             </IconButton>
           ))}
         </Box>
 
-        {/* CONTEÚDO PRINCIPAL */}
-        <Box
-          component="main"
-          sx={{
-            flex: 1,
-            p: { xs: 2, md: 4 },
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {/* TÍTULO FORA DO CARD (ALINHADO À ESQUERDA) */}
-          <Box sx={{ maxWidth: 1100, width: '100%', mx: 'auto', mb: 3 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                color: '#333',
-                fontSize: { xs: '1.5rem', md: '1.8rem' },
-              }}
-            >
+        <Box component="main" sx={{ flex: 1, p: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ width: '100%', maxWidth: 650, mb: 4 }}>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#333' }}>
               Seja bem-vindo, {userName}
             </Typography>
           </Box>
 
-          {/* LAYOUT BRANCO (CONTAINER DOS CARDS) */}
           <Container
-            maxWidth="lg"
             sx={{
               bgcolor: '#fff',
-              borderRadius: 4,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-              p: { xs: 3, md: 5 },
+              borderRadius: 6, 
+              p: 4,
               mx: 'auto',
-              flex: 1,
-              maxWidth: '1100px !important',
+              maxWidth: '650px !important', 
+              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
             }}
           >
-            {/* TÍTULO CENTRALIZADO DENTRO DO PAINEL BRANCO */}
-            <Typography
-              variant="subtitle1"
-              sx={{
-                mb: 4,
-                fontWeight: 600,
-                color: 'text.secondary',
-                textTransform: 'uppercase',
-                letterSpacing: 1,
-                textAlign: 'center', // Centralização solicitada
-              }}
-            >
+            <Typography variant="h6" sx={{ mb: 4, fontWeight: 700, color: '#444', textAlign: 'center', fontSize: '1.3rem' }}>
               Painel de controle
             </Typography>
 
-            <Box
-              sx={{
-                display: 'grid',
-                gap: 3,
-                gridTemplateColumns: {
-                  xs: '1fr',
-                  sm: 'repeat(2, 1fr)',
-                  md: 'repeat(3, 1fr)',
-                },
-              }}
-            >
-              {dashboardCards.map(({ title, icon: Icon }) => (
+            <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(3, 1fr)' }, justifyItems: 'center' }}>
+              {dashboardCards.map(({ title, icon }) => (
                 <Card
                   key={title}
                   sx={{
-                    borderRadius: 3,
-                    border: '1px solid #eee',
+                    borderRadius: 5,
+                    border: '1px solid #f0f0f0',
                     boxShadow: 'none',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-5px)',
-                      boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-                      borderColor: '#03017D',
-                    },
+                    width: '100%', 
+                    maxWidth: '160px', 
+                    aspectRatio: '1 / 1', 
+                    transition: 'all 0.2s',
+                    '&:hover': { transform: 'translateY(-4px)', borderColor: '#03017D' },
                   }}
                 >
-                  <CardActionArea
-                    sx={{
-                      py: 4,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 2,
-                    }}
-                  >
-                    <Avatar
-                      sx={{
-                        bgcolor: '#03017D',
-                        width: 60,
-                        height: 60,
-                        boxShadow: '0 4px 10px rgba(3, 1, 125, 0.2)',
-                      }}
-                    >
-                      <Icon fontSize="large" />
+                  <CardActionArea sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 1 }}>
+                    <Avatar sx={{ bgcolor: '#03017D', width: 55, height: 55, mb: 1.5 }}>
+                      {icon}
                     </Avatar>
-                    <CardContent sx={{ p: 0 }}>
-                      <Typography
-                        variant="body1"
-                        sx={{ fontWeight: 700, color: '#333' }}
-                      >
-                        {title}
-                      </Typography>
-                    </CardContent>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#333', textAlign: 'center', fontSize: '0.8rem', lineHeight: 1.2 }}>
+                      {title}
+                    </Typography>
                   </CardActionArea>
                 </Card>
               ))}

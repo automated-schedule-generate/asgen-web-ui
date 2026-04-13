@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Logo } from '@/components/layout/logo.component';
+import Logo from '@/components/layout/logo.component';
 import { Button, Toolbar, AppBar } from '@mui/material';
 import { AuthForm } from '@/app/(auth)/auth/_components/auth-form.component';
 import { RegisterForm } from '@/app/(auth)/users/_components/register-form.component';

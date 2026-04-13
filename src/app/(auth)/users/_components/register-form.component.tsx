@@ -25,7 +25,7 @@ import {
   VisibilityOff,
   Close,
 } from '@mui/icons-material';
-import { Logo } from '@/components/layout/logo.component';
+import Logo from '@/components/layout/logo.component';
 import { UserType, userSchema } from '../_schemas/user.schema';
 import { register } from '../_services/user.service';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
@@ -37,6 +37,7 @@ export function RegisterForm({
 }: {
   open: boolean;
   onClose: () => void;
+  openAuthDialog: () => void;
 }) {
   const { control, handleSubmit, watch, trigger } = useFormWithZod(userSchema);
   const router = useRouter();
@@ -50,6 +51,7 @@ export function RegisterForm({
 
   React.useEffect(() => {
     if (password) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       trigger('confirmPassword');
     }
   }, [password, trigger]);
@@ -57,11 +59,12 @@ export function RegisterForm({
   const steps = ['Identificação', 'Informações Pessoais', 'Definição de senha'];
   const [activeStep, setActiveStep] = useState(0);
 
-  const stepFields = [
+  const stepFields: (keyof UserType)[][] = [
     ['name', 'surname'],
     ['cpf', 'email'],
     ['password', 'confirmPassword'],
   ];
+
   const handleNext = async () => {
     const isValid = await trigger(stepFields[activeStep]);
 
@@ -69,11 +72,16 @@ export function RegisterForm({
       setActiveStep((prev) => prev + 1);
     }
   };
+
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
   async function submit(data: UserType) {
-    await register(data);
-    router.push('/dashboard');
+    try {
+      await register(data);
+      router.push('/dashboard');
+    } catch (error: unknown) {
+      console.error(error);
+    }
   }
 
   return (
@@ -197,7 +205,7 @@ export function RegisterForm({
                       <OutlinedInput
                         {...field}
                         id="cpf"
-                        inputComponent={IMaskInput as any}
+                        inputComponent={IMaskInput as React.ElementType}
                         inputProps={{
                           mask: '000.000.000-00',
                         }}
@@ -331,12 +339,13 @@ export function RegisterForm({
         </Box>
       </DialogActions>
       <Box sx={{ px: 3, py: 2, textAlign: 'center' }}>
-        <a
+        <button
+          type="button"
           onClick={() => openAuthDialog()}
           className="text-sm text-blue-500 text-center"
         >
           Já tem uma conta? Faça login.
-        </a>
+        </button>
       </Box>
     </Dialog>
   );

@@ -15,7 +15,7 @@ import {
   Box,
 } from '@mui/material';
 import { Visibility, VisibilityOff, Close } from '@mui/icons-material';
-import { Logo } from '@/components/layout/logo.component';
+import Logo from '@/components/layout/logo.component';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 
 export function AuthForm({
