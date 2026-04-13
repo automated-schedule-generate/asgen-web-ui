@@ -85,6 +85,8 @@ export default function DashboardPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 2,
           boxShadow: 2,
         }}
       >
@@ -93,7 +95,7 @@ export default function DashboardPage() {
           alt="ASgen"
           width={160}
           height={40}
-          style={{ width: 'auto', height: '40px' }}
+          style={{ width: 'auto', height: '40px', maxWidth: '160px' }}
         />
         <Box
           sx={{
@@ -106,6 +108,7 @@ export default function DashboardPage() {
             borderRadius: 999,
             boxShadow: '0 10px 20px rgba(0, 0, 0, 0.12)',
             whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
           <Typography
@@ -145,8 +148,8 @@ export default function DashboardPage() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            py: 3,
-            gap: 2,
+            py: 2.5,
+            gap: 1.25,
           }}
         >
           {sidebarItems.map(({ label, icon: Icon }) => (
@@ -159,10 +162,12 @@ export default function DashboardPage() {
                 borderRadius: 2,
                 border: activeTab === label ? '2px solid #fff' : 'none',
                 '&:hover': { bgcolor: '#020159' },
+                p: 1.25,
+                minWidth: 0,
               }}
               aria-label={label}
             >
-              <Icon />
+              <Icon sx={{ fontSize: 26 }} />
             </IconButton>
           ))}
         </Box>
@@ -170,17 +175,21 @@ export default function DashboardPage() {
         <Container
           maxWidth="lg"
           sx={{
-            py: 2,
-            px: 2,
+            flex: 1, // Faz ocupar o espaço restante
+            my: 4, // Margem em cima e embaixo para não colar nas bordas
+            mx: 'auto',
+            bgcolor: '#fff', // Fundo branco do painel
+            borderRadius: 4, // Bordas arredondadas
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)', // Sombra suave
+            p: { xs: 2, md: 4 }, // Espaçamento interno responsivo
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
           }}
         >
           <Typography
             variant="h5"
-            sx={{ mb: 3, fontWeight: 700, color: '#333' }}
+            sx={{ mb: 1, fontWeight: 700, color: '#333', textAlign: 'center' }}
           >
             Seja bem-vindo, {userName || 'Usuário'}
           </Typography>
@@ -193,72 +202,47 @@ export default function DashboardPage() {
             Painel de controle
           </Typography>
 
+          {/* O Grid de cards agora fica direto aqui dentro */}
           <Box
             sx={{
-              bgcolor: '#fff',
-              borderRadius: 4,
-              boxShadow: 2,
-              p: 4,
-              width: 'fit-content',
+              display: 'grid',
+              gap: 3,
+              width: '100%',
+              justifyContent: 'center',
+              gridTemplateColumns: {
+                xs: 'repeat(1, minmax(200px, 1fr))',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+              },
             }}
           >
-            <Box
-              sx={{
-                display: 'grid',
-                gap: 3,
-                justifyContent: 'center',
-                gridAutoRows: '1fr',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-              }}
-            >
-              {dashboardCards.map(({ title, icon: Icon }) => (
-                <Card
-                  key={title}
+            {dashboardCards.map(({ title, icon: Icon }) => (
+              <Card
+                key={title}
+                sx={{
+                  borderRadius: 3,
+                  border: '1px solid #e0e0e0',
+                  transition: 'transform 0.2s',
+                  '&:hover': { transform: 'translateY(-4px)', boxShadow: 2 },
+                }}
+              >
+                <CardActionArea
                   sx={{
-                    borderRadius: 3,
-                    boxShadow: 'none',
-                    border: '1px solid #e0e0e0',
-                    overflow: 'hidden',
-                    width: 200,
-                    height: 200,
+                    py: 4,
                     display: 'flex',
                     flexDirection: 'column',
+                    gap: 2,
                   }}
                 >
-                  <CardActionArea
-                    sx={{
-                      py: 3,
-                      px: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 2,
-                      height: '100%',
-                    }}
-                  >
-                    <Avatar
-                      sx={{
-                        bgcolor: '#03017D',
-                        width: 64,
-                        height: 64,
-                        color: '#fff',
-                      }}
-                    >
-                      <Icon fontSize="large" />
-                    </Avatar>
-                    <CardContent sx={{ px: 1, py: 0, textAlign: 'center' }}>
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: 600, color: '#333' }}
-                      >
-                        {title}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              ))}
-            </Box>
+                  <Avatar sx={{ bgcolor: '#03017D', width: 56, height: 56 }}>
+                    <Icon fontSize="large" />
+                  </Avatar>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    {title}
+                  </Typography>
+                </CardActionArea>
+              </Card>
+            ))}
           </Box>
         </Container>
       </Box>
