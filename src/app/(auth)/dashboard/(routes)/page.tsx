@@ -201,6 +201,7 @@ export default function DashboardPage() {
               maxWidth: '1100px !important',
             }}
           >
+            {/* TÍTULO CENTRALIZADO DENTRO DO PAINEL BRANCO */}
             <Typography
               variant="subtitle1"
               sx={{
@@ -209,6 +210,7 @@ export default function DashboardPage() {
                 color: 'text.secondary',
                 textTransform: 'uppercase',
                 letterSpacing: 1,
+                textAlign: 'center', // Centralização solicitada
               }}
             >
               Painel de controle
