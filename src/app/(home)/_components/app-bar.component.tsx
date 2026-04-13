@@ -1,61 +1,80 @@
 'use client';
-import React from 'react';
+
+import React, { useState } from 'react';
 import Logo from '@/components/layout/logo.component';
-import { Button, Toolbar, AppBar } from '@mui/material';
+import { Button, Toolbar, AppBar, Box, Container } from '@mui/material';
 import { AuthForm } from '@/app/(auth)/auth/_components/auth-form.component';
 import { RegisterForm } from '@/app/(auth)/users/_components/register-form.component';
-
 export function HomeAppBar() {
-  const [openAuthDialog, setOpenAuthDialog] = React.useState(false);
-  const [openRegisterDialog, setOpenRegisterDialog] = React.useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
 
-  const handleOpenAuthDialog = () => {
-    setOpenAuthDialog(true);
-    if (openRegisterDialog) {
-      setOpenRegisterDialog(false);
-    }
+  const handleOpenAuth = () => {
+    setRegisterDialogOpen(false);
+    setAuthDialogOpen(true);
   };
 
-  const handleOpenRegisterDialog = () => {
-    setOpenRegisterDialog(true);
-    if (openAuthDialog) {
-      setOpenAuthDialog(false);
-    }
+  const handleOpenRegister = () => {
+    setAuthDialogOpen(false);
+    setRegisterDialogOpen(true);
   };
 
   return (
-    <div className="layout-container">
-      <AppBar position="static" color="default" elevation={0}>
-        <Toolbar>
-          <Logo orientation="horizontal" theme="dark" width={200} />
-          <div className="flex flex-row gap-2 ml-auto">
+    <AppBar
+      position="sticky"
+      sx={{
+        bgcolor: '#fff',
+        boxShadow: 'none',
+        borderBottom: '1px solid #eee',
+      }}
+    >
+      <Container maxWidth="lg">
+        <Toolbar
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            px: '0 !important',
+          }}
+        >
+          <Logo theme="dark" width={140} />
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
             <Button
-              onClick={handleOpenAuthDialog}
-              color="secondary"
-              variant="contained"
+              variant="text"
+              onClick={handleOpenAuth}
+              sx={{ color: '#333', textTransform: 'none', fontWeight: 600 }}
             >
               Fazer Login
             </Button>
-            <AuthForm
-              open={openAuthDialog}
-              onClose={() => setOpenAuthDialog(false)}
-              openRegisterDialog={handleOpenRegisterDialog}
-            />
             <Button
-              onClick={handleOpenRegisterDialog}
-              color="secondary"
               variant="contained"
+              onClick={handleOpenRegister}
+              sx={{
+                bgcolor: '#03017D',
+                textTransform: 'none',
+                fontWeight: 700,
+                borderRadius: 2,
+                px: 3,
+              }}
             >
-              Registrar
+              Cadastre-se
             </Button>
-            <RegisterForm
-              open={openRegisterDialog}
-              onClose={() => setOpenRegisterDialog(false)}
-              openAuthDialog={handleOpenAuthDialog}
-            />
-          </div>
+          </Box>
         </Toolbar>
-      </AppBar>
-    </div>
+      </Container>
+
+      {/* COMPONENTES DOS POP-UPS */}
+      <AuthForm
+        open={authDialogOpen}
+        onClose={() => setAuthDialogOpen(false)}
+        openRegisterDialog={handleOpenRegister}
+      />
+
+      <RegisterForm
+        open={registerDialogOpen}
+        onClose={() => setRegisterDialogOpen(false)}
+        openAuthDialog={handleOpenAuth}
+      />
+    </AppBar>
   );
 }

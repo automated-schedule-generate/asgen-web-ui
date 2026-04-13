@@ -13,6 +13,7 @@ import {
   IconButton,
   Button,
   Box,
+  Typography,
 } from '@mui/material';
 import { Visibility, VisibilityOff, Close } from '@mui/icons-material';
 import Logo from '@/components/layout/logo.component';
@@ -25,6 +26,7 @@ export function AuthForm({
 }: {
   open: boolean;
   onClose: () => void;
+  openRegisterDialog: () => void; // Adicionei o tipo aqui
 }) {
   const { control, handleSubmit } = useFormWithZod(authSchema);
   const router = useRouter();
@@ -38,85 +40,118 @@ export function AuthForm({
       window.localStorage.setItem('userEmail', data.email);
       const userLabel = data.email.split('@')[0];
       window.localStorage.setItem('userName', userLabel);
+
+      // Fecha o modal antes de redirecionar
+      onClose();
+      router.push('/dashboard');
     } catch (error) {
       console.log('Login failed:', error);
-      return;
     }
-    router.push('/dashboard');
   }
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <IconButton
         aria-label="close"
         onClick={onClose}
-        sx={(theme) => ({
+        sx={{
           position: 'absolute',
           right: 8,
           top: 8,
-          color: theme.palette.grey[500],
-        })}
+          color: (theme) => theme.palette.grey[500],
+        }}
       >
         <Close />
       </IconButton>
-      <DialogContent className="w-[500px]">
-        <div className="flex justify-center mt-4 mb-6">
+
+      <DialogContent sx={{ p: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <Logo orientation="vertical" theme="dark" />
-        </div>
-        <h2 className="text-2xl text-center font-bold mb-4">Login</h2>
-        <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <label htmlFor="email">Email</label>
-            <Controller
-              name="email"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <OutlinedInput
-                  {...field}
-                  id="email"
-                  type="email"
-                  placeholder="Email"
-                />
-              )}
-            />
-            <label htmlFor="password">Password</label>
-            <Controller
-              name="password"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <OutlinedInput
-                  {...field}
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={
-                          showPassword ? 'Esconder senha' : 'Mostrar senha'
-                        }
-                        onClick={handleClickShowPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                />
-              )}
-            />
+        </Box>
+
+        <Typography
+          variant="h5"
+          textAlign="center"
+          fontWeight="bold"
+          gutterBottom
+        >
+          Login
+        </Typography>
+
+        <form onSubmit={handleSubmit(submit)}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box>
+              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                Email
+              </Typography>
+              <Controller
+                name="email"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <OutlinedInput
+                    {...field}
+                    fullWidth
+                    size="small"
+                    type="email"
+                    placeholder="Seu email"
+                  />
+                )}
+              />
+            </Box>
+
+            <Box>
+              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                Senha
+              </Typography>
+              <Controller
+                name="password"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <OutlinedInput
+                    {...field}
+                    fullWidth
+                    size="small"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Sua senha"
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                )}
+              />
+            </Box>
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{ bgcolor: '#03017D', py: 1.2, fontWeight: 'bold' }}
+            >
+              Entrar
+            </Button>
+
+            <Typography
+              variant="body2"
+              textAlign="center"
+              sx={{
+                color: '#1976d2',
+                cursor: 'pointer',
+                '&:hover': { textDecoration: 'underline' },
+              }}
+              onClick={openRegisterDialog}
+            >
+              Não tem uma conta? Registre-se.
+            </Typography>
           </Box>
-          <Button type="submit" variant="contained" color="secondary">
-            Login
-          </Button>
-          <a
-            onClick={() => openRegisterDialog()}
-            className="text-sm text-blue-500 text-center"
-          >
-            Não tem uma conta? Registre-se.
-          </a>
         </form>
       </DialogContent>
     </Dialog>
