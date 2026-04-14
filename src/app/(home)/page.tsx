@@ -1,6 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { RegisterForm } from '@/app/(auth)/users/_components/register-form.component';
+import { AuthForm } from '@/app/(auth)/auth/_components/auth-form.component';
 import {
   School,
   Cpu,
@@ -41,6 +45,8 @@ const Toast = ({
 
 export default function App() {
   const [showToast, setShowToast] = useState(false);
+  const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
+  const [openAuthDialog, setOpenAuthDialog] = useState(false);
 
   const triggerAction = () => {
     setShowToast(true);
@@ -57,28 +63,20 @@ export default function App() {
 
       {/* --- SECÇÃO HERO --- */}
       <section
-        className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-indigo-950 via-blue-900 to-indigo-900"
+        className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-[#03017D] via-[#0D0A94] to-[#020159]"
         style={{ clipPath: 'polygon(0 0, 100% 0, 100% 90%, 0 100%)' }}
       >
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center z-10 py-20">
           <div className="space-y-8">
-            <div className="inline-flex items-center space-x-2 bg-cyan-500/10 border border-cyan-500/20 px-4 py-2 rounded-full text-cyan-400 text-sm font-semibold tracking-wide">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </span>
-              <span>SISTEMA ACADÉMICO INTELIGENTE</span>
-            </div>
-
             <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight tracking-tight">
-              AGENDAMENTO <br />
+              GERAÇÃO DE HORÁRIOS <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
                 INTELIGENTE
               </span>
             </h1>
 
             <p className="text-xl text-blue-100/70 max-w-lg leading-relaxed">
-              Elimine conflitos de horários com algoritmos genéticos avançados.
+              Elimine conflitos de horários com algoritmos genérico.
               <span className="block mt-2 text-amber-400 font-semibold underline decoration-amber-400/30 underline-offset-4">
                 +98% de aproveitamento de recursos institucionais.
               </span>
@@ -86,8 +84,8 @@ export default function App() {
 
             <div className="flex flex-wrap gap-4 pt-4">
               <button
-                onClick={triggerAction}
-                className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(6,182,212,0.5)] transition-all hover:scale-105"
+                onClick={() => setOpenRegisterDialog(true)}
+                className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(6,182,212,0.5)] transition-all hover:scale-105 inline-block text-center"
               >
                 CRIAR CONTA AGORA
               </button>
@@ -101,27 +99,27 @@ export default function App() {
               <div className="flex items-center space-x-3 text-white">
                 <School className="text-cyan-400" size={32} />
                 <div>
-                  <div className="font-bold text-xl">+1.200</div>
+                  <div className="font-bold text-xl">IFPE</div>
                   <div className="text-xs text-blue-200/60 uppercase tracking-widest">
-                    Instituições
+                    Campus Igarassu
                   </div>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-white">
                 <Clock className="text-cyan-400" size={32} />
                 <div>
-                  <div className="font-bold text-xl">&lt; 5 min</div>
+                  <div className="font-bold text-xl">-95%</div>
                   <div className="text-xs text-blue-200/60 uppercase tracking-widest">
-                    Criação Grade
+                    Tempo Gasto
                   </div>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-white">
-                <TrendingUp className="text-cyan-400" size={32} />
+                <Cpu className="text-cyan-400" size={32} />
                 <div>
-                  <div className="font-bold text-xl">99,7%</div>
+                  <div className="font-bold text-xl">Projeto</div>
                   <div className="text-xs text-blue-200/60 uppercase tracking-widest">
-                    Precisão
+                    Acadêmico
                   </div>
                 </div>
               </div>
@@ -190,52 +188,59 @@ export default function App() {
 
           <div className="space-y-6">
             <span className="text-blue-600 font-bold tracking-widest uppercase text-sm">
-              O QUE É O ASGEN?
+              SOBRE O PROJETO
             </span>
             <h2 className="text-4xl font-bold text-slate-900 leading-tight">
-              Uma solução completa para a{' '}
-              <span className="text-blue-600">complexidade académica</span>
+              O que é o <span className="text-blue-600">ASGEN?</span>
             </h2>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              O ASgen foi idealizado para simplificar o maior desafio das
-              instituições de ensino: a complexa organização de horários.
-              Atualmente em pleno desenvolvimento e implementação, estamos
-              construindo algoritmos para automatizar e otimizar esse processo
-              no futuro.
-            </p>
+            <div className="space-y-4">
+              <p className="text-lg text-slate-600 leading-relaxed font-semibold">
+                Projeto acadêmico: organização de grades de horários
+              </p>
+              <p className="text-lg text-slate-600 leading-relaxed">
+                É um sistema inteligente desenvolvido como projeto acadêmico,
+                voltado à automatização do processo de criação de horários em
+                instituições de ensino. O sistema utiliza algoritmos genéricos
+                para lidar com múltiplas restrições e reduzir conflitos comuns
+                na montagem manual de horários.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* --- PAINEL DE CONTROLO --- */}
       <section
         id="features"
         className="py-24 bg-slate-100/50 border-y border-slate-200"
       >
         <div className="max-w-7xl mx-auto px-6 text-center">
           <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">
-            Dashboard
+            Vantagens
           </span>
-          <h2 className="text-4xl font-bold text-slate-900 mb-16 italic tracking-tight">
-            Painel de Controlo Intuitivo
+          <h2 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+            Por que usar o ASGEN?
           </h2>
+          <p className="text-slate-500 mb-16 italic">
+            Transforme o processo de criação de horários com tecnologia
+            inteligente
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: <Settings className="text-blue-500" size={32} />,
-                title: 'Gestão de Unidades',
-                desc: 'Cadastre unidades, laboratórios e espaços físicos com facilidade.',
+                icon: <Clock className="text-blue-500" size={32} />,
+                title: 'Economia de Tempo',
+                desc: 'Diminui significativamente o tempo gasto na criação manual de horários.',
               },
               {
-                icon: <Users className="text-indigo-500" size={32} />,
-                title: 'Corpo Docente',
-                desc: 'Gerencie disponibilidades, preferências e restrições de cada professor.',
+                icon: <Zap className="text-indigo-500" size={32} />,
+                title: 'Redução de Conflitos',
+                desc: 'Reduz conflitos de horários entre disciplinas, professores e turmas.',
               },
               {
-                icon: <Layers className="text-cyan-500" size={32} />,
-                title: 'Disciplinas e Grades',
-                desc: 'Estruture cursos e matrizes curriculares de forma modular.',
+                icon: <Settings className="text-cyan-500" size={32} />,
+                title: 'Gestão Simples',
+                desc: 'Interface simples para cadastro e visualização dos horários.',
               },
             ].map((item, idx) => (
               <div
@@ -254,14 +259,6 @@ export default function App() {
               </div>
             ))}
           </div>
-
-          <p className="mt-12 text-slate-500 text-sm flex items-center justify-center space-x-2">
-            <span>Para visualizar detalhes técnicos da geração automática</span>
-            <ChevronRight size={16} />
-            <a href="#" className="text-blue-600 font-bold hover:underline">
-              clique aqui
-            </a>
-          </p>
         </div>
       </section>
 
@@ -288,7 +285,7 @@ export default function App() {
             {
               step: '02',
               title: 'Processamento',
-              desc: 'O algoritmo genético inicia as permutações.',
+              desc: 'O algoritmo genérico inicia as permutações.',
             },
             {
               step: '03',
@@ -302,8 +299,8 @@ export default function App() {
             },
           ].map((item, idx) => (
             <div key={idx} className="relative group">
-              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm transition-all group-hover:bg-blue-600 group-hover:border-blue-600">
-                <span className="text-5xl font-black text-slate-100 group-hover:text-blue-500/50 absolute top-4 left-4 transition-colors">
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm transition-all group-hover:bg-[#03017D] group-hover:border-[#03017D]">
+                <span className="text-5xl font-black text-slate-200 group-hover:text-white/20 absolute top-4 left-4 transition-colors">
                   {item.step}
                 </span>
                 <div className="relative z-10 space-y-4">
@@ -326,30 +323,143 @@ export default function App() {
         </div>
       </section>
 
-      {/* --- RODAPÉ --- */}
-      <footer className="bg-slate-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div className="space-y-6">
-            <div className="flex items-center space-x-2">
-              <Cpu className="text-cyan-400" size={32} />
-              <span className="text-2xl font-bold">ASgen</span>
-            </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              O software número 1 para automação de horários escolares no
-              Brasil. Tecnologia académica de ponta.
+      {/* --- CASOS DE USO --- */}
+      <section className="py-24 bg-[#03017D] text-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="text-blue-300 font-bold tracking-widest uppercase text-sm mb-4 block">
+              Casos de Uso
+            </span>
+            <h2 className="text-4xl font-bold mb-4 tracking-tight">
+              Perfeito para Qualquer Instituição
+            </h2>
+            <p className="text-blue-200 max-w-2xl mx-auto">
+              O ASGEN pode ser utilizado em instituições de ensino superior,
+              escolas técnicas e outros ambientes educacionais que demandem
+              organização eficiente de horários acadêmicos.
             </p>
-            <div className="flex space-x-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-cyan-500 hover:text-black transition-all cursor-pointer"
-                >
-                  <ArrowRight size={16} />
-                </div>
-              ))}
-            </div>
           </div>
 
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <School size={32} />,
+                title: 'Universidades',
+                desc: 'Organizar turmas teóricas e práticas considerando laboratórios específicos e disponibilidade de equipamentos.',
+                tags: ['Gestão', 'Multicampi', 'Aulas Práticas'],
+              },
+              {
+                icon: <Cpu size={32} />,
+                title: 'Escolas Técnicas',
+                desc: 'Adapte rapidamente aulas práticas, formato híbrido e necessidades altamente técnicas de infraestrutura laboratorial.',
+                tags: ['Laboratórios', 'Híbrido', 'Rotação'],
+              },
+              {
+                icon: <BookOpen size={32} />,
+                title: 'Cursos Livres',
+                desc: 'Crie horários dinâmicos para cursos de extensão e programas especiais com alta flexibilidade de turmas.',
+                tags: ['Flexibilidade', 'Mudanças Rápidas'],
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white/10 border border-white/20 p-8 rounded-2xl hover:bg-white/20 transition-all shadow-xl"
+              >
+                <div className="bg-blue-500/30 w-16 h-16 rounded-2xl flex items-center justify-center text-blue-200 mb-6">
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className="text-blue-100/70 text-sm leading-relaxed mb-6">
+                  {item.desc}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {item.tags.map((tag, tIdx) => (
+                    <span
+                      key={tIdx}
+                      className="text-xs text-blue-200 bg-blue-900/50 px-3 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- STATUS DO PROJETO --- */}
+      <section className="py-24 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">
+            Status Atual
+          </span>
+          <h2 className="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+            Projeto Acadêmico em Desenvolvimento
+          </h2>
+          <p className="text-slate-500 mb-16 max-w-2xl mx-auto">
+            O ASGEN encontra-se em fase de desenvolvimento e validação
+            institucional.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <CheckCircle className="text-blue-600" size={32} />,
+                title: 'Validação Técnica',
+                desc: 'Sistema em fase de testes e aprimoramento contínuo da plataforma.',
+              },
+              {
+                icon: <TrendingUp className="text-indigo-600" size={32} />,
+                title: 'Desenvolvimento Ativo',
+                desc: 'Implementação e refinamento de algoritmos evolutivos genéricos.',
+              },
+              {
+                icon: <School className="text-cyan-600" size={32} />,
+                title: 'Pesquisa Acadêmica',
+                desc: 'Projeto desenvolvido com rigor metodológico avançado no IFPE.',
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 transition-all hover:-translate-y-1 hover:shadow-md"
+              >
+                <div className="w-16 h-16 bg-blue-50 flex items-center justify-center rounded-2xl mx-auto mb-6">
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- RODAPÉ --- */}
+      <footer className="bg-[#03017D] text-white py-16">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+          {/* Logo e Descrição */}
+          <div className="space-y-6">
+            <div className="flex items-center">
+              <Image
+                src="/images/asgen-horizontal-light.svg"
+                alt="ASGEN Logo"
+                width={160}
+                height={45}
+                className="w-auto h-10"
+              />
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Geração inteligente de horários acadêmicos usando algoritmos
+              genéricos. Projeto em desenvolvimento.
+            </p>
+          </div>
+
+          {/* Produto */}
           <div className="space-y-6">
             <h5 className="font-bold text-lg">Produto</h5>
             <ul className="space-y-3 text-slate-400 text-sm">
@@ -360,7 +470,12 @@ export default function App() {
               </li>
               <li>
                 <a href="#" className="hover:text-cyan-400">
-                  Preços
+                  Documentação
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-cyan-400">
+                  Status do Projeto
                 </a>
               </li>
               <li>
@@ -368,61 +483,56 @@ export default function App() {
                   Segurança
                 </a>
               </li>
-              <li>
-                <a href="#" className="hover:text-cyan-400">
-                  API para ERP
-                </a>
-              </li>
             </ul>
           </div>
 
+          {/* Instituição */}
           <div className="space-y-6">
-            <h5 className="font-bold text-lg">Empresa</h5>
+            <h5 className="font-bold text-lg">Instituição</h5>
             <ul className="space-y-3 text-slate-400 text-sm">
               <li>
+                <span className="hover:text-cyan-400">
+                  IFPE - Campus Igarassu
+                </span>
+              </li>
+              <li>
+                <span className="hover:text-cyan-400">Pernambuco, Brasil</span>
+              </li>
+              <li>
                 <a href="#" className="hover:text-cyan-400">
-                  Sobre nós
+                  Casos de Uso
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-cyan-400">
-                  Blog Académico
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-cyan-400">
-                  Carreiras
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-cyan-400">
-                  Contacto
+                  Âmbitos Acadêmicos
                 </a>
               </li>
             </ul>
           </div>
 
+          {/* Suporte */}
           <div className="space-y-6">
             <h5 className="font-bold text-lg">Suporte</h5>
             <ul className="space-y-3 text-slate-400 text-sm">
               <li>
                 <a href="#" className="hover:text-cyan-400">
-                  Central de Ajuda
+                  Guias
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-cyan-400">
-                  Status do Sistema
+                  Algoritmo
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-cyan-400">
-                  Termos de Uso
+                  Perguntas frequentes
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-cyan-400">
-                  Privacidade
+                  E-mail
                 </a>
               </li>
             </ul>
@@ -431,15 +541,39 @@ export default function App() {
 
         <div className="max-w-7xl mx-auto px-6 pt-16 mt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-slate-500 text-xs text-center space-y-4 md:space-y-0">
           <p>
-            © 2024 ASgen - Sistema de Inteligência Académica. Todos os direitos
-            reservados.
+            © 2026 ASGEN - Projeto acadêmico em desenvolvimento. IFPE Campus
+            Igarassu.
           </p>
           <div className="flex space-x-6">
-            <span>Brasil</span>
-            <span>Português</span>
+            <a href="#" className="hover:text-slate-300">
+              Política de Privacidade
+            </a>
+            <a href="#" className="hover:text-slate-300">
+              Termos de Uso
+            </a>
+            <a href="#" className="hover:text-slate-300">
+              Segurança
+            </a>
           </div>
         </div>
       </footer>
+
+      <RegisterForm
+        open={openRegisterDialog}
+        onClose={() => setOpenRegisterDialog(false)}
+        openAuthDialog={() => {
+          setOpenRegisterDialog(false);
+          setOpenAuthDialog(true);
+        }}
+      />
+      <AuthForm
+        open={openAuthDialog}
+        onClose={() => setOpenAuthDialog(false)}
+        openRegisterDialog={() => {
+          setOpenAuthDialog(false);
+          setOpenRegisterDialog(true);
+        }}
+      />
     </div>
   );
 }
