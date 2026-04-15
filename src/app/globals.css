@@ -31,3 +31,9 @@ a {
 label {
   font-size: 0.5rem;
 }
+.main-content {
+  margin-left: 20vw;
+  margin-right: 20vw;
+  margin-top: 10vh;
+  margin-bottom: 10vh;
+}

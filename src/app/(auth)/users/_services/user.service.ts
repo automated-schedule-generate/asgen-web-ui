@@ -11,7 +11,7 @@ export async function register(payload: UserType) {
       ...payload,
       name: `${firstLetterUpperCase(payload.name.trim())} ${firstLetterUpperCase(payload.surname.trim())}`,
     });
-    login({ email: payload.email, password: payload.password });
+    await login({ email: payload.email, password: payload.password });
     return response.data;
   } catch (error) {
     console.log(error);
