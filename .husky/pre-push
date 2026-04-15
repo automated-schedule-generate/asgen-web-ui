@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# npm run test
+
+echo "Atualizando branch com developer..."
+git pull origin developer
+echo "Branch atualizada!"
