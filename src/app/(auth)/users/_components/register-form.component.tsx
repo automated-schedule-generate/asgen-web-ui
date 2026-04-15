@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { IMaskInput } from 'react-imask';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -29,28 +28,7 @@ import { Logo } from '@/components/layout/logo.component';
 import { UserType, userSchema } from '../_schemas/user.schema';
 import { register } from '../_services/user.service';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
-
-interface CustomProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
-  name: string;
-}
-
-const TextMaskCustom = React.forwardRef<HTMLInputElement, CustomProps>(
-  function TextMaskCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMaskInput
-        {...other}
-        mask="000.000.000-00"
-        inputRef={ref}
-        onAccept={(value: string) =>
-          onChange({ target: { name: props.name, value } })
-        }
-        overwrite
-      />
-    );
-  },
-);
+import { TextMaskCustom } from '@/components/utilities/mask-input.component';
 
 export function RegisterForm({
   open,
@@ -221,6 +199,7 @@ export function RegisterForm({
                         inputRef={ref}
                         id="cpf"
                         inputComponent={TextMaskCustom as React.ElementType}
+                        inputProps={{ mask: '000.000.000-00' }}
                         fullWidth
                         error={!!fieldState.error}
                         placeholder="Digite seu CPF"
