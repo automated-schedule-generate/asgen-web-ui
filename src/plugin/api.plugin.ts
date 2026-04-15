@@ -25,7 +25,6 @@ export async function getApi() {
 
   api.interceptors.request.use(async (config) => {
     const token = await getCookie('token');
-    console.log('Token from cookie:', token);
     if (token.trim() !== '') {
       config.headers.Authorization = `Bearer ${token}`;
     }
