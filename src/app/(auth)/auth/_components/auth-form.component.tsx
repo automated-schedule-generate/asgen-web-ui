@@ -63,31 +63,33 @@ export function AuthForm({
         <h2 className="text-2xl text-center font-bold mb-4">Login</h2>
         <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email:</label>
             <Controller
               name="email"
               control={control}
               defaultValue=""
-              render={({ field }) => (
+              render={({ field: { ref, ...field } }) => (
                 <OutlinedInput
                   {...field}
+                  inputRef={ref}
                   id="email"
                   type="email"
-                  placeholder="Email"
+                  placeholder="Digite seu email"
                 />
               )}
             />
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Senha:</label>
             <Controller
               name="password"
               control={control}
               defaultValue=""
-              render={({ field }) => (
+              render={({ field: { ref, ...field } }) => (
                 <OutlinedInput
                   {...field}
+                  inputRef={ref}
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
+                  placeholder="Digite sua senha"
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton

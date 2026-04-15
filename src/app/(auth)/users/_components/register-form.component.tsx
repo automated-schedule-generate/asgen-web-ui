@@ -30,6 +30,28 @@ import { UserType, userSchema } from '../_schemas/user.schema';
 import { register } from '../_services/user.service';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+
+const TextMaskCustom = React.forwardRef<HTMLInputElement, CustomProps>(
+  function TextMaskCustom(props, ref) {
+    const { onChange, ...other } = props;
+    return (
+      <IMaskInput
+        {...other}
+        mask="000.000.000-00"
+        inputRef={ref}
+        onAccept={(value: string) =>
+          onChange({ target: { name: props.name, value } })
+        }
+        overwrite
+      />
+    );
+  },
+);
+
 export function RegisterForm({
   open,
   onClose,
@@ -192,15 +214,13 @@ export function RegisterForm({
                 <Controller
                   name="cpf"
                   control={control}
-                  render={({ field, fieldState }) => (
+                  render={({ field: { ref, ...field }, fieldState }) => (
                     <>
                       <OutlinedInput
                         {...field}
+                        inputRef={ref}
                         id="cpf"
-                        inputComponent={IMaskInput as any}
-                        inputProps={{
-                          mask: '000.000.000-00',
-                        }}
+                        inputComponent={TextMaskCustom as React.ElementType}
                         fullWidth
                         error={!!fieldState.error}
                         placeholder="Digite seu CPF"
