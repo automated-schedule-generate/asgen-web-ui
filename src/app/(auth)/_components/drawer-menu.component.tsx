@@ -7,10 +7,10 @@ import {
   Attribution,
   AutoMode,
   AdminPanelSettings,
-  Subject,
   SquareFoot,
   School,
   Groups,
+  Visibility,
 } from '@mui/icons-material';
 import { MenuItem } from './menu-item.component';
 import { usePathname } from 'next/navigation';
@@ -33,6 +33,8 @@ export function DrawerMenu() {
     { text: 'Cursos', icon: <School />, path: '/courses' },
     { text: 'Disciplinas', icon: <SquareFoot />, path: '/subjects' },
     { text: 'Gestão de cargos', icon: <AdminPanelSettings />, path: '/admin' },
+    { text: 'Gerador de grades', icon: <AutoMode />, path: '' },
+    { text: 'Visualizar grades', icon: <Visibility />, path: '' },
   ];
 
   return (
@@ -46,6 +48,7 @@ export function DrawerMenu() {
         flexShrink: 0,
         '& .MuiDrawer-paper': {
           top: 64,
+          paddingY: 10,
           width: drawerWidth,
           backgroundColor: 'secondary.main',
           color: 'secondary.contrastText',

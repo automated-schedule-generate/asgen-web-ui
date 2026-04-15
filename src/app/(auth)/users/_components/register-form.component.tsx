@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { IMaskInput } from 'react-imask';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -29,6 +28,7 @@ import { Logo } from '@/components/layout/logo.component';
 import { UserType, userSchema } from '../_schemas/user.schema';
 import { register } from '../_services/user.service';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
+import { TextMaskCustom } from '@/components/utilities/mask-input.component';
 
 export function RegisterForm({
   open,
@@ -192,15 +192,14 @@ export function RegisterForm({
                 <Controller
                   name="cpf"
                   control={control}
-                  render={({ field, fieldState }) => (
+                  render={({ field: { ref, ...field }, fieldState }) => (
                     <>
                       <OutlinedInput
                         {...field}
+                        inputRef={ref}
                         id="cpf"
-                        inputComponent={IMaskInput as any}
-                        inputProps={{
-                          mask: '000.000.000-00',
-                        }}
+                        inputComponent={TextMaskCustom as React.ElementType}
+                        inputProps={{ mask: '000.000.000-00' }}
                         fullWidth
                         error={!!fieldState.error}
                         placeholder="Digite seu CPF"
