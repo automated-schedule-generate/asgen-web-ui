@@ -5,7 +5,7 @@ import { UserOptions } from './user-options.component';
 
 export function DefaultAppBar() {
   return (
-    <AppBar color="secondary" elevation={0}>
+    <AppBar color="secondary" elevation={0} className="px-10">
       <Toolbar>
         <Logo orientation="horizontal" theme="light" width={200} />
         <Box className="ml-auto">
