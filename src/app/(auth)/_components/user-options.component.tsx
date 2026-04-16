@@ -13,6 +13,9 @@ import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 
 export function UserOptions() {
   const { user, loading } = useUser();
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   if (loading) {
     return <span>Carregando...</span>;
@@ -28,8 +31,6 @@ export function UserOptions() {
       children: `${firstInitial}${secondInitial}`.toUpperCase(),
     };
   }
-  const router = useRouter();
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -37,7 +38,6 @@ export function UserOptions() {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
   async function handleLogout() {
     handleClose();
     await logout();
@@ -46,7 +46,12 @@ export function UserOptions() {
   return (
     <>
       <Button
-        startIcon={<Avatar {...stringAvatar(user?.name || 'User')} />}
+        startIcon={
+          <Avatar
+            sx={{ width: 35, height: 35 }}
+            {...stringAvatar(user?.name || 'User')}
+          />
+        }
         endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         variant="outlined"
         color="inherit"
