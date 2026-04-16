@@ -1,9 +1,5 @@
 #!/bin/sh
 
-echo "Atualizando branch com developer..."
-git pull origin developer
-echo "Branch atualizada!"
-
 echo "Verificando nome da branch..."
 branch=$(git rev-parse --abbrev-ref HEAD)
 

@@ -12,7 +12,7 @@ export function Logo({
   theme = 'dark',
   width,
 }: LogoProps) {
-  const filename = `images/asgen-${orientation}-${theme}.svg`;
+  const filename = `/images/asgen-${orientation}-${theme}.svg`;
 
   const defaultWidth = orientation === 'vertical' ? 120 : 180;
   const defaultHeight = orientation === 'vertical' ? '15vh' : '2.5rem';

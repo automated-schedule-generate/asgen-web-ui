@@ -2,6 +2,7 @@
 import { getApi } from '@/plugin/api.plugin';
 import { UserType } from '../_schemas/user.schema';
 import { firstLetterUpperCase } from '@/utils/first-letter-uppercase.util';
+import { login } from '../../auth/_services/auth.service';
 
 export async function register(payload: UserType) {
   const api = await getApi();
@@ -10,6 +11,7 @@ export async function register(payload: UserType) {
       ...payload,
       name: `${firstLetterUpperCase(payload.name.trim())} ${firstLetterUpperCase(payload.surname.trim())}`,
     });
+    await login({ email: payload.email, password: payload.password });
     return response.data;
   } catch (error) {
     console.log(error);
