@@ -5,7 +5,7 @@ import { Control, Controller } from 'react-hook-form';
 
 interface FormInputProps {
   control?: Control;
-  key: string;
+  id: string;
   type: string;
   placeholder: string;
   label: string;
@@ -16,7 +16,7 @@ interface FormInputProps {
 
 export function FormInput({
   control,
-  key,
+  id,
   type,
   placeholder,
   label,
@@ -27,7 +27,7 @@ export function FormInput({
   if (type === 'textarea') {
     return (
       <>
-        <label htmlFor={key}>{label}</label>
+        <label htmlFor={id}>{label}</label>
         <Controller
           name={name}
           control={control}
@@ -35,7 +35,7 @@ export function FormInput({
             <>
               <TextField
                 {...field}
-                id={key}
+                id={id}
                 placeholder={placeholder}
                 variant="outlined"
                 multiline

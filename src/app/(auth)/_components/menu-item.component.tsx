@@ -32,8 +32,9 @@ export function MenuItem({
             maxHeight: 48,
             px: 2,
             '&.Mui-selected': {
+              boxShadow: '0 4px 12px rgba(96, 165, 250,0.2)',
               borderRight: '4px solid',
-              borderColor: 'primary.contrastText',
+              borderColor: 'secondary.light',
             },
           },
           open

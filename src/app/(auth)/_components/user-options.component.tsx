@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Avatar, Menu, MenuItem } from '@mui/material';
+import { Button, Avatar, Menu, MenuItem, Box } from '@mui/material';
 import { useUser } from '@/contexts/user.context';
 import {
   KeyboardArrowDown,
@@ -46,11 +46,20 @@ export function UserOptions() {
   return (
     <>
       <Button
+        className="!rounded-full"
         startIcon={
-          <Avatar
-            sx={{ width: 35, height: 35 }}
-            {...stringAvatar(user?.name || 'User')}
-          />
+          <Box className="py-1">
+            <Avatar
+              className="!bg-cyan-400"
+              {...stringAvatar(user?.name || 'User')}
+              sx={{
+                width: 5,
+                height: 5,
+                fontSize: '0.8rem',
+                p: 2,
+              }}
+            />
+          </Box>
         }
         endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         variant="outlined"
