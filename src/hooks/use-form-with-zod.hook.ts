@@ -37,6 +37,7 @@ function generateDefaultValues<T extends z.ZodObject>(
   if ('toJSONSchema' in schema) {
     obj = schema.toJSONSchema({ unrepresentable: 'any' })?.properties ?? {};
   } else if ('properties' in schema) {
+    //@ts-expect-error properties is not defined
     obj = schema?.properties;
   }
   const entries = Object.entries(obj ?? {});
@@ -47,6 +48,7 @@ function generateDefaultValues<T extends z.ZodObject>(
     //type?: "object" | "array" | "string" | "number" | "boolean" | "null" | "integer"
 
     let defaultValue: string | number | [] | object | null = '';
+    //@ts-expect-error type is not defined
     switch (value?.type) {
       case 'number':
         defaultValue = 0;
@@ -58,11 +60,12 @@ function generateDefaultValues<T extends z.ZodObject>(
         defaultValue = [];
         break;
       case 'object':
+        //@ts-expect-error properties is not defined
         if (!value?.properties) {
           break;
         }
         defaultValue = {};
-
+        //@ts-expect-error type is not defined
         generateDefaultValues(value, defaultValue as object);
         break;
       case 'null':

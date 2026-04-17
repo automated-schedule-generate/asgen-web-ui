@@ -25,6 +25,7 @@ export function AuthForm({
 }: {
   open: boolean;
   onClose: () => void;
+  openRegisterDialog: () => void;
 }) {
   const { control, handleSubmit } = useFormWithZod(authSchema);
   const router = useRouter();

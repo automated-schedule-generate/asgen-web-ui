@@ -6,12 +6,9 @@ export const userSchema = z
     surname: z
       .string()
       .min(3, 'O sobrenome deve conter no mínimo 3 caracteres'),
-    cpf: z
-      .string()
-      .transform((val) => val.replace(/\D/g, ''))
-      .refine((val) => val.length === 11, {
-        message: 'CPF inválido',
-      }),
+    cpf: z.string().refine((val) => val.replace(/\D/g, '').length === 11, {
+      message: 'CPF inválido',
+    }),
     email: z.string().email('Email inválido'),
     password: z
       .string()
