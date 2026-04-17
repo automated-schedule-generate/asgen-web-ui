@@ -76,7 +76,7 @@ export default function App() {
             </h1>
 
             <p className="text-xl text-blue-100/70 max-w-lg leading-relaxed">
-              Elimine conflitos de horários com algoritmos genérico.
+              Elimine conflitos de horários com algoritmos genéticos.
               <span className="block mt-2 text-amber-400 font-semibold underline decoration-amber-400/30 underline-offset-4">
                 +98% de aproveitamento de recursos institucionais.
               </span>
@@ -198,11 +198,13 @@ export default function App() {
                 Projeto acadêmico: organização de grades de horários
               </p>
               <p className="text-lg text-slate-600 leading-relaxed">
-                É um sistema inteligente desenvolvido como projeto acadêmico,
-                voltado à automatização do processo de criação de horários em
-                instituições de ensino. O sistema utiliza algoritmos genéricos
-                para lidar com múltiplas restrições e reduzir conflitos comuns
-                na montagem manual de horários.
+                O ASGEN é um sistema inteligente desenvolvido como projeto
+                acadêmico no IFPE Campus Igarassu, especializado na geração
+                automática e inteligente de grades de horários acadêmicos. Por
+                meio de <strong>algoritmos genéticos</strong>, o sistema resolve
+                restrições como a disponibilidade e carga horária dos
+                professores, gerando horários otimizados automaticamente, com
+                possibilidade de ajustes manuais sempre que necessário.
               </p>
             </div>
           </div>
@@ -285,7 +287,7 @@ export default function App() {
             {
               step: '02',
               title: 'Processamento',
-              desc: 'O algoritmo genérico inicia as permutações.',
+              desc: 'O algoritmo genético inicia as permutações.',
             },
             {
               step: '03',
@@ -365,7 +367,7 @@ export default function App() {
                 key={idx}
                 className="bg-white/10 border border-white/20 p-8 rounded-2xl hover:bg-white/20 transition-all shadow-xl"
               >
-                <div className="bg-blue-500/30 w-16 h-16 rounded-2xl flex items-center justify-center text-blue-200 mb-6">
+                <div className="bg-blue-500/30 w-16 h-16 rounded-2xl flex items-center justify-center text-blue-200 mb-6 mx-auto">
                   {item.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3">{item.title}</h3>
@@ -412,7 +414,7 @@ export default function App() {
               {
                 icon: <TrendingUp className="text-indigo-600" size={32} />,
                 title: 'Desenvolvimento Ativo',
-                desc: 'Implementação e refinamento de algoritmos evolutivos genéricos.',
+                desc: 'Implementação e refinamento de algoritmos genéticos evolutivos.',
               },
               {
                 icon: <School className="text-cyan-600" size={32} />,
@@ -455,7 +457,7 @@ export default function App() {
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
               Geração inteligente de horários acadêmicos usando algoritmos
-              genéricos. Projeto em desenvolvimento.
+              genéticos. Projeto em desenvolvimento.
             </p>
           </div>
 
