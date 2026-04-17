@@ -1,7 +1,9 @@
+import { PreferencesForm } from '../../_components/preferences-form.component';
+
 export default function preferences() {
   return (
     <>
-      <h1>Página de preferências</h1>
+      <PreferencesForm />
     </>
   );
 }

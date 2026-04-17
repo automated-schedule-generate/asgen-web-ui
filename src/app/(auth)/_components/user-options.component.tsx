@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Avatar, Menu, MenuItem } from '@mui/material';
+import { Button, Avatar, Menu, MenuItem, Box } from '@mui/material';
 import { useUser } from '@/contexts/user.context';
 import {
   KeyboardArrowDown,
@@ -13,6 +13,9 @@ import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 
 export function UserOptions() {
   const { user, loading } = useUser();
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   if (loading) {
     return <span>Carregando...</span>;
@@ -28,8 +31,6 @@ export function UserOptions() {
       children: `${firstInitial}${secondInitial}`.toUpperCase(),
     };
   }
-  const router = useRouter();
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -37,7 +38,6 @@ export function UserOptions() {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
   async function handleLogout() {
     handleClose();
     await logout();
@@ -46,7 +46,21 @@ export function UserOptions() {
   return (
     <>
       <Button
-        startIcon={<Avatar {...stringAvatar(user?.name || 'User')} />}
+        className="!rounded-full"
+        startIcon={
+          <Box className="py-1">
+            <Avatar
+              className="!bg-cyan-400"
+              {...stringAvatar(user?.name || 'User')}
+              sx={{
+                width: 5,
+                height: 5,
+                fontSize: '0.8rem',
+                p: 2,
+              }}
+            />
+          </Box>
+        }
         endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         variant="outlined"
         color="inherit"

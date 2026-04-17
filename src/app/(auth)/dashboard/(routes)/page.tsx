@@ -11,19 +11,22 @@ import {
 } from '@mui/material';
 import {
   School as SchoolIcon,
-  MenuBook as MenuBookIcon,
   Groups as GroupsIcon,
   Shield as ShieldIcon,
   Visibility as VisibilityIcon,
   AutoFixHigh as AutoFixHighIcon,
+  SquareFoot as SquareFootIcon,
+  Attribution as AttributionIcon,
+  AutoMode as AutoModeIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
 } from '@mui/icons-material';
 
 const dashboardCards = [
   { title: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Disciplinas', icon: <MenuBookIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Disciplinas', icon: <SquareFootIcon sx={{ fontSize: 30 }} /> },
   { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Gestão', icon: <ShieldIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Gerar grades', icon: <AutoFixHighIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Gestão', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
   {
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
@@ -32,22 +35,10 @@ const dashboardCards = [
 
 export default function DashboardPage() {
   return (
-    <Box
-      component="main"
-      sx={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 4,
-        minHeight: '100vh',
-        bgcolor: '#e8edf5',
-      }}
-    >
+    <>
       <Box sx={{ width: '100%', maxWidth: 700, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#333' }}>
-          Seja bem-vindo
+          Seja bem-vindx
         </Typography>
       </Box>
 
@@ -57,7 +48,6 @@ export default function DashboardPage() {
           bgcolor: '#fff',
           borderRadius: 8,
           p: { xs: 3, md: 5 },
-          maxWidth: '700px !important',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
         }}
       >
@@ -86,7 +76,7 @@ export default function DashboardPage() {
               sx={{
                 borderRadius: 5,
                 border: '1px solid #eceef2',
-                boxShadow: 'none',
+                boxShadow: '0 4px 12px rgba(3,1,125,0.3)',
                 width: '100%',
                 maxWidth: '180px',
                 aspectRatio: '1 / 1',
@@ -128,6 +118,6 @@ export default function DashboardPage() {
           ))}
         </Box>
       </Container>
-    </Box>
+    </>
   );
 }
