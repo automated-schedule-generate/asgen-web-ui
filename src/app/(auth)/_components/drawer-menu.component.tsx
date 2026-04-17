@@ -33,7 +33,7 @@ export function DrawerMenu() {
     { text: 'Cursos', icon: <School />, path: '/courses' },
     { text: 'Disciplinas', icon: <SquareFoot />, path: '/subjects' },
     { text: 'Gestão de cargos', icon: <AdminPanelSettings />, path: '/admin' },
-    { text: 'Gerador de grades', icon: <AutoMode />, path: '' },
+    { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
     { text: 'Visualizar grades', icon: <Visibility />, path: '' },
   ];
 

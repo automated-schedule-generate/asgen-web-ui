@@ -37,6 +37,7 @@ export function RegisterForm({
 }: {
   open: boolean;
   onClose: () => void;
+  openAuthDialog: () => void;
 }) {
   const { control, handleSubmit, watch, trigger } = useFormWithZod(userSchema);
   const router = useRouter();
@@ -57,7 +58,7 @@ export function RegisterForm({
   const steps = ['Identificação', 'Informações Pessoais', 'Definição de senha'];
   const [activeStep, setActiveStep] = useState(0);
 
-  const stepFields = [
+  const stepFields: (keyof UserType)[][] = [
     ['name', 'surname'],
     ['cpf', 'email'],
     ['password', 'confirmPassword'],
@@ -198,7 +199,7 @@ export function RegisterForm({
                         {...field}
                         inputRef={ref}
                         id="cpf"
-                        inputComponent={TextMaskCustom as React.ElementType}
+                        inputComponent={TextMaskCustom}
                         inputProps={{ mask: '000.000.000-00' }}
                         fullWidth
                         error={!!fieldState.error}

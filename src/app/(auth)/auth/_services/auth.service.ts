@@ -2,6 +2,7 @@
 import { getApi } from '@/plugin/api.plugin';
 import { AuthType } from '../_schemas/auth-schema.schema';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export async function login(payload: AuthType) {
   const api = await getApi();
@@ -24,6 +25,8 @@ export async function login(payload: AuthType) {
 export async function logout() {
   const cookieStore = await cookies();
   cookieStore.delete('token');
+
+  redirect('/', 'replace');
 
   return { success: true };
 }

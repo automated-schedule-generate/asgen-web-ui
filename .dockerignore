@@ -1,0 +1,17 @@
+.git
+.git*
+.github
+.husky
+.next
+.env
+.env*
+.prettierrc
+AGENTS.md
+CLAUDE.md
+commitlint.config.js
+pnpm-lock.yaml
+README.md
+*README.md
+
+help
+node_modules
