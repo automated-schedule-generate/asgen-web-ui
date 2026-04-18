@@ -1,10 +1,10 @@
 'use client';
 
 import { OutlinedInput, Typography, TextField } from '@mui/material';
-import { Control, Controller } from 'react-hook-form';
+import { Control, Controller, type Path } from 'react-hook-form';
 
-interface FormInputProps {
-  control?: Control;
+interface FormInputProps<T extends object> {
+  control?: Control<T>;
   id: string;
   type: string;
   placeholder: string;
@@ -14,7 +14,7 @@ interface FormInputProps {
   maxRows?: number;
 }
 
-export function FormInput({
+export function FormInput<T extends object>({
   control,
   id,
   type,
@@ -23,13 +23,13 @@ export function FormInput({
   name,
   minRows,
   maxRows,
-}: FormInputProps) {
+}: FormInputProps<T>) {
   if (type === 'textarea') {
     return (
       <>
         <label htmlFor={id}>{label}</label>
         <Controller
-          name={name}
+          name={name as Path<T>}
           control={control}
           render={({ field, fieldState }) => (
             <>
@@ -57,16 +57,16 @@ export function FormInput({
   }
   return (
     <>
-      <label htmlFor={key}>{label}</label>
+      <label htmlFor={id}>{label}</label>
       <Controller
-        name={name}
+        name={name as Path<T>}
         control={control}
         render={({ field: { ref, ...field }, fieldState }) => (
           <>
             <OutlinedInput
               {...field}
               inputRef={ref}
-              id={key}
+              id={id}
               type={type}
               placeholder={placeholder}
               aria-label={label}

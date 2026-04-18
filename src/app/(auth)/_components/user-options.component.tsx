@@ -8,13 +8,13 @@ import {
   Logout,
 } from '@mui/icons-material';
 import { logout } from '../auth/_services/auth.service';
-import { useRouter } from 'next/navigation';
 import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 
 export function UserOptions() {
   const { user, loading } = useUser();
-  const router = useRouter();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<
+    null | (EventTarget & HTMLButtonElement)
+  >(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   if (loading) {
@@ -32,7 +32,9 @@ export function UserOptions() {
     };
   }
   const open = Boolean(anchorEl);
-  const handleClick = (event) => {
+  const handleClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
@@ -41,7 +43,6 @@ export function UserOptions() {
   async function handleLogout() {
     handleClose();
     await logout();
-    router.push('/');
   }
   return (
     <>

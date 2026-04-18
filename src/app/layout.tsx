@@ -5,8 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './globals.css';
 import MuiProvider from '@/components/providers/mui-provider.component';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
-import { UserProvider } from '@/contexts/user.context';
-import { me } from './(auth)/auth/_services/auth.service';
+import { VLibrasComponent } from '@/components/lib/vlibras.component';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,6 +36,7 @@ export default async function RootLayout({
         <body className="min-h-full flex flex-col">
           <MuiProvider>{children}</MuiProvider>
           <ToastContainer theme="colored" />
+          <VLibrasComponent />
         </body>
       </AppRouterCacheProvider>
     </html>
