@@ -34,11 +34,16 @@ const dashboardCards = [
 ];
 
 export default function DashboardPage() {
+  const hora = new Date().getHours();
+  let saudacao = 'boa noite';
+
+  if (hora >= 5 && hora < 12) saudacao = 'bom dia';
+  else if (hora >= 12 && hora < 18) saudacao = 'boa tarde';
   return (
     <>
       <Box sx={{ width: '100%', maxWidth: 700, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#333' }}>
-          Seja bem-vindx
+          Olá, {saudacao}
         </Typography>
       </Box>
 
