@@ -12,7 +12,6 @@ import {
 import {
   School as SchoolIcon,
   Groups as GroupsIcon,
-  Shield as ShieldIcon,
   Visibility as VisibilityIcon,
   AutoFixHigh as AutoFixHighIcon,
   SquareFoot as SquareFootIcon,
@@ -22,14 +21,15 @@ import {
 } from '@mui/icons-material';
 
 const dashboardCards = [
+  { title: 'Professores', icon: <AttributionIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 30 }} /> },
   { title: 'Disciplinas', icon: <SquareFootIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Gestão de cargos', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
   { title: 'Visualização das grades',icon: <VisibilityIcon sx={{ fontSize: 30 }} />,},
   { title: 'Preferencias', icon: <AutoFixHighIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Professores', icon: <AttributionIcon sx={{ fontSize: 30 }} /> },
+
 ];
 
 export default function DashboardPage() {
