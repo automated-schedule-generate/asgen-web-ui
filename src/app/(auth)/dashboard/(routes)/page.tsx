@@ -12,7 +12,6 @@ import {
 import {
   School as SchoolIcon,
   Groups as GroupsIcon,
-  Shield as ShieldIcon,
   Visibility as VisibilityIcon,
   AutoFixHigh as AutoFixHighIcon,
   SquareFoot as SquareFootIcon,
@@ -22,23 +21,28 @@ import {
 } from '@mui/icons-material';
 
 const dashboardCards = [
+  { title: 'Professores', icon: <AttributionIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 30 }} /> },
   { title: 'Disciplinas', icon: <SquareFootIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Gestão', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Gestão de cargos', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
-  {
-    title: 'Visualização das grades',
-    icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
-  },
+  { title: 'Visualização das grades',icon: <VisibilityIcon sx={{ fontSize: 30 }} />,},
+  { title: 'Preferencias', icon: <AutoFixHighIcon sx={{ fontSize: 30 }} /> },
+
 ];
 
 export default function DashboardPage() {
+  const hora = new Date().getHours();
+  let saudacao = 'boa noite';
+
+  if (hora >= 5 && hora < 12) saudacao = 'bom dia';
+  else if (hora >= 12 && hora < 18) saudacao = 'boa tarde';
   return (
     <>
       <Box sx={{ width: '100%', maxWidth: 700, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#333' }}>
-          Seja bem-vindx
+          Olá, {saudacao}
         </Typography>
       </Box>
 
