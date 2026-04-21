@@ -13,6 +13,16 @@ export async function getTeachers() {
   }
 }
 
+export async function getTeacherById(id: string) {
+  try {
+    const { data } = await api.get(`/teacher/${id}`);
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 export async function createTeacher(payload: TeacherType) {
   try {
     const { data } = await api.post('/teacher', payload);
