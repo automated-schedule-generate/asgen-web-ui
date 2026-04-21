@@ -13,11 +13,11 @@ import {
   School as SchoolIcon,
   Groups as GroupsIcon,
   Visibility as VisibilityIcon,
-  AutoFixHigh as AutoFixHighIcon,
   SquareFoot as SquareFootIcon,
   Attribution as AttributionIcon,
   AutoMode as AutoModeIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
+  Tune as TuneIcon,
 } from '@mui/icons-material';
 
 const dashboardCards = [
@@ -28,7 +28,7 @@ const dashboardCards = [
   { title: 'Gestão de cargos', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
   { title: 'Visualização das grades',icon: <VisibilityIcon sx={{ fontSize: 30 }} />,},
-  { title: 'Preferencias', icon: <AutoFixHighIcon sx={{ fontSize: 30 }} /> },
+  { title: 'Preferencias', icon: <TuneIcon sx={{ fontSize: 30 }} /> },
 
 ];
 
