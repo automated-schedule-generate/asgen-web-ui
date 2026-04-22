@@ -1,6 +1,6 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
-import { CourseSchema } from '../_schemas/course.schema';
+import type { CourseType } from '../_schemas/course.schema';
 const api = await getApi();
 
 export async function getAllCourses() {
@@ -23,7 +23,7 @@ export async function getCourseById(id: string) {
   }
 }
 
-export async function createCourse(payload: CourseSchema) {
+export async function createCourse(payload: CourseType) {
   try {
     const { data } = await api.post('/course', payload);
     return data;
@@ -33,7 +33,7 @@ export async function createCourse(payload: CourseSchema) {
   }
 }
 
-export async function updateCourse(id: string, payload: CourseSchema) {
+export async function updateCourse(id: string, payload: CourseType) {
   try {
     const { data } = await api.put(`/course/${id}`, payload);
     return data;

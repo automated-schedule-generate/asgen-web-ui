@@ -3,9 +3,9 @@ import { getApi } from '@/plugin/api.plugin';
 import type { SubjectSchema } from '../_schemas/subject.schema';
 const api = await getApi();
 
-export async function createSubject(subject: SubjectSchema) {
+export async function createSubject(payload: SubjectSchema) {
   try {
-    const { data } = await api.post('/subject', subject);
+    const { data } = await api.post('/subject', payload);
     return data;
   } catch (error) {
     console.log(error);

@@ -8,4 +8,4 @@ export const courseSchema = z.object({
     .min(1, 'O número de semestres deve ser maior que 0'),
 });
 
-export type CourseSchema = z.infer<typeof courseSchema>;
+export type CourseType = z.infer<typeof courseSchema>;
