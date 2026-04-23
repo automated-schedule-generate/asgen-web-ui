@@ -9,11 +9,11 @@ export function TeachersListComponent({
   teachers: TeacherListType;
 }) {
   return (
-    <Box>
+    <Box className="flex flex-col gap-2">
       {teachers.map((teacher) => (
         <TeachersListItemComponent
           key={teacher.user_id}
-          name={teacher.user_id}
+          name={teacher.user.name}
           id={teacher.user_id}
         />
       ))}
