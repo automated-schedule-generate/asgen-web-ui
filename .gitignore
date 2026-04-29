@@ -32,6 +32,7 @@ yarn-error.log*
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+deno.lock
 
 # env files (can opt-in for committing if needed)
 .env*

@@ -6,6 +6,6 @@ services:
       dockerfile: Dockerfile
     container_name: asgen-web-ui
     ports:
-      - '3000:3000'
+      - '${PORT:-3000}:${PORT:-3000}'
     env_file:
       - .env
