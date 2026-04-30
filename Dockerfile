@@ -23,6 +23,18 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
-EXPOSE 3000
+RUN pnpm install --prod --prefer-frozen-lockfile
 
-CMD ["pnpm", "start"]
+
+FROM denoland/deno AS runtime
+
+WORKDIR /app
+
+COPY --from=production /app/.next /app/.next
+COPY --from=production /app/public /app/public
+COPY --from=production /app/node_modules /app/node_modules
+COPY --from=production /app/package.json /app/package.json
+
+RUN cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+
+CMD ["serve", "-A", "--node-modules-dir=auto", "--unstable-detect-cjs", ".next/standalone/server.js"]
