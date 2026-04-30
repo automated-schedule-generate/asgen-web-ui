@@ -9,6 +9,7 @@ import {
   CardActionArea,
   Avatar,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import {
   School as SchoolIcon,
   Groups as GroupsIcon,
@@ -21,18 +22,50 @@ import {
 } from '@mui/icons-material';
 
 const dashboardCards = [
-  { title: 'Professores', icon: <AttributionIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Disciplinas', icon: <SquareFootIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Gestão de cargos', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Visualização das grades',icon: <VisibilityIcon sx={{ fontSize: 30 }} />,},
-  { title: 'Preferencias', icon: <AutoFixHighIcon sx={{ fontSize: 30 }} /> },
-
+  {
+    title: 'Professores',
+    icon: <AttributionIcon sx={{ fontSize: 30 }} />,
+    path: '/teachers',
+  },
+  {
+    title: 'Turmas',
+    icon: <GroupsIcon sx={{ fontSize: 30 }} />,
+    path: '/classes',
+  },
+  {
+    title: 'Cursos',
+    icon: <SchoolIcon sx={{ fontSize: 30 }} />,
+    path: '/courses',
+  },
+  {
+    title: 'Disciplinas',
+    icon: <SquareFootIcon sx={{ fontSize: 30 }} />,
+    path: '/subjects',
+  },
+  {
+    title: 'Gestão de funções',
+    icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />,
+    path: '/functions',
+  },
+  {
+    title: 'Gerar grades',
+    icon: <AutoModeIcon sx={{ fontSize: 30 }} />,
+    path: '#',
+  },
+  {
+    title: 'Visualização das grades',
+    icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
+    path: '#',
+  },
+  {
+    title: 'Preferencias',
+    icon: <AutoFixHighIcon sx={{ fontSize: 30 }} />,
+    path: '#',
+  },
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
   const hora = new Date().getHours();
   let saudacao = 'boa noite';
 
@@ -74,9 +107,10 @@ export default function DashboardPage() {
             justifyItems: 'center',
           }}
         >
-          {dashboardCards.map(({ title, icon }) => (
+          {dashboardCards.map(({ title, icon, path }) => (
             <Card
               key={title}
+              onClick={() => router.push(path)}
               sx={{
                 borderRadius: 5,
                 border: '1px solid #eceef2',
@@ -85,6 +119,7 @@ export default function DashboardPage() {
                 maxWidth: '180px',
                 aspectRatio: '1 / 1',
                 transition: 'all 0.2s',
+                cursor: 'pointer',
                 '&:hover': {
                   transform: 'translateY(-4px)',
                   borderColor: '#03017D',

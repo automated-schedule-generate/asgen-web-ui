@@ -20,7 +20,7 @@ export async function getApi() {
     headers: {
       'Content-Type': 'application/json',
     },
-    adapter: createHTTP2Adapter(adapterConfig),
+    // adapter: createHTTP2Adapter(adapterConfig),
   });
 
   api.interceptors.request.use(async (config) => {
