@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\"",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "postinstall": "npm run prepare"
   },
   "lint-staged": {

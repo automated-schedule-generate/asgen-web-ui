@@ -21,6 +21,7 @@ import {
   Tune as TuneIcon,
 } from '@mui/icons-material';
 
+// Importação do contexto de usuário
 import { useUser } from '@/contexts/user.context';
 
 const dashboardCards = [
@@ -36,7 +37,7 @@ const dashboardCards = [
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user } = useUser(); 
+  const { user } = useUser(); // Pegando os dados do usuário logado
 
   const hora = new Date().getHours();
   let saudacao = 'boa noite';
@@ -101,7 +102,7 @@ export default function DashboardPage() {
               <CardActionArea
                 onClick={() => {
                   if (title === 'Cursos') {
-                    router.push('/dashboard/courses'); 
+                    router.push('/dashboard/courses'); // Ajustado para o caminho correto que criamos
                   }
                 }}
                 sx={{
