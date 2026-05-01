@@ -29,9 +29,15 @@ const dashboardCards = [
   { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 30 }} /> },
   { title: 'Disciplinas', icon: <SquareFootIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Gestão de cargos', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
+  {
+    title: 'Gestão de cargos',
+    icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />,
+  },
   { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Visualização das grades', icon: <VisibilityIcon sx={{ fontSize: 30 }} /> },
+  {
+    title: 'Visualização das grades',
+    icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
+  },
   { title: 'Preferencias', icon: <TuneIcon sx={{ fontSize: 30 }} /> },
 ];
 
@@ -102,7 +108,7 @@ export default function DashboardPage() {
               <CardActionArea
                 onClick={() => {
                   if (title === 'Cursos') {
-                    router.push('/dashboard/courses'); // Ajustado para o caminho correto que criamos
+                    router.push('/courses');
                   }
                 }}
                 sx={{
