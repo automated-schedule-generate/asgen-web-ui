@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Container,
   Typography,
@@ -20,6 +21,8 @@ import {
   Tune as TuneIcon,
 } from '@mui/icons-material';
 
+import { useUser } from '@/contexts/user.context';
+
 const dashboardCards = [
   { title: 'Professores', icon: <AttributionIcon sx={{ fontSize: 30 }} /> },
   { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
@@ -27,22 +30,25 @@ const dashboardCards = [
   { title: 'Disciplinas', icon: <SquareFootIcon sx={{ fontSize: 30 }} /> },
   { title: 'Gestão de cargos', icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} /> },
   { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Visualização das grades',icon: <VisibilityIcon sx={{ fontSize: 30 }} />,},
+  { title: 'Visualização das grades', icon: <VisibilityIcon sx={{ fontSize: 30 }} /> },
   { title: 'Preferencias', icon: <TuneIcon sx={{ fontSize: 30 }} /> },
-
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { user } = useUser(); 
+
   const hora = new Date().getHours();
   let saudacao = 'boa noite';
 
   if (hora >= 5 && hora < 12) saudacao = 'bom dia';
   else if (hora >= 12 && hora < 18) saudacao = 'boa tarde';
+
   return (
     <>
       <Box sx={{ width: '100%', maxWidth: 700, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#333' }}>
-          Olá, {saudacao}
+          Olá, {saudacao}, {user?.name}
         </Typography>
       </Box>
 
@@ -93,6 +99,11 @@ export default function DashboardPage() {
               }}
             >
               <CardActionArea
+                onClick={() => {
+                  if (title === 'Cursos') {
+                    router.push('/dashboard/courses'); 
+                  }
+                }}
                 sx={{
                   height: '100%',
                   display: 'flex',
