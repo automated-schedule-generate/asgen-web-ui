@@ -5,5 +5,9 @@
     "node-globals",
     "unsafe-proto",
     "sloppy-imports"
-  ]
+  ],
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "start": "deno serve -A .next/standalone/server.js"
+  }
 }

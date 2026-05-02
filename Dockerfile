@@ -25,16 +25,16 @@ COPY --from=builder /app /app
 
 RUN pnpm install --prod --prefer-frozen-lockfile
 
+RUN cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+
 
 FROM denoland/deno AS runtime
 
 WORKDIR /app
 
-COPY --from=production /app/.next /app/.next
-COPY --from=production /app/public /app/public
-COPY --from=production /app/node_modules /app/node_modules
-COPY --from=production /app/package.json /app/package.json
+COPY --from=production /app/.next/standalone/ ./
+COPY --from=production /app/deno.json ./
 
-RUN cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+RUN deno cache server.js
 
-CMD ["serve", "-A", "--node-modules-dir=auto", "--unstable-detect-cjs", ".next/standalone/server.js"]
+CMD ["serve", "-A", "--cached-only", "server.js"]
