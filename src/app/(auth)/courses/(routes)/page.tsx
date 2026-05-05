@@ -8,74 +8,50 @@ import {
   TextField,
   MenuItem,
   Select,
-  InputAdornment,
   List,
-  ListItem,
-  Collapse,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  FormHelperText,
   CircularProgress,
+  Pagination,
 } from '@mui/material';
 import {
   Search,
-  KeyboardArrowRight,
   Add as AddIcon,
-  DeleteOutline as DeleteIcon,
-  School as SchoolIcon,
+  FilterList as FilterIcon,
+  InboxOutlined,
 } from '@mui/icons-material';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
-import { useForm, Controller, SubmitHandler, Resolver } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { courseSchema, type CourseType } from '../_schemas/course.schema';
+import { CourseData, Subject } from '../_types/course.types';
+import { CourseDialogComponent } from '../_components/course-dialog.component';
+import { CourseItemComponent } from '../_components/course-item.component';
 import {
   getAllCoursesClient,
   createCourseClient,
   deleteCourseClient,
 } from '../_services/courses.client.service';
 
-interface Subject {
-  id: string;
-  name?: string;
-  titulo?: string;
-  nome?: string;
-}
-
-interface CourseData {
-  id: string;
-  name: string;
-  total_semesters: number;
-  class_time: string;
-  subjects?: Subject[];
-}
-
 export default function CoursesPage() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
+  const [courseSubjects, setCourseSubjects] = useState<
+    Record<string, Subject[]>
+  >({});
+  const [courseSubjectsLoading, setCourseSubjectsLoading] = useState<
+    Record<string, boolean>
+  >({});
   const [openModalCourse, setOpenModalCourse] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState<{
-    open: boolean;
-    id: string | null;
-  }>({
-    open: false,
-    id: null,
-  });
-
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
-  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [subjectPageMap, setSubjectPageMap] = useState<Record<string, number>>(
+    {},
+  );
+  const [typeFilter, setTypeFilter] = useState('TODOS');
+  const [loading, setLoading] = useState(true);
 
   const {
     control,
@@ -93,34 +69,28 @@ export default function CoursesPage() {
 
   const loadData = async () => {
     try {
-      const response = await getAllCoursesClient();
-      const rawData = Array.isArray(response)
-        ? response
-        : Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response?.data?.items)
-            ? response.data.items
-            : [];
-
-      const normalizedData: CourseData[] = rawData.map(
-        (item: Record<string, unknown>) => ({
+      const res = await getAllCoursesClient();
+      const raw = Array.isArray(res)
+        ? res
+        : res?.data || res?.data?.items || [];
+      setCourses(
+        raw.map((item: Record<string, unknown>) => ({
           id: String(item.id || item._id || item.uuid || Math.random()),
           name: String(item.name || item.nome || item.titulo || 'Sem Nome'),
           total_semesters: Number(item.total_semesters || item.semestres || 0),
           class_time: String(item.class_time || item.tempo_aula || '45'),
+          type: (item.type || item.modalidade || 'OUTRO') as CourseData['type'],
           subjects: (item.subjects ||
             item.assuntos ||
             item.disciplinas ||
             []) as Subject[],
-        }),
+        })),
       );
-
-      setCourses(normalizedData);
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
       setCourses([]);
     } finally {
-      setLoadingInitial(false);
+      setLoading(false);
     }
   };
 
@@ -128,97 +98,160 @@ export default function CoursesPage() {
     loadData();
   }, []);
 
-  const filteredCourses = useMemo(() => {
-    return courses.filter((course) =>
-      (course.name || '').toLowerCase().includes(activeSearch.toLowerCase()),
-    );
-  }, [activeSearch, courses]);
+  const filtered = useMemo(
+    () =>
+      courses.filter(
+        (c) =>
+          (c.name || '').toLowerCase().includes(activeSearch.toLowerCase()) &&
+          (typeFilter === 'TODOS' || c.type === typeFilter),
+      ),
+    [activeSearch, typeFilter, courses],
+  );
 
-  const handleSearchClick = () => {
-    setActiveSearch(searchTerm);
-  };
+  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
+  const paginatedCourses = useMemo(() => {
+    const offset = (page - 1) * rowsPerPage;
+    return filtered.slice(offset, offset + rowsPerPage);
+  }, [filtered, page, rowsPerPage]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearchClick();
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
     }
-  };
+  }, [page, totalPages]);
 
-  const handleExpand = (courseId: string) => {
-    const isOpening = expandedCourse !== courseId;
-    setExpandedCourse(isOpening ? courseId : null);
-  };
+  const loadCourseSubjects = async (courseId: string) => {
+    if (courseSubjects[courseId] || courseSubjectsLoading[courseId]) {
+      return;
+    }
 
-  const onSubmitCourse: SubmitHandler<CourseType> = async (data) => {
+    setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: true }));
     try {
-      const response = await createCourseClient(data);
-      if (response) {
-        await loadData();
-        setSearchTerm('');
-        setActiveSearch('');
+      const response = await fetch(
+        `/api/subject/course/${encodeURIComponent(courseId)}`,
+        { cache: 'no-store' },
+      );
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar disciplinas: ${response.status}`);
       }
-      setOpenModalCourse(false);
-      reset();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const executeDelete = async () => {
-    if (!confirmDelete.id) return;
-    try {
-      await deleteCourseClient(confirmDelete.id);
-      setCourses((prev) => prev.filter((c) => c.id !== confirmDelete.id));
-    } catch (err) {
-      console.error(err);
+      const responseData = await response.json();
+      const rawSubjects = Array.isArray(responseData)
+        ? responseData
+        : responseData?.data || responseData?.items || [];
+      setCourseSubjects((prev) => ({
+        ...prev,
+        [courseId]: rawSubjects.map((item: Record<string, unknown>) => ({
+          id: String(item.id || item._id || item.uuid || Math.random()),
+          name: String(item.name || item.nome || item.titulo || 'Sem Nome'),
+        })),
+      }));
+    } catch (error) {
+      console.error('Erro ao carregar disciplinas do curso:', error);
+      setCourseSubjects((prev) => ({ ...prev, [courseId]: [] }));
     } finally {
-      setConfirmDelete({ open: false, id: null });
+      setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: false }));
     }
   };
 
-  if (loadingInitial) {
+  const handleDeleteCourse = async (id: string) => {
+    try {
+      await deleteCourseClient(id);
+      await loadData();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleExpand = async (courseId: string) => {
+    const nextId = expandedCourse === courseId ? null : courseId;
+    setExpandedCourse(nextId);
+    if (nextId) {
+      await loadCourseSubjects(nextId);
+    }
+  };
+
+  const onSubmit: SubmitHandler<CourseType> = async (data) => {
+    if (await createCourseClient(data)) {
+      await loadData();
+      setSearchTerm('');
+      setActiveSearch('');
+    }
+    setOpenModalCourse(false);
+    reset();
+  };
+
+  if (loading)
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-        <CircularProgress sx={{ color: '#0B0A7A' }} />
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
+        <CircularProgress size={30} />
       </Box>
     );
-  }
 
   return (
     <ContentLayoutComponent title="Cursos">
-      <Box sx={{ width: '100%', mt: 2 }}>
-        <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
-          Gerencie os cursos e suas respectivas disciplinas.
-        </Typography>
+      <Box sx={{ width: '100%', mt: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <Select
+            size="small"
+            value={typeFilter}
+            onChange={(e) => {
+              setTypeFilter(e.target.value);
+              setPage(1);
+            }}
+            startAdornment={
+              <FilterIcon sx={{ fontSize: 16, mr: 0.5, color: '#0B0A7A' }} />
+            }
+            sx={{
+              bgcolor: '#E2E8F0',
+              borderRadius: 1,
+              '& fieldset': { border: 'none' },
+              fontSize: '0.75rem',
+              height: 32,
+              minWidth: 140,
+            }}
+          >
+            <MenuItem value="TODOS">Todas Modalidades</MenuItem>
+            <MenuItem value="INTEGRADO">Integrado</MenuItem>
+            <MenuItem value="SUBSEQUENTE">Subsequente</MenuItem>
+            <MenuItem value="SUPERIOR">Superior</MenuItem>
+          </Select>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
           <TextField
             size="small"
-            placeholder="Pesquisar curso..."
+            placeholder="Buscar..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              if (e.target.value === '') setActiveSearch('');
+              if (!e.target.value) {
+                setActiveSearch('');
+                setPage(1);
+              }
             }}
-            onKeyDown={handleKeyPress}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setActiveSearch(searchTerm);
+                setPage(1);
+              }
+            }}
             sx={{
               bgcolor: '#E2E8F0',
-              borderRadius: 1.5,
+              borderRadius: 1,
               flexGrow: 1,
-              maxWidth: 300,
+              maxWidth: 220,
               '& fieldset': { border: 'none' },
+              '& input': { py: 0.8, fontSize: '0.8rem' },
             }}
             InputProps={{
               endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleSearchClick}
-                    size="small"
-                    sx={{ color: '#0B0A7A' }}
-                  >
-                    <Search sx={{ fontSize: 18 }} />
-                  </IconButton>
-                </InputAdornment>
+                <IconButton
+                  onClick={() => {
+                    setActiveSearch(searchTerm);
+                    setPage(1);
+                  }}
+                  size="small"
+                >
+                  <Search sx={{ fontSize: 16 }} />
+                </IconButton>
               ),
             }}
           />
@@ -229,288 +262,125 @@ export default function CoursesPage() {
             onClick={() => setOpenModalCourse(true)}
             sx={{
               background: '#0B0A7A',
-              textTransform: 'none',
-              borderRadius: 1.5,
-              ml: 'auto',
+              borderRadius: 1,
               fontWeight: 700,
-              boxShadow: 'none',
-              '&:hover': { background: '#1413A3' },
+              ml: 'auto',
+              height: 32,
+              fontSize: '0.75rem',
+              textTransform: 'none',
             }}
           >
-            Novo curso
+            {' '}
+            Novo{' '}
           </Button>
         </Box>
 
         <Box
           sx={{
-            borderRadius: 2,
-            overflow: 'hidden',
-            border: '1px solid #eceef2',
-            bgcolor: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 1,
+            mb: 2,
+            flexWrap: 'wrap',
           }}
         >
-          <List disablePadding>
-            {filteredCourses.length > 0 ? (
-              filteredCourses.map((course) => {
-                const isExpanded = expandedCourse === course.id;
-                return (
-                  <React.Fragment key={course.id}>
-                    <ListItem
-                      sx={{
-                        px: 2,
-                        py: 1.5,
-                        cursor: 'pointer',
-                        bgcolor: isExpanded ? '#0B0A7A' : 'transparent',
-                        color: isExpanded ? '#fff' : '#0B0A7A',
-                        transition: '0.3s ease',
-                        borderBottom: isExpanded ? 'none' : '1px solid #eceef2',
-                        '&:hover': {
-                          background: isExpanded ? '#0B0A7A' : '#f8f9fa',
-                        },
-                      }}
-                      onClick={() => handleExpand(course.id)}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1.5,
-                          flexGrow: 1,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: isExpanded
-                              ? 'rgba(255, 255, 255, 0.2)'
-                              : 'rgba(11, 10, 122, 0.08)',
-                            color: isExpanded ? '#fff' : '#0B0A7A',
-                          }}
-                        >
-                          <SchoolIcon sx={{ fontSize: 20 }} />
-                        </Box>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 700, color: 'inherit' }}
-                        >
-                          {course.name}
-                        </Typography>
-                      </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" sx={{ color: '#666' }}>
+              Mostrar
+            </Typography>
+            <Select
+              size="small"
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setPage(1);
+              }}
+              sx={{
+                bgcolor: '#E2E8F0',
+                borderRadius: 1,
+                minWidth: 90,
+                '& fieldset': { border: 'none' },
+              }}
+            >
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={8}>8</MenuItem>
+              <MenuItem value={12}>12</MenuItem>
+            </Select>
+            <Typography variant="body2" sx={{ color: '#666' }}>
+              por página
+            </Typography>
+          </Box>
 
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setConfirmDelete({ open: true, id: course.id });
-                        }}
-                        sx={{ color: 'inherit', mr: 1 }}
-                      >
-                        <DeleteIcon sx={{ fontSize: 19 }} />
-                      </IconButton>
-
-                      <KeyboardArrowRight
-                        sx={{
-                          transform: isExpanded
-                            ? 'rotate(90deg)'
-                            : 'rotate(0deg)',
-                          transition: '0.3s',
-                        }}
-                      />
-                    </ListItem>
-
-                    <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                      <Box
-                        sx={{
-                          p: 2,
-                          background: '#fcfcfd',
-                          borderBottom: '1px solid #eceef2',
-                        }}
-                      >
-                        <TableContainer
-                          component={Paper}
-                          elevation={0}
-                          sx={{ border: '1px solid #eee' }}
-                        >
-                          <Table size="small">
-                            <TableHead sx={{ background: '#f1f3f7' }}>
-                              <TableRow>
-                                <TableCell
-                                  sx={{ fontWeight: 700, color: '#0B0A7A' }}
-                                >
-                                  Disciplina
-                                </TableCell>
-                                <TableCell
-                                  align="right"
-                                  sx={{ fontWeight: 700, color: '#0B0A7A' }}
-                                >
-                                  Ação
-                                </TableCell>
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {course.subjects && course.subjects.length > 0 ? (
-                                course.subjects.map((sub) => (
-                                  <TableRow
-                                    key={sub.id || Math.random().toString()}
-                                    hover
-                                  >
-                                    <TableCell>
-                                      {sub.name || sub.titulo || sub.nome}
-                                    </TableCell>
-                                    <TableCell align="right">
-                                      <IconButton
-                                        size="small"
-                                        sx={{ color: '#0B0A7A' }}
-                                      >
-                                        <DeleteIcon sx={{ fontSize: 16 }} />
-                                      </IconButton>
-                                    </TableCell>
-                                  </TableRow>
-                                ))
-                              ) : (
-                                <TableRow>
-                                  <TableCell
-                                    colSpan={2}
-                                    align="center"
-                                    sx={{ py: 2, color: '#999' }}
-                                  >
-                                    Nenhuma disciplina vinculada.
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </Box>
-                    </Collapse>
-                  </React.Fragment>
-                );
-              })
-            ) : (
-              <Box sx={{ p: 4, textAlign: 'center', color: '#999' }}>
-                Nenhum curso encontrado.
-              </Box>
-            )}
-          </List>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            color="primary"
+            size="small"
+          />
         </Box>
+
+        <Paper
+          variant="outlined"
+          sx={{
+            borderRadius: 1.5,
+            overflow: 'hidden',
+            border: '1px solid #eceef2',
+          }}
+        >
+          {filtered.length > 0 ? (
+            <List disablePadding>
+              {paginatedCourses.map((course) => (
+                <CourseItemComponent
+                  key={course.id}
+                  course={course}
+                  isExpanded={expandedCourse === course.id}
+                  onToggle={() => handleExpand(course.id)}
+                  onDelete={handleDeleteCourse}
+                  subjects={courseSubjects[course.id] ?? course.subjects ?? []}
+                  subjectsLoading={!!courseSubjectsLoading[course.id]}
+                  subjectPage={subjectPageMap[course.id] ?? 1}
+                  onSubjectPageChange={(value) =>
+                    setSubjectPageMap((prev) => ({
+                      ...prev,
+                      [course.id]: value,
+                    }))
+                  }
+                />
+              ))}
+            </List>
+          ) : (
+            <Box
+              sx={{
+                p: 5,
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              <InboxOutlined sx={{ fontSize: 40, color: '#cbd5e1' }} />
+              <Typography
+                variant="body2"
+                sx={{ color: '#64748b', fontWeight: 500 }}
+              >
+                Nenhum curso cadastrado ou encontrado.
+              </Typography>
+            </Box>
+          )}
+        </Paper>
       </Box>
 
-      <Dialog
+      <CourseDialogComponent
         open={openModalCourse}
         onClose={() => setOpenModalCourse(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle sx={{ fontWeight: 700, color: '#0B0A7A' }}>
-          Novo Curso
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box
-            component="form"
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}
-          >
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Nome do Curso"
-                  size="small"
-                  fullWidth
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
-                />
-              )}
-            />
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl size="small" fullWidth error={!!errors.class_time}>
-                <InputLabel>Tempo de Aula</InputLabel>
-                <Controller
-                  name="class_time"
-                  control={control}
-                  render={({ field }) => (
-                    <Select {...field} label="Tempo de Aula">
-                      <MenuItem value="45">45 min</MenuItem>
-                      <MenuItem value="60">60 min</MenuItem>
-                    </Select>
-                  )}
-                />
-                <FormHelperText>{errors.class_time?.message}</FormHelperText>
-              </FormControl>
-              <Controller
-                name="total_semesters"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Semestres"
-                    type="number"
-                    size="small"
-                    fullWidth
-                    error={!!errors.total_semesters}
-                    helperText={errors.total_semesters?.message}
-                    onChange={(e) =>
-                      field.onChange(parseInt(e.target.value, 10) || 0)
-                    }
-                  />
-                )}
-              />
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setOpenModalCourse(false)}
-            sx={{ color: '#666', textTransform: 'none' }}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={handleSubmit(onSubmitCourse)}
-            variant="contained"
-            sx={{ background: '#0B0A7A', textTransform: 'none' }}
-          >
-            Salvar Curso
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={confirmDelete.open}
-        onClose={() => setConfirmDelete({ open: false, id: null })}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle sx={{ fontWeight: 700, color: '#0B0A7A' }}>
-          Confirmar Exclusão
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">
-            Deseja realmente excluir este curso?
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setConfirmDelete({ open: false, id: null })}
-            sx={{ color: '#666', textTransform: 'none' }}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={executeDelete}
-            variant="contained"
-            sx={{ background: '#0B0A7A', textTransform: 'none' }}
-          >
-            Confirmar
-          </Button>
-        </DialogActions>
-      </Dialog>
+        control={control}
+        handleSubmit={handleSubmit}
+        errors={errors}
+        onSubmit={onSubmit}
+      />
     </ContentLayoutComponent>
   );
 }
