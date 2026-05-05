@@ -41,11 +41,10 @@ import { useForm, Controller, SubmitHandler, Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { courseSchema, type CourseType } from '../_schemas/course.schema';
 import {
-  getAllCourses,
-  createCourse,
-  deleteCourse,
-  getCourseById,
-} from '../_services/courses.service';
+  getAllCoursesClient,
+  createCourseClient,
+  deleteCourseClient,
+} from '../_services/courses.client.service';
 
 interface Subject {
   id: string;
@@ -77,7 +76,6 @@ export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
   const [loadingInitial, setLoadingInitial] = useState(true);
-  const [loadingSubjects, setLoadingSubjects] = useState<string | null>(null);
 
   const {
     control,
@@ -95,8 +93,14 @@ export default function CoursesPage() {
 
   const loadData = async () => {
     try {
-      const response = await getAllCourses();
-      const rawData = Array.isArray(response) ? response : [];
+      const response = await getAllCoursesClient();
+      const rawData = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.data?.items)
+            ? response.data.items
+            : [];
 
       const normalizedData: CourseData[] = rawData.map(
         (item: Record<string, unknown>) => ({
@@ -140,35 +144,14 @@ export default function CoursesPage() {
     }
   };
 
-  const handleExpand = async (courseId: string, courseName: string) => {
-    const isOpening = expandedCourse !== courseName;
-    setExpandedCourse(isOpening ? courseName : null);
-
-    if (isOpening) {
-      setLoadingSubjects(courseId);
-      try {
-        const details = await getCourseById(courseId);
-        const subjectsList = (details.subjects ||
-          details.assuntos ||
-          details.disciplinas ||
-          []) as Subject[];
-
-        setCourses((prev) =>
-          prev.map((c) =>
-            c.id === courseId ? { ...c, subjects: subjectsList } : c,
-          ),
-        );
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingSubjects(null);
-      }
-    }
+  const handleExpand = (courseId: string) => {
+    const isOpening = expandedCourse !== courseId;
+    setExpandedCourse(isOpening ? courseId : null);
   };
 
   const onSubmitCourse: SubmitHandler<CourseType> = async (data) => {
     try {
-      const response = await createCourse(data);
+      const response = await createCourseClient(data);
       if (response) {
         await loadData();
         setSearchTerm('');
@@ -184,7 +167,7 @@ export default function CoursesPage() {
   const executeDelete = async () => {
     if (!confirmDelete.id) return;
     try {
-      await deleteCourse(confirmDelete.id);
+      await deleteCourseClient(confirmDelete.id);
       setCourses((prev) => prev.filter((c) => c.id !== confirmDelete.id));
     } catch (err) {
       console.error(err);
@@ -269,7 +252,7 @@ export default function CoursesPage() {
           <List disablePadding>
             {filteredCourses.length > 0 ? (
               filteredCourses.map((course) => {
-                const isExpanded = expandedCourse === course.name;
+                const isExpanded = expandedCourse === course.id;
                 return (
                   <React.Fragment key={course.id}>
                     <ListItem
@@ -285,7 +268,7 @@ export default function CoursesPage() {
                           background: isExpanded ? '#0B0A7A' : '#f8f9fa',
                         },
                       }}
-                      onClick={() => handleExpand(course.id, course.name)}
+                      onClick={() => handleExpand(course.id)}
                     >
                       <Box
                         sx={{
@@ -348,77 +331,61 @@ export default function CoursesPage() {
                           borderBottom: '1px solid #eceef2',
                         }}
                       >
-                        {loadingSubjects === course.id ? (
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              py: 2,
-                            }}
-                          >
-                            <CircularProgress
-                              size={24}
-                              sx={{ color: '#0B0A7A' }}
-                            />
-                          </Box>
-                        ) : (
-                          <TableContainer
-                            component={Paper}
-                            elevation={0}
-                            sx={{ border: '1px solid #eee' }}
-                          >
-                            <Table size="small">
-                              <TableHead sx={{ background: '#f1f3f7' }}>
-                                <TableRow>
-                                  <TableCell
-                                    sx={{ fontWeight: 700, color: '#0B0A7A' }}
+                        <TableContainer
+                          component={Paper}
+                          elevation={0}
+                          sx={{ border: '1px solid #eee' }}
+                        >
+                          <Table size="small">
+                            <TableHead sx={{ background: '#f1f3f7' }}>
+                              <TableRow>
+                                <TableCell
+                                  sx={{ fontWeight: 700, color: '#0B0A7A' }}
+                                >
+                                  Disciplina
+                                </TableCell>
+                                <TableCell
+                                  align="right"
+                                  sx={{ fontWeight: 700, color: '#0B0A7A' }}
+                                >
+                                  Ação
+                                </TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {course.subjects && course.subjects.length > 0 ? (
+                                course.subjects.map((sub) => (
+                                  <TableRow
+                                    key={sub.id || Math.random().toString()}
+                                    hover
                                   >
-                                    Disciplina
-                                  </TableCell>
-                                  <TableCell
-                                    align="right"
-                                    sx={{ fontWeight: 700, color: '#0B0A7A' }}
-                                  >
-                                    Ação
-                                  </TableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {course.subjects &&
-                                course.subjects.length > 0 ? (
-                                  course.subjects.map((sub) => (
-                                    <TableRow
-                                      key={sub.id || Math.random().toString()}
-                                      hover
-                                    >
-                                      <TableCell>
-                                        {sub.name || sub.titulo || sub.nome}
-                                      </TableCell>
-                                      <TableCell align="right">
-                                        <IconButton
-                                          size="small"
-                                          sx={{ color: '#0B0A7A' }}
-                                        >
-                                          <DeleteIcon sx={{ fontSize: 16 }} />
-                                        </IconButton>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))
-                                ) : (
-                                  <TableRow>
-                                    <TableCell
-                                      colSpan={2}
-                                      align="center"
-                                      sx={{ py: 2, color: '#999' }}
-                                    >
-                                      Nenhuma disciplina vinculada.
+                                    <TableCell>
+                                      {sub.name || sub.titulo || sub.nome}
+                                    </TableCell>
+                                    <TableCell align="right">
+                                      <IconButton
+                                        size="small"
+                                        sx={{ color: '#0B0A7A' }}
+                                      >
+                                        <DeleteIcon sx={{ fontSize: 16 }} />
+                                      </IconButton>
                                     </TableCell>
                                   </TableRow>
-                                )}
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-                        )}
+                                ))
+                              ) : (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={2}
+                                    align="center"
+                                    sx={{ py: 2, color: '#999' }}
+                                  >
+                                    Nenhuma disciplina vinculada.
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
                       </Box>
                     </Collapse>
                   </React.Fragment>
