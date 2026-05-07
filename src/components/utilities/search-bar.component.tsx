@@ -37,10 +37,10 @@ export function SearchBarComponent({
       InputProps={{
         placeholder: placeholder,
         sx: {
-          height: '3rem',
-          width: '25rem',
+          height: '2.5rem',
+          width: '20rem',
           backgroundColor: 'background.default',
-          borderRadius: '1.5rem',
+          borderRadius: '1rem',
           paddingY: '0rem',
         },
         startAdornment: (

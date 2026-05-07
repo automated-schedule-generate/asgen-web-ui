@@ -12,6 +12,9 @@ interface FormInputProps<T extends object> {
   name: string;
   minRows?: number;
   maxRows?: number;
+  onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  defaultValue?: string;
+  disabled?: boolean;
 }
 
 export function FormInput<T extends object>({
@@ -23,18 +26,32 @@ export function FormInput<T extends object>({
   name,
   minRows,
   maxRows,
+  onFocus,
+  defaultValue,
+  disabled,
 }: FormInputProps<T>) {
   if (type === 'textarea') {
     return (
       <>
-        <label htmlFor={id}>{label}</label>
         <Controller
           name={name as Path<T>}
           control={control}
           render={({ field, fieldState }) => (
             <>
+              <Typography
+                component="label"
+                htmlFor={id}
+                color={fieldState.error ? 'error' : 'textPrimary'}
+                sx={{ mb: 0, display: 'block' }}
+              >
+                {label}
+              </Typography>
               <TextField
                 {...field}
+                onFocus={(e) => {
+                  if (onFocus) onFocus(e);
+                }}
+                defaultValue={defaultValue}
                 id={id}
                 placeholder={placeholder}
                 variant="outlined"
@@ -43,6 +60,8 @@ export function FormInput<T extends object>({
                 maxRows={maxRows}
                 error={!!fieldState.error}
                 fullWidth
+                required
+                disabled={disabled}
               />
               {fieldState.error && (
                 <Typography color="error" variant="caption">
@@ -71,6 +90,7 @@ export function FormInput<T extends object>({
               placeholder={placeholder}
               aria-label={label}
               error={!!fieldState.error}
+              disabled={disabled}
             />
             {fieldState.error && (
               <Typography color="error" variant="caption">

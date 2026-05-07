@@ -20,7 +20,7 @@ export function TeachersListItemComponent({
   const router = useRouter();
   return (
     <Card elevation={0} variant="outlined" className="!p-0">
-      <CardContent className="flex flex-row items-center justify-between !p-0">
+      <CardContent className="flex flex-row items-center justify-between !px-2 !py-0">
         <Typography color="secondary" variant="body1">
           {name}
         </Typography>
