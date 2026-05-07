@@ -23,6 +23,18 @@ WORKDIR /app
 
 COPY --from=builder /app /app
 
-EXPOSE 3000
+RUN pnpm install --prod --prefer-frozen-lockfile
 
-CMD ["pnpm", "start"]
+RUN cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+
+
+FROM denoland/deno AS runtime
+
+WORKDIR /app
+
+COPY --from=production /app/.next/standalone/ ./
+COPY --from=production /app/deno.json ./
+
+RUN deno cache server.js
+
+CMD ["serve", "-A", "--cached-only", "server.js"]

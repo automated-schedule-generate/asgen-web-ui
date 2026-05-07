@@ -2,13 +2,14 @@
   "name": "asgen-web-ui",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\"",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "postinstall": "npm run prepare"
   },
   "lint-staged": {
