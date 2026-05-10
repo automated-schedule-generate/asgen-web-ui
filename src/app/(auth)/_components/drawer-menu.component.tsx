@@ -67,7 +67,7 @@ export function DrawerMenu() {
           const isActive = pathname === item.path;
           return (
             <MenuItem
-              key={item.path}
+              key={item.text}
               open={open}
               text={item.text}
               icon={item.icon}

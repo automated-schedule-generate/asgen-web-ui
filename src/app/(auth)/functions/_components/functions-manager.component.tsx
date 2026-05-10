@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Container,
   Box,
@@ -8,7 +8,6 @@ import {
   TextField,
   Button,
   Avatar,
-  Divider,
   Tabs,
   Tab,
   IconButton,
@@ -25,9 +24,9 @@ import {
   Chip,
   Fade,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import {
-  AccountCircle,
   DeleteOutline,
   Search,
   EditOutlined,
@@ -35,54 +34,15 @@ import {
   AdminPanelSettings,
   School,
   SupportAgent,
-  WorkOutline,
 } from '@mui/icons-material';
 
-interface User {
-  id: number;
-  nome: string;
-  email: string;
-  funcao: string;
-  matricula: string;
-}
-
-const mockUsers: User[] = [
-  {
-    id: 2,
-    nome: 'Ricardo Pereira',
-    email: 'ricardo.p@example.com',
-    funcao: 'Coordenador',
-    matricula: '2025002',
-  },
-  {
-    id: 3,
-    nome: 'Mariana Costa',
-    email: 'mariana.costa@example.com',
-    funcao: 'Professor',
-    matricula: '2025003',
-  },
-  {
-    id: 4,
-    nome: 'Luís Almeida',
-    email: 'luis.a@example.com',
-    funcao: 'Professor',
-    matricula: '2025004',
-  },
-  {
-    id: 5,
-    nome: 'Sofia Santos',
-    email: 'sofia.s@example.com',
-    funcao: 'Coordenador',
-    matricula: '2025005',
-  },
-  {
-    id: 6,
-    nome: 'João Silva',
-    email: 'joao.s@example.com',
-    funcao: 'CRADT',
-    matricula: '2025006',
-  },
-];
+import type { IUser } from '@/interfaces/user.interface';
+import {
+  getAllUsers,
+  updateUserRole,
+  updateUserName,
+  deleteUser,
+} from '../_services/functions-manager.service';
 
 const ROLES = [
   { value: 'Professor', icon: <School />, color: '#10b981', bg: '#ecfdf5' },
@@ -97,18 +57,20 @@ const ROLES = [
 
 export function FunctionsManager() {
   const [pesquisa, setPesquisa] = useState('');
-  const [listaUsuarios, setListaUsuarios] = useState<User[]>(mockUsers);
-  const [utilizadorEncontrado, setUtilizadorEncontrado] = useState<User | null>(
-    null,
-  );
+  const [listaUsuarios, setListaUsuarios] = useState<IUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState('');
+  const [utilizadorEncontrado, setUtilizadorEncontrado] =
+    useState<IUser | null>(null);
 
   const [abaSelecionada, setAbaSelecionada] = useState(0);
 
   const [dialogFuncaoAberto, setDialogFuncaoAberto] = useState(false);
   const [dialogExclusaoAberto, setDialogExclusaoAberto] = useState(false);
   const [dialogEditarAberto, setDialogEditarAberto] = useState(false);
+  const [salvando, setSalvando] = useState(false);
 
-  const [usuarioEditado, setUsuarioEditado] = useState<User | null>(null);
+  const [usuarioEditado, setUsuarioEditado] = useState<IUser | null>(null);
   const [novaFuncao, setNovaFuncao] = useState('');
   const [novoNome, setNovoNome] = useState('');
 
@@ -117,6 +79,26 @@ export function FunctionsManager() {
     texto: '',
     cor: 'info' as AlertColor,
   });
+
+  const carregarUsuarios = useCallback(async () => {
+    setLoading(true);
+    setErro('');
+    try {
+      const usuarios = await getAllUsers();
+      setListaUsuarios(usuarios);
+    } catch {
+      setErro(
+        'Erro ao carregar usuários. Verifique a conexão e tente novamente.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void carregarUsuarios();
+  }, [carregarUsuarios]);
 
   const getRoleConfig = (funcao: string) => {
     return ROLES.find((r) => r.value === funcao) || ROLES[0];
@@ -161,65 +143,81 @@ export function FunctionsManager() {
     if (e.key === 'Enter') buscarUtilizador();
   };
 
-  const abrirDialogFuncao = (usuario: User) => {
+  const abrirDialogFuncao = (usuario: IUser) => {
     setUsuarioEditado(usuario);
     setNovaFuncao(usuario.funcao);
     setDialogFuncaoAberto(true);
   };
 
-  const salvarAlteracaoFuncao = () => {
+  const salvarAlteracaoFuncao = async () => {
     if (!usuarioEditado) return;
-    setListaUsuarios((prev) =>
-      prev.map((u) =>
-        u.id === usuarioEditado.id ? { ...u, funcao: novaFuncao } : u,
-      ),
-    );
-    if (utilizadorEncontrado?.id === usuarioEditado.id) {
-      setUtilizadorEncontrado((prev) =>
-        prev ? { ...prev, funcao: novaFuncao } : null,
-      );
+    setSalvando(true);
+    try {
+      await updateUserRole(usuarioEditado.id, novaFuncao);
+      await carregarUsuarios();
+      if (utilizadorEncontrado?.id === usuarioEditado.id) {
+        setUtilizadorEncontrado((prev) =>
+          prev ? { ...prev, funcao: novaFuncao } : null,
+        );
+      }
+      mostrarSnackbar('Função atualizada com sucesso!', 'success');
+      setDialogFuncaoAberto(false);
+    } catch {
+      mostrarSnackbar('Erro ao atualizar função.', 'error');
+    } finally {
+      setSalvando(false);
     }
-    mostrarSnackbar('Função atualizada com sucesso!', 'success');
-    setDialogFuncaoAberto(false);
   };
 
-  const abrirDialogEditar = (usuario: User) => {
+  const abrirDialogEditar = (usuario: IUser) => {
     setUsuarioEditado(usuario);
     setNovoNome(usuario.nome);
     setDialogEditarAberto(true);
   };
 
-  const salvarEdicao = () => {
+  const salvarEdicao = async () => {
     if (!usuarioEditado || !novoNome.trim()) return;
-    setListaUsuarios((prev) =>
-      prev.map((u) =>
-        u.id === usuarioEditado.id ? { ...u, nome: novoNome } : u,
-      ),
-    );
-    if (utilizadorEncontrado?.id === usuarioEditado.id) {
-      setUtilizadorEncontrado((prev) =>
-        prev ? { ...prev, nome: novoNome } : null,
-      );
+    setSalvando(true);
+    try {
+      await updateUserName(usuarioEditado.id, novoNome);
+      await carregarUsuarios();
+      if (utilizadorEncontrado?.id === usuarioEditado.id) {
+        setUtilizadorEncontrado((prev) =>
+          prev ? { ...prev, nome: novoNome } : null,
+        );
+      }
+      mostrarSnackbar('Dados atualizados com sucesso!', 'success');
+      setDialogEditarAberto(false);
+    } catch {
+      mostrarSnackbar('Erro ao atualizar dados do usuário.', 'error');
+    } finally {
+      setSalvando(false);
     }
-    mostrarSnackbar('Dados atualizados com sucesso!', 'success');
-    setDialogEditarAberto(false);
   };
 
-  const abrirDialogExclusao = (usuario: User) => {
+  const abrirDialogExclusao = (usuario: IUser) => {
     setUsuarioEditado(usuario);
     setDialogExclusaoAberto(true);
   };
 
-  const confirmarExclusao = () => {
+  const confirmarExclusao = async () => {
     if (!usuarioEditado) return;
-    setListaUsuarios((prev) => prev.filter((u) => u.id !== usuarioEditado.id));
-    if (utilizadorEncontrado?.id === usuarioEditado.id)
-      setUtilizadorEncontrado(null);
-    mostrarSnackbar(`Utilizador apagado.`, 'error');
-    setDialogExclusaoAberto(false);
+    setSalvando(true);
+    try {
+      await deleteUser(usuarioEditado.id);
+      await carregarUsuarios();
+      if (utilizadorEncontrado?.id === usuarioEditado.id)
+        setUtilizadorEncontrado(null);
+      mostrarSnackbar('Utilizador apagado.', 'error');
+      setDialogExclusaoAberto(false);
+    } catch {
+      mostrarSnackbar('Erro ao apagar utilizador.', 'error');
+    } finally {
+      setSalvando(false);
+    }
   };
 
-  const renderUserItem = (usuario: User) => {
+  const renderUserItem = (usuario: IUser) => {
     const roleConfig = getRoleConfig(usuario.funcao);
     return (
       <Fade in timeout={500} key={usuario.id}>
@@ -353,7 +351,17 @@ export function FunctionsManager() {
         </Box>
       </Box>
 
-      {/* Modern Search Box */}
+      {erro && (
+        <Alert
+          severity="error"
+          onClose={() => setErro('')}
+          sx={{ mb: 4, borderRadius: 3 }}
+        >
+          {erro}
+        </Alert>
+      )}
+
+      {/* Search Box */}
       <Box
         sx={{
           display: 'flex',
@@ -408,7 +416,7 @@ export function FunctionsManager() {
         </Button>
       </Box>
 
-      {/* Found User - Integrated beautifully */}
+      {/* Search Result */}
       <Collapse in={!!utilizadorEncontrado}>
         {utilizadorEncontrado && (
           <Box mb={6}>
@@ -454,48 +462,73 @@ export function FunctionsManager() {
           <Tab label="CRADT" />
         </Tabs>
 
-        <Box role="tabpanel" hidden={abaSelecionada !== 0}>
-          {abaSelecionada === 0 && (
-            <Box>
-              {coordenadores.length > 0 ? (
-                coordenadores.map(renderUserItem)
-              ) : (
-                <Typography color="#94a3b8" py={4} textAlign="center">
-                  Nenhum coordenador registrado.
-                </Typography>
+        {loading ? (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            py={10}
+            gap={2}
+          >
+            <CircularProgress size={36} sx={{ color: '#03017D' }} />
+            <Typography
+              sx={{
+                fontWeight: 'bold',
+                color: '#94a3b8',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontSize: '0.7rem',
+              }}
+            >
+              Carregando usuários...
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <Box role="tabpanel" hidden={abaSelecionada !== 0}>
+              {abaSelecionada === 0 && (
+                <Box>
+                  {coordenadores.length > 0 ? (
+                    coordenadores.map(renderUserItem)
+                  ) : (
+                    <Typography color="#94a3b8" py={4} textAlign="center">
+                      Nenhum coordenador registrado.
+                    </Typography>
+                  )}
+                </Box>
               )}
             </Box>
-          )}
-        </Box>
-        <Box role="tabpanel" hidden={abaSelecionada !== 1}>
-          {abaSelecionada === 1 && (
-            <Box>
-              {professores.length > 0 ? (
-                professores.map(renderUserItem)
-              ) : (
-                <Typography color="#94a3b8" py={4} textAlign="center">
-                  Nenhum professor registrado.
-                </Typography>
+            <Box role="tabpanel" hidden={abaSelecionada !== 1}>
+              {abaSelecionada === 1 && (
+                <Box>
+                  {professores.length > 0 ? (
+                    professores.map(renderUserItem)
+                  ) : (
+                    <Typography color="#94a3b8" py={4} textAlign="center">
+                      Nenhum professor registrado.
+                    </Typography>
+                  )}
+                </Box>
               )}
             </Box>
-          )}
-        </Box>
-        <Box role="tabpanel" hidden={abaSelecionada !== 2}>
-          {abaSelecionada === 2 && (
-            <Box>
-              {cradt.length > 0 ? (
-                cradt.map(renderUserItem)
-              ) : (
-                <Typography color="#94a3b8" py={4} textAlign="center">
-                  Nenhum usuário CRADT registrado.
-                </Typography>
+            <Box role="tabpanel" hidden={abaSelecionada !== 2}>
+              {abaSelecionada === 2 && (
+                <Box>
+                  {cradt.length > 0 ? (
+                    cradt.map(renderUserItem)
+                  ) : (
+                    <Typography color="#94a3b8" py={4} textAlign="center">
+                      Nenhum usuário CRADT registrado.
+                    </Typography>
+                  )}
+                </Box>
               )}
             </Box>
-          )}
-        </Box>
+          </>
+        )}
       </Box>
 
-      {/* PREMIUM Change Role Dialog */}
+      {/* Change Role Dialog */}
       <Dialog
         open={dialogFuncaoAberto}
         onClose={() => setDialogFuncaoAberto(false)}
@@ -567,6 +600,7 @@ export function FunctionsManager() {
         <DialogActions sx={{ p: 3, justifyContent: 'center' }}>
           <Button
             onClick={() => setDialogFuncaoAberto(false)}
+            disabled={salvando}
             sx={{
               color: '#64748b',
               textTransform: 'none',
@@ -579,6 +613,7 @@ export function FunctionsManager() {
           <Button
             onClick={salvarAlteracaoFuncao}
             variant="contained"
+            disabled={salvando}
             sx={{
               bgcolor: '#03017D',
               textTransform: 'none',
@@ -588,7 +623,11 @@ export function FunctionsManager() {
               '&:hover': { bgcolor: '#02005A' },
             }}
           >
-            Confirmar Alteração
+            {salvando ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              'Confirmar Alteração'
+            )}
           </Button>
         </DialogActions>
       </Dialog>
@@ -621,6 +660,7 @@ export function FunctionsManager() {
         <DialogActions sx={{ p: 3 }}>
           <Button
             onClick={() => setDialogEditarAberto(false)}
+            disabled={salvando}
             sx={{ color: '#64748b', textTransform: 'none', fontWeight: 'bold' }}
           >
             Cancelar
@@ -628,6 +668,7 @@ export function FunctionsManager() {
           <Button
             onClick={salvarEdicao}
             variant="contained"
+            disabled={salvando}
             sx={{
               bgcolor: '#03017D',
               textTransform: 'none',
@@ -636,7 +677,11 @@ export function FunctionsManager() {
               '&:hover': { bgcolor: '#02005A' },
             }}
           >
-            Salvar Dados
+            {salvando ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              'Salvar Dados'
+            )}
           </Button>
         </DialogActions>
       </Dialog>
@@ -668,6 +713,7 @@ export function FunctionsManager() {
         <DialogActions sx={{ p: 3, justifyContent: 'center', gap: 2 }}>
           <Button
             onClick={() => setDialogExclusaoAberto(false)}
+            disabled={salvando}
             sx={{ color: '#64748b', textTransform: 'none', fontWeight: 'bold' }}
           >
             Cancelar
@@ -675,6 +721,7 @@ export function FunctionsManager() {
           <Button
             onClick={confirmarExclusao}
             variant="contained"
+            disabled={salvando}
             sx={{
               bgcolor: '#ef4444',
               textTransform: 'none',
@@ -683,7 +730,11 @@ export function FunctionsManager() {
               '&:hover': { bgcolor: '#dc2626' },
             }}
           >
-            Sim, apagar
+            {salvando ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              'Sim, apagar'
+            )}
           </Button>
         </DialogActions>
       </Dialog>
