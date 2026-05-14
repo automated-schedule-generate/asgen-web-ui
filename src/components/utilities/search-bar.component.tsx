@@ -1,14 +1,27 @@
 'use client';
 import { Search } from '@mui/icons-material';
 import { InputAdornment, TextField } from '@mui/material';
+import type { ChangeEvent } from 'react';
 
-export function SearchBarComponent() {
+interface SearchBarComponentProps {
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+export function SearchBarComponent({
+  placeholder = 'Pesquisar por um docente',
+  value,
+  onChange,
+}: SearchBarComponentProps = {}) {
   return (
     <TextField
       variant="outlined"
       fullWidth
+      value={value}
+      onChange={onChange}
       InputProps={{
-        placeholder: 'Pesquisar por um docente',
+        placeholder,
         sx: {
           backgroundColor: 'background.default',
           borderColor: 'secondary.light',
