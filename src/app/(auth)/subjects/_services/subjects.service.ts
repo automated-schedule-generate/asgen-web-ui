@@ -1,9 +1,9 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
-import type { SubjectSchema } from '../_schemas/subject.schema';
+import type { SubjectType } from '../_schemas/subject.schema';
 const api = await getApi();
 
-export async function createSubject(payload: SubjectSchema) {
+export async function createSubject(payload: SubjectType) {
   try {
     if (!payload.prerequisite_id) {
       delete payload.prerequisite_id;
@@ -16,7 +16,7 @@ export async function createSubject(payload: SubjectSchema) {
   }
 }
 
-export async function updateSubject(payload: SubjectSchema) {
+export async function updateSubject(payload: SubjectType) {
   try {
     if (!payload.prerequisite_id) {
       payload.prerequisite_id = null;
@@ -46,7 +46,7 @@ export async function getAllSubjects({
   page?: number;
   limit?: number;
   search?: string;
-}) {
+} = {}) {
   try {
     const { data } = await api.get('/subject', {
       params: {

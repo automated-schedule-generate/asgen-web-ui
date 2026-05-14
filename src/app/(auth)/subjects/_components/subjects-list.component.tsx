@@ -33,7 +33,7 @@ export default function SubjectsList({
           id={subject.id}
           name={subject.name}
           workload={subject.workload}
-          is_optional={subject.is_optional ? 'Sim' : 'Não'}
+          is_optional={subject.is_optional ? 'Não' : 'Sim'}
           prerequisite={subject.prerequisite?.name || 'Não possui'}
           course={subject.course?.name}
           teacher={subject.teachers?.at(0)?.user?.name || 'Não alocado'}
