@@ -17,9 +17,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 export async function getApi() {
   const api = axios.create({
     baseURL: (await getEnv()).api_url,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    // headers: {
+    //   'Content-Type': 'application/json',
+    // },
     adapter: createHTTP2Adapter(adapterConfig),
   });
 

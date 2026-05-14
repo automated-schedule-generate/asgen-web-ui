@@ -1,14 +1,29 @@
 'use client';
-import { Box, Card, CardContent, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Pagination,
+  Stack,
+  Typography,
+} from '@mui/material';
 
 export function ContentLayoutComponent({
   title,
   children,
   description,
+  hasPagination,
+  count = 1,
+  page = 1,
+  onChange,
 }: {
   title: string;
   children: React.ReactNode;
   description?: string;
+  hasPagination?: boolean;
+  count?: number;
+  page?: number;
+  onChange?: (event: React.ChangeEvent<unknown>, value: number) => void;
 }) {
   return (
     <Card className="flex flex-col gap-2">
@@ -24,7 +39,21 @@ export function ContentLayoutComponent({
             </Typography>
           )}
         </Box>
+
         {children}
+
+        {hasPagination && (
+          <Box>
+            <Stack spacing={2}>
+              <Pagination
+                count={count}
+                page={page}
+                onChange={onChange}
+                color="primary"
+              />
+            </Stack>
+          </Box>
+        )}
       </CardContent>
     </Card>
   );

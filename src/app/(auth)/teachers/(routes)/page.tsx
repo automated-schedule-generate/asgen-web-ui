@@ -5,7 +5,13 @@ import type { TeacherListType } from '../_types/teacher-list.type';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 import { useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import {
+  Box,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+} from '@mui/material';
 
 export default function TeachersPage() {
   const [allTeachers, setAllTeachers] = useState<TeacherListType>([]);
