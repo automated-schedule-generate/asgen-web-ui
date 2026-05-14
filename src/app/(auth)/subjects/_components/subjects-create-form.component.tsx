@@ -6,10 +6,8 @@ import {
   Autocomplete,
   Box,
   Button,
-  Container,
   FormControlLabel,
   FormLabel,
-  OutlinedInput,
   Radio,
   RadioGroup,
   TextField,
@@ -20,20 +18,19 @@ import { createSubject } from '../_services/subjects.service';
 import { FormInput } from '@/components/utilities/form-input.component';
 import { CourseType } from '../../courses/_schemas/course.schema';
 import { Cancel, Send } from '@mui/icons-material';
+import { Subject } from '../_interfaces/subject.interface';
 
 export default function SubjectsCreateFormComponent({
   subjects,
   courses,
 }: {
-  subjects: SubjectType[];
+  subjects: Subject[];
   courses: CourseType[];
 }) {
   const router = useRouter();
   const {
     control,
-    watch,
     handleSubmit,
-    trigger,
     reset,
     formState: { isValid },
   } = useFormWithZod(subjectSchema, {
@@ -113,7 +110,7 @@ export default function SubjectsCreateFormComponent({
               </FormLabel>
               <Autocomplete
                 disablePortal
-                options={subjects.map((subject: SubjectType) => ({
+                options={subjects.map((subject: Subject) => ({
                   label: subject.name,
                   value: subject.id,
                 }))}

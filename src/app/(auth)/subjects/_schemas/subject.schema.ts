@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const subjectSchema = z.object({
+  id: z.string().optional().nullable(),
   name: z
     .string()
     .min(3, 'O nome da disciplina deve conter pelo menos 3 caracteres'),
