@@ -552,7 +552,7 @@ export function FunctionsManager() {
           </Typography>
           <Grid container spacing={2}>
             {ROLES.map((role) => (
-              <Grid item xs={12} sm={4} key={role.value}>
+              <Grid size={{ xs: 12, sm: 4 }} key={role.value}>
                 <Box
                   onClick={() => setNovaFuncao(role.value)}
                   sx={{
