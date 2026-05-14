@@ -32,9 +32,13 @@ export function DrawerMenu() {
     { text: 'Turmas', icon: <Groups />, path: '/classes' },
     { text: 'Cursos', icon: <School />, path: '/courses' },
     { text: 'Disciplinas', icon: <SquareFoot />, path: '/subjects' },
-    { text: 'Gestão de cargos', icon: <AdminPanelSettings />, path: '/admin' },
+    {
+      text: 'Gestão de funções',
+      icon: <AdminPanelSettings />,
+      path: '/functions',
+    },
     { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
-    { text: 'Visualizar grades', icon: <Visibility />, path: '' },
+    { text: 'Visualizar grades', icon: <Visibility />, path: '#' },
   ];
 
   return (
@@ -63,7 +67,7 @@ export function DrawerMenu() {
           const isActive = pathname === item.path;
           return (
             <MenuItem
-              key={item.path}
+              key={item.text}
               open={open}
               text={item.text}
               icon={item.icon}
