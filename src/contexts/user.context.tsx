@@ -9,6 +9,11 @@ interface UserData {
   role?: string;
   department?: string;
   is_active?: boolean;
+  teacher?: {
+    special_need?: boolean;
+    description_special_need?: string;
+    observation?: string;
+  };
 }
 type UserContextType = {
   user: UserData | null;
