@@ -8,15 +8,13 @@ import { SearchBarComponent } from '@/components/utilities/search-bar.component'
 
 import { Add } from '@mui/icons-material';
 
-import { Subject } from '../_schemas/subject.schema';
-
 import { useState, useEffect, useCallback } from 'react';
 
 import { getAllSubjects } from '../_services/subjects.service';
 
-import SubjectsList from '../_components/subjects-list.component';
-
 import { useRouter } from 'next/navigation';
+import { Subject } from '../_interfaces/subject.interface';
+import SubjectsList from '../_components/subjects-list.component';
 
 export default function SubjectsPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);

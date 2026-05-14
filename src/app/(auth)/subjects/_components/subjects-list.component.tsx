@@ -2,20 +2,7 @@
 
 import { Box, Skeleton } from '@mui/material';
 import SubjectsItems from './subjects-items.component';
-
-interface Subject {
-  id: string;
-  name: string;
-  workload: number;
-  is_optional: boolean;
-  prerequisite?: string;
-  course: string;
-  teachers: {
-    user: {
-      name: string;
-    };
-  }[];
-}
+import type { Subject } from '../_interfaces/subject.interface';
 
 export default function SubjectsList({
   subjects,
@@ -35,7 +22,7 @@ export default function SubjectsList({
           workload={subject.workload}
           is_optional={subject.is_optional ? 'Não' : 'Sim'}
           prerequisite={subject.prerequisite?.name || 'Não possui'}
-          course={subject.course?.name}
+          course={subject.course?.name || ''}
           teacher={subject.teachers?.at(0)?.user?.name || 'Não alocado'}
         />
       ))}

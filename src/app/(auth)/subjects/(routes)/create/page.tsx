@@ -5,13 +5,13 @@ import { Box } from '@mui/material';
 import { getAllSubjects } from '../../_services/subjects.service';
 import { useEffect, useState } from 'react';
 import { CourseType } from '@/app/(auth)/courses/_schemas/course.schema';
-import { SubjectType } from '../../_schemas/subject.schema';
+import { Subject } from '../../_interfaces/subject.interface';
 import { getAllCourses } from '@/app/(auth)/courses/_services/courses.service';
 
 export default function CreateSubjectPage() {
-  const [subjects, setSubjects] = useState<SubjectType[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [courses, setCourses] = useState<CourseType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {

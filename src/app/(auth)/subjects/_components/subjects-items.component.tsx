@@ -13,7 +13,7 @@ interface SubjectsItemsComponentProps {
   id: string;
   name: string;
   workload: number;
-  is_optional: boolean;
+  is_optional: string;
   prerequisite?: string;
   teacher?: string;
   course: string;
@@ -46,8 +46,8 @@ export default function SubjectsItems({
         >
           {name}
         </Box>
-        <Box className="flex items-center">
-          <IconButton
+        <Box className="flex flex-row gap-2 cursor-pointer m-2">
+          <Box
             aria-label="Editar disciplina"
             onClick={(event) => {
               event.stopPropagation();
@@ -55,8 +55,8 @@ export default function SubjectsItems({
             }}
           >
             <Edit color="secondary" />
-          </IconButton>
-          <IconButton
+          </Box>
+          <Box
             aria-label="Deletar disciplina"
             onClick={(event) => {
               event.stopPropagation();
@@ -64,7 +64,7 @@ export default function SubjectsItems({
             }}
           >
             <DeleteOutline color="error" />
-          </IconButton>
+          </Box>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
