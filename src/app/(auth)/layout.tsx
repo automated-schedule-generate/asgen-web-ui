@@ -9,7 +9,12 @@ interface LayoutProps {
 }
 
 export default async function CustomLayout({ children }: LayoutProps) {
-  const user = await me();
+  let user = null;
+  try {
+    user = await me();
+  } catch (error) {
+    console.error('Auth layout error (backend might be offline):', error);
+  }
   return (
     <div className="layout-container">
       <UserProvider currentUser={user}>

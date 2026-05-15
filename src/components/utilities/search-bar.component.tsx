@@ -1,23 +1,58 @@
 'use client';
-import { Search } from '@mui/icons-material';
-import { InputAdornment, TextField } from '@mui/material';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { Close, Search } from '@mui/icons-material';
+import { IconButton, InputAdornment, TextField } from '@mui/material';
 
-export function SearchBarComponent() {
+interface SearchBarProps {
+  onSearch: (value: string) => void;
+  placeholder?: string;
+  delay?: number;
+}
+
+export function SearchBarComponent({
+  onSearch,
+  placeholder = 'Buscar...',
+  delay = 500,
+}: SearchBarProps) {
+  const [term, setTerm] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch(term);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [term, delay, onSearch]);
+
+  const handleClear = () => {
+    setTerm('');
+    onSearch('');
+  };
+
   return (
     <TextField
       variant="outlined"
-      fullWidth
+      value={term}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => setTerm(e.target.value)}
       InputProps={{
-        placeholder: 'Pesquisar por um docente',
+        placeholder: placeholder,
         sx: {
+          height: '2.5rem',
+          width: '20rem',
           backgroundColor: 'background.default',
-          borderColor: 'secondary.light',
-          borderRadius: '1.5rem',
+          borderRadius: '1rem',
           paddingY: '0rem',
         },
         startAdornment: (
           <InputAdornment position="start">
             <Search color="secondary" />
+          </InputAdornment>
+        ),
+        endAdornment: term.length > 0 && (
+          <InputAdornment position="end">
+            <IconButton onClick={handleClear}>
+              <Close color="secondary" />
+            </IconButton>
           </InputAdornment>
         ),
       }}

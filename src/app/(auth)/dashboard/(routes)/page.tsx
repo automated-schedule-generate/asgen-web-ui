@@ -24,29 +24,54 @@ import {
 import { useUser } from '@/contexts/user.context';
 
 const dashboardCards = [
-  { title: 'Professores', icon: <AttributionIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Turmas', icon: <GroupsIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Cursos', icon: <SchoolIcon sx={{ fontSize: 30 }} /> },
-  { title: 'Disciplinas', icon: <SquareFootIcon sx={{ fontSize: 30 }} /> },
   {
-    title: 'Gestão de cargos',
-    icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />,
+    title: 'Professores',
+    icon: <AttributionIcon sx={{ fontSize: 30 }} />,
+    path: '/teachers',
   },
-  { title: 'Gerar grades', icon: <AutoModeIcon sx={{ fontSize: 30 }} /> },
+  {
+    title: 'Turmas',
+    icon: <GroupsIcon sx={{ fontSize: 30 }} />,
+    path: '/classes',
+  },
+  {
+    title: 'Cursos',
+    icon: <SchoolIcon sx={{ fontSize: 30 }} />,
+    path: '/courses',
+  },
+  {
+    title: 'Disciplinas',
+    icon: <SquareFootIcon sx={{ fontSize: 30 }} />,
+    path: '/subjects',
+  },
+  {
+    title: 'Gestão de funções',
+    icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />,
+    path: '/functions',
+  },
+  {
+    title: 'Gerar grades',
+    icon: <AutoModeIcon sx={{ fontSize: 30 }} />,
+    path: '#',
+  },
   {
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
+    path: '#',
   },
-  { title: 'Preferencias', icon: <TuneIcon sx={{ fontSize: 30 }} /> },
+  {
+    title: 'Preferencias',
+    icon: <TuneIcon sx={{ fontSize: 30 }} />,
+    path: '#',
+  },
 ];
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user } = useUser(); // Pegando os dados do usuário logado
+  const { user } = useUser();
 
   const hora = new Date().getHours();
   let saudacao = 'Boa noite';
-
   if (hora >= 5 && hora < 12) saudacao = 'Bom dia';
   else if (hora >= 12 && hora < 18) saudacao = 'Boa tarde';
 
@@ -86,7 +111,7 @@ export default function DashboardPage() {
             justifyItems: 'center',
           }}
         >
-          {dashboardCards.map(({ title, icon }) => (
+          {dashboardCards.map(({ title, icon, path }) => (
             <Card
               key={title}
               sx={{
@@ -105,11 +130,7 @@ export default function DashboardPage() {
               }}
             >
               <CardActionArea
-                onClick={() => {
-                  if (title === 'Cursos') {
-                    router.push('/courses');
-                  }
-                }}
+                onClick={() => router.push(path)}
                 sx={{
                   height: '100%',
                   display: 'flex',

@@ -1,6 +1,7 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
 import { TeacherType } from '../_schemas/teacher.schema';
+import { PreferencesFormType } from '../_schemas/preferences-form.schema';
 const api = await getApi();
 
 export async function getTeachers() {
@@ -33,9 +34,9 @@ export async function createTeacher(payload: TeacherType) {
   }
 }
 
-export async function updateTeacher(id: string, payload: TeacherType) {
+export async function updateTeacher(payload: PreferencesFormType) {
   try {
-    const { data } = await api.put(`/teacher/${id}`, payload);
+    const { data } = await api.put('/teacher', payload);
     return data;
   } catch (error) {
     console.log(error);

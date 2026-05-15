@@ -9,7 +9,7 @@ const theme = createTheme({
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#03017d',
+      main: 'rgba(3, 1, 125, 1)',
       light: 'rgb(96, 165, 250)',
     },
     background: {

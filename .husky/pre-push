@@ -16,3 +16,13 @@ if ! echo "$branch" | grep -E "^(feat|feature|fix|hotfix|release|bugfix|docs|ref
   exit 1
 fi
 echo "Nome da branch verificado!"
+
+
+echo 'validando build...'
+npm run build
+
+if [ $? -ne 0 ]; then
+    echo "❌ Build falhou!"
+    exit 1
+fi
+echo "Build verificado!"
