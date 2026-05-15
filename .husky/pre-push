@@ -19,7 +19,7 @@ echo "Nome da branch verificado!"
 
 
 echo 'validando build...'
-pnpm build
+npm run build
 
 if [ $? -ne 0 ]; then
     echo "❌ Build falhou!"
