@@ -12,27 +12,213 @@ import {
   Paper,
   IconButton,
   CircularProgress,
+  Chip,
+  Collapse,
+  ListItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
   Pagination,
+  Stack,
 } from '@mui/material';
 import {
   Search,
   Add as AddIcon,
   FilterList as FilterIcon,
   InboxOutlined,
+  DeleteOutline as DeleteIcon,
+  KeyboardArrowRight,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
-import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller } from 'react-hook-form';
+import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { courseSchema, type CourseType } from '../_schemas/course.schema';
 import { CourseData, Subject } from '../_types/course.types';
-import { CourseDialogComponent } from '../_components/course-dialog.component';
-import { CourseItemComponent } from '../_components/course-item.component';
-import {
-  getAllCoursesClient,
-  createCourseClient,
-  deleteCourseClient,
-} from '../_services/courses.client.service';
 
+// Importando as funções do seu service
+import {
+  getAllCourses,
+  createCourse,
+  deleteCourse,
+  getCourseById,
+} from '../_services/courses.service';
+
+type RawCourse = Record<string, unknown>;
+
+// --- Funções de Normalização ---
+function normalizeCourse(item: RawCourse): CourseData {
+  const record = item as Record<string, unknown>;
+  const subjectsRaw = record.subjects ?? record.disciplinas;
+
+  return {
+    id: String(record.id ?? record._id ?? record.uuid ?? Math.random()),
+    name: String(record.name ?? record.nome ?? record.titulo ?? 'Sem Nome'),
+    total_semesters: Number(record.total_semesters ?? record.semestres ?? 0),
+    class_time: String(record.class_time ?? record.tempo_aula ?? '45'),
+    type: (record.type ?? record.modalidade ?? 'OUTRO') as CourseData['type'],
+    subjects: Array.isArray(subjectsRaw) ? (subjectsRaw as Subject[]) : [],
+  };
+}
+
+// --- Componente de Item da Lista ---
+interface CourseItemProps {
+  course: CourseData;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onDelete: (id: string) => void;
+  subjects: Subject[];
+  subjectsLoading: boolean;
+}
+
+function CourseItem({
+  course,
+  isExpanded,
+  onToggle,
+  onDelete,
+  subjects,
+  subjectsLoading,
+}: CourseItemProps) {
+  const typeColor =
+    { INTEGRADO: '#2E7D32', SUBSEQUENTE: '#ED6C02', SUPERIOR: '#1976D2' }[
+      course.type as string
+    ] || '#757575';
+
+  return (
+    <>
+      <ListItem
+        onClick={onToggle}
+        sx={{
+          py: 1,
+          px: 2,
+          cursor: 'pointer',
+          bgcolor: isExpanded ? '#0B0A7A' : 'inherit',
+          color: isExpanded ? '#fff' : '#0B0A7A',
+          borderBottom: '1px solid #f0f0f0',
+        }}
+      >
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}
+        >
+          <SchoolIcon sx={{ fontSize: 18, opacity: 0.8 }} />
+          <Box>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: 700, lineHeight: 1.1, fontSize: '0.85rem' }}
+            >
+              {course.name}
+            </Typography>
+            <Chip
+              label={course.type}
+              size="small"
+              variant="outlined"
+              sx={{
+                height: 14,
+                fontSize: '0.55rem',
+                mt: 0.2,
+                color: isExpanded ? '#fff' : typeColor,
+                borderColor: isExpanded ? '#fff' : typeColor,
+              }}
+            />
+          </Box>
+        </Box>
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(course.id);
+          }}
+          sx={{ color: 'inherit' }}
+        >
+          <DeleteIcon sx={{ fontSize: 18 }} />
+        </IconButton>
+        <KeyboardArrowRight
+          sx={{
+            transform: isExpanded ? 'rotate(90deg)' : '0',
+            transition: '0.2s',
+            ml: 1,
+          }}
+        />
+      </ListItem>
+      <Collapse in={isExpanded} unmountOnExit>
+        <Box sx={{ p: 1, bgcolor: '#fcfcfd' }}>
+          <TableContainer
+            sx={{ border: '1px solid #eee' }}
+            component={Paper}
+            elevation={0}
+          >
+            <Table size="small">
+              <TableHead sx={{ bgcolor: '#f1f3f7' }}>
+                <TableRow>
+                  <TableCell
+                    sx={{ fontWeight: 700, py: 0.3, fontSize: '0.75rem' }}
+                  >
+                    Disciplina
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ py: 0.3, fontSize: '0.75rem' }}
+                  >
+                    Ação
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {subjectsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={2} align="center" sx={{ py: 2 }}>
+                      <CircularProgress size={20} />
+                    </TableCell>
+                  </TableRow>
+                ) : subjects && subjects.length > 0 ? (
+                  subjects.map((sub, index) => (
+                    <TableRow
+                      key={
+                        sub.id ||
+                        `${sub.name ?? sub.nome ?? sub.titulo ?? 'disciplina'}-${index}`
+                      }
+                      hover
+                    >
+                      <TableCell sx={{ py: 0.3, fontSize: '0.75rem' }}>
+                        {sub.name || sub.nome || sub.titulo}
+                      </TableCell>
+                      <TableCell align="right" sx={{ py: 0.3 }}>
+                        <IconButton size="small">
+                          <DeleteIcon sx={{ fontSize: 14 }} />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={2}
+                      align="center"
+                      sx={{ py: 1, fontSize: '0.75rem' }}
+                    >
+                      Nenhuma disciplina vinculada.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Collapse>
+    </>
+  );
+}
+
+// --- Página Principal ---
 export default function CoursesPage() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
@@ -45,49 +231,36 @@ export default function CoursesPage() {
   const [openModalCourse, setOpenModalCourse] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
-  const [subjectPageMap, setSubjectPageMap] = useState<Record<string, number>>(
-    {},
-  );
   const [typeFilter, setTypeFilter] = useState('TODOS');
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
 
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CourseType>({
-    resolver: zodResolver(courseSchema) as unknown as Resolver<CourseType>,
-    defaultValues: {
-      name: '',
-      class_time: '45',
-      total_semesters: 1,
-    } as CourseType,
+  } = useFormWithZod(courseSchema, {
+    defaultValues: { name: '', class_time: '45', total_semesters: 1 },
   });
 
   const loadData = async () => {
+    setLoading(true);
     try {
-      const res = await getAllCoursesClient();
-      const raw = Array.isArray(res)
-        ? res
-        : res?.data || res?.data?.items || [];
-      setCourses(
-        raw.map((item: Record<string, unknown>) => ({
-          id: String(item.id || item._id || item.uuid || Math.random()),
-          name: String(item.name || item.nome || item.titulo || 'Sem Nome'),
-          total_semesters: Number(item.total_semesters || item.semestres || 0),
-          class_time: String(item.class_time || item.tempo_aula || '45'),
-          type: (item.type || item.modalidade || 'OUTRO') as CourseData['type'],
-          subjects: (item.subjects ||
-            item.assuntos ||
-            item.disciplinas ||
-            []) as Subject[],
-        })),
-      );
-    } catch (e) {
-      console.error(e);
+      const res = await getAllCourses();
+      const raw = (() => {
+        if (Array.isArray(res)) return res;
+        if (!res || typeof res !== 'object') return [];
+        if (Array.isArray(res.items)) return res.items;
+        if (Array.isArray(res.data)) return res.data;
+        if (Array.isArray(res.data?.items)) return res.data.items;
+        if (Array.isArray(res.courses)) return res.courses;
+        return [];
+      })();
+      setCourses(raw.map((item: RawCourse) => normalizeCourse(item)));
+    } catch (error) {
+      console.error('Erro ao carregar cursos:', error);
       setCourses([]);
     } finally {
       setLoading(false);
@@ -102,88 +275,67 @@ export default function CoursesPage() {
     () =>
       courses.filter(
         (c) =>
-          (c.name || '').toLowerCase().includes(activeSearch.toLowerCase()) &&
+          c.name.toLowerCase().includes(activeSearch.toLowerCase()) &&
           (typeFilter === 'TODOS' || c.type === typeFilter),
       ),
     [activeSearch, typeFilter, courses],
   );
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const paginatedCourses = useMemo(() => {
-    const offset = (page - 1) * rowsPerPage;
-    return filtered.slice(offset, offset + rowsPerPage);
-  }, [filtered, page, rowsPerPage]);
+    const start = (page - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
+  }, [filtered, page]);
 
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
-
-  const loadCourseSubjects = async (courseId: string) => {
-    if (courseSubjects[courseId] || courseSubjectsLoading[courseId]) {
-      return;
-    }
-
-    setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: true }));
-    try {
-      const response = await fetch(
-        `/api/subject/course/${encodeURIComponent(courseId)}`,
-        { cache: 'no-store' },
-      );
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar disciplinas: ${response.status}`);
-      }
-      const responseData = await response.json();
-      const rawSubjects = Array.isArray(responseData)
-        ? responseData
-        : responseData?.data || responseData?.items || [];
-      setCourseSubjects((prev) => ({
-        ...prev,
-        [courseId]: rawSubjects.map((item: Record<string, unknown>) => ({
-          id: String(item.id || item._id || item.uuid || Math.random()),
-          name: String(item.name || item.nome || item.titulo || 'Sem Nome'),
-        })),
-      }));
-    } catch (error) {
-      console.error('Erro ao carregar disciplinas do curso:', error);
-      setCourseSubjects((prev) => ({ ...prev, [courseId]: [] }));
-    } finally {
-      setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: false }));
-    }
-  };
-
-  const handleDeleteCourse = async (id: string) => {
-    try {
-      await deleteCourseClient(id);
-      await loadData();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   const handleExpand = async (courseId: string) => {
-    const nextId = expandedCourse === courseId ? null : courseId;
-    setExpandedCourse(nextId);
-    if (nextId) {
-      await loadCourseSubjects(nextId);
+    const isOpening = expandedCourse !== courseId;
+    setExpandedCourse(isOpening ? courseId : null);
+
+    if (isOpening && !courseSubjects[courseId]) {
+      setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: true }));
+      try {
+        const details = await getCourseById(courseId);
+        const rawSubs =
+          details?.subjects ||
+          details?.disciplinas ||
+          details?.data?.subjects ||
+          [];
+        setCourseSubjects((prev) => ({ ...prev, [courseId]: rawSubs }));
+      } catch (e) {
+        console.error('Erro ao carregar disciplinas:', e);
+      } finally {
+        setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: false }));
+      }
     }
   };
 
-  const onSubmit: SubmitHandler<CourseType> = async (data) => {
-    if (await createCourseClient(data)) {
+  const onSubmit = async (data: CourseType) => {
+    try {
+      await createCourse(data);
       await loadData();
-      setSearchTerm('');
-      setActiveSearch('');
+      setOpenModalCourse(false);
+      reset();
+    } catch (e) {
+      console.error(e);
     }
-    setOpenModalCourse(false);
-    reset();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Deseja realmente excluir este curso?')) {
+      try {
+        await deleteCourse(id);
+        await loadData();
+      } catch (e) {
+        console.error(e);
+      }
+    }
   };
 
   if (loading)
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
-        <CircularProgress size={30} />
+        <CircularProgress sx={{ color: '#0B0A7A' }} />
       </Box>
     );
 
@@ -208,6 +360,7 @@ export default function CoursesPage() {
               fontSize: '0.75rem',
               height: 32,
               minWidth: 140,
+              color: '#0B0A7A',
             }}
           >
             <MenuItem value="TODOS">Todas Modalidades</MenuItem>
@@ -220,35 +373,22 @@ export default function CoursesPage() {
             size="small"
             placeholder="Buscar..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              if (!e.target.value) {
-                setActiveSearch('');
-                setPage(1);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                setActiveSearch(searchTerm);
-                setPage(1);
-              }
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && setActiveSearch(searchTerm)}
             sx={{
               bgcolor: '#E2E8F0',
               borderRadius: 1,
               flexGrow: 1,
               maxWidth: 220,
               '& fieldset': { border: 'none' },
-              '& input': { py: 0.8, fontSize: '0.8rem' },
+              '& input': { py: 0.8, fontSize: '0.8rem', color: '#0B0A7A' },
             }}
             InputProps={{
               endAdornment: (
                 <IconButton
-                  onClick={() => {
-                    setActiveSearch(searchTerm);
-                    setPage(1);
-                  }}
+                  onClick={() => setActiveSearch(searchTerm)}
                   size="small"
+                  sx={{ color: '#0B0A7A' }}
                 >
                   <Search sx={{ fontSize: 16 }} />
                 </IconButton>
@@ -270,55 +410,8 @@ export default function CoursesPage() {
               textTransform: 'none',
             }}
           >
-            {' '}
-            Novo{' '}
+            Novo
           </Button>
-        </Box>
-
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 1,
-            mb: 2,
-            flexWrap: 'wrap',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ color: '#666' }}>
-              Mostrar
-            </Typography>
-            <Select
-              size="small"
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setPage(1);
-              }}
-              sx={{
-                bgcolor: '#E2E8F0',
-                borderRadius: 1,
-                minWidth: 90,
-                '& fieldset': { border: 'none' },
-              }}
-            >
-              <MenuItem value={5}>5</MenuItem>
-              <MenuItem value={8}>8</MenuItem>
-              <MenuItem value={12}>12</MenuItem>
-            </Select>
-            <Typography variant="body2" sx={{ color: '#666' }}>
-              por página
-            </Typography>
-          </Box>
-
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(_, value) => setPage(value)}
-            color="primary"
-            size="small"
-          />
         </Box>
 
         <Paper
@@ -326,27 +419,20 @@ export default function CoursesPage() {
           sx={{
             borderRadius: 1.5,
             overflow: 'hidden',
-            border: '1px solid #eceef2',
+            border: '1px solid #0B0A7A',
           }}
         >
           {filtered.length > 0 ? (
             <List disablePadding>
               {paginatedCourses.map((course) => (
-                <CourseItemComponent
+                <CourseItem
                   key={course.id}
                   course={course}
                   isExpanded={expandedCourse === course.id}
                   onToggle={() => handleExpand(course.id)}
-                  onDelete={handleDeleteCourse}
-                  subjects={courseSubjects[course.id] ?? course.subjects ?? []}
+                  onDelete={handleDelete}
+                  subjects={courseSubjects[course.id] ?? []}
                   subjectsLoading={!!courseSubjectsLoading[course.id]}
-                  subjectPage={subjectPageMap[course.id] ?? 1}
-                  onSubjectPageChange={(value) =>
-                    setSubjectPageMap((prev) => ({
-                      ...prev,
-                      [course.id]: value,
-                    }))
-                  }
                 />
               ))}
             </List>
@@ -361,26 +447,110 @@ export default function CoursesPage() {
                 gap: 1,
               }}
             >
-              <InboxOutlined sx={{ fontSize: 40, color: '#cbd5e1' }} />
+              <InboxOutlined
+                sx={{ fontSize: 40, color: '#0B0A7A', opacity: 0.5 }}
+              />
               <Typography
                 variant="body2"
-                sx={{ color: '#64748b', fontWeight: 500 }}
+                sx={{ color: '#0B0A7A', fontWeight: 500 }}
               >
-                Nenhum curso cadastrado ou encontrado.
+                Nenhum curso encontrado.
               </Typography>
             </Box>
           )}
         </Paper>
+
+        {totalPages > 1 && (
+          <Stack spacing={2} sx={{ mt: 3, alignItems: 'center' }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(_, v) => setPage(v)}
+              sx={{
+                '& .MuiPaginationItem-root': { color: '#0B0A7A' },
+                '& .Mui-selected': {
+                  bgcolor: '#0B0A7A !important',
+                  color: '#fff',
+                },
+              }}
+            />
+          </Stack>
+        )}
       </Box>
 
-      <CourseDialogComponent
+      <Dialog
         open={openModalCourse}
         onClose={() => setOpenModalCourse(false)}
-        control={control}
-        handleSubmit={handleSubmit}
-        errors={errors}
-        onSubmit={onSubmit}
-      />
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{ fontWeight: 700, fontSize: '1rem', color: '#0B0A7A' }}
+        >
+          Novo Curso
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box
+            component="form"
+            sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pt: 1 }}
+          >
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Nome"
+                  size="small"
+                  fullWidth
+                  error={!!errors.name}
+                />
+              )}
+            />
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Tempo</InputLabel>
+                <Controller
+                  name="class_time"
+                  control={control}
+                  render={({ field }) => (
+                    <Select {...field} label="Tempo">
+                      <MenuItem value="45">45m</MenuItem>
+                      <MenuItem value="60">60m</MenuItem>
+                    </Select>
+                  )}
+                />
+              </FormControl>
+              <Controller
+                name="total_semesters"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Semestres"
+                    type="number"
+                    size="small"
+                    fullWidth
+                  />
+                )}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 1.5 }}>
+          <Button size="small" onClick={() => setOpenModalCourse(false)}>
+            Sair
+          </Button>
+          <Button
+            size="small"
+            onClick={handleSubmit(onSubmit)}
+            variant="contained"
+            sx={{ bgcolor: '#0B0A7A' }}
+          >
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ContentLayoutComponent>
   );
 }

@@ -3,9 +3,14 @@ import { getApi } from '@/plugin/api.plugin';
 import type { CourseType } from '../_schemas/course.schema';
 const api = await getApi();
 
-export async function getAllCourses() {
+export async function getAllCourses(filters?: {
+  search?: string;
+  type?: string;
+}) {
   try {
-    const { data } = await api.get('/course');
+    const { data } = await api.get('/course', {
+      params: { search: filters?.search, type: filters?.type },
+    });
     return data;
   } catch (error) {
     console.log(error);
