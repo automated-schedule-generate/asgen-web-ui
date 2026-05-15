@@ -3,13 +3,26 @@ import { getApi } from '@/plugin/api.plugin';
 import type { CourseType } from '../_schemas/course.schema';
 const api = await getApi();
 
-export async function getAllCourses(filters?: {
+export async function getAllCourses({
+  page = 1,
+  limit = 10,
+  search = '',
+  // type = '', // Comentado para uso futuro
+}: {
+  page?: number;
+  limit?: number;
   search?: string;
-  type?: string;
-}) {
+  // type?: string; // Comentado para uso futuro
+} = {}) {
   try {
     const { data } = await api.get('/course', {
-      params: { search: filters?.search, type: filters?.type },
+      params: {
+        with_pagination: true,
+        page,
+        limit,
+        search,
+        // type: type || undefined, // Comentado para uso futuro
+      },
     });
     return data;
   } catch (error) {

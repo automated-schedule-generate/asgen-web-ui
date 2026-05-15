@@ -1,18 +1,15 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Box,
   Button,
   TextField,
-  MenuItem,
-  Select,
   List,
   Paper,
   IconButton,
   CircularProgress,
-  Chip,
   Collapse,
   ListItem,
   Table,
@@ -27,19 +24,18 @@ import {
   DialogTitle,
   FormControl,
   InputLabel,
-  Pagination,
-  Stack,
+  MenuItem,
+  Select,
 } from '@mui/material';
 import {
-  Search,
   Add as AddIcon,
-  FilterList as FilterIcon,
   InboxOutlined,
   DeleteOutline as DeleteIcon,
   KeyboardArrowRight,
   School as SchoolIcon,
 } from '@mui/icons-material';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
+import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 import { Controller } from 'react-hook-form';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { courseSchema, type CourseType } from '../_schemas/course.schema';
@@ -51,6 +47,9 @@ import {
   deleteCourse,
   getSubjectsByCourse,
 } from '../_services/courses.service';
+
+// Importando a função de delete padrão da Claudiane
+import { deleteSubject } from '../../subjects/_services/subjects.service';
 
 type RawCourse = Record<string, unknown>;
 
@@ -71,6 +70,7 @@ interface CourseItemProps {
   isExpanded: boolean;
   onToggle: () => void;
   onDelete: (id: string) => void;
+  onDeleteSubject: (subjectId: string) => Promise<void>; // Prop limpa: apenas subjectId
   subjects: Subject[];
   subjectsLoading: boolean;
   index: number;
@@ -81,14 +81,11 @@ function CourseItem({
   isExpanded,
   onToggle,
   onDelete,
+  onDeleteSubject,
   subjects,
   subjectsLoading,
   index,
 }: CourseItemProps) {
-  const typeColor =
-    { INTEGRADO: '#2E7D32', SUBSEQUENTE: '#ED6C02', SUPERIOR: '#1976D2' }[
-      course.type as string
-    ] || '#757575';
   const isEven = index % 2 === 0;
 
   return (
@@ -119,20 +116,6 @@ function CourseItem({
             >
               {course.name}
             </Typography>
-            <Chip
-              label={course.type}
-              size="small"
-              sx={{
-                height: 16,
-                fontSize: '0.6rem',
-                fontWeight: 700,
-                mt: 0.5,
-                bgcolor: isExpanded ? 'rgba(255,255,255,0.2)' : 'transparent',
-                color: isExpanded ? '#fff' : typeColor,
-                borderColor: isExpanded ? '#fff' : typeColor,
-              }}
-              variant="outlined"
-            />
           </Box>
         </Box>
         <IconButton
@@ -192,7 +175,14 @@ function CourseItem({
                         {sub.name || sub.nome || sub.titulo}
                       </TableCell>
                       <TableCell align="right">
-                        <IconButton size="small" color="error">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteSubject(sub.id); // Chamada limpa
+                          }}
+                        >
                           <DeleteIcon sx={{ fontSize: 16 }} />
                         </IconButton>
                       </TableCell>
@@ -205,7 +195,7 @@ function CourseItem({
                       align="center"
                       sx={{ py: 2, color: '#64748b' }}
                     >
-                      Nenhuma disciplina vinculada encontrada.
+                      Nenhuma disciplina vinculada.
                     </TableCell>
                   </TableRow>
                 )}
@@ -228,12 +218,11 @@ export default function CoursesPage() {
     Record<string, boolean>
   >({});
   const [openModalCourse, setOpenModalCourse] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('TODOS');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const itemsPerPage = 8;
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 8;
 
   const {
     control,
@@ -247,10 +236,11 @@ export default function CoursesPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const res = await getAllCourses();
-      const raw =
-        res?.data?.items || res?.items || (Array.isArray(res) ? res : []);
-      setCourses(raw.map((item: RawCourse) => normalizeCourse(item)));
+      const res = await getAllCourses({ page, limit, search: activeSearch });
+      const items = res?.data?.items || res?.items || [];
+      const total = res?.data?.page?.total || res?.page?.total || 1;
+      setCourses(items.map((item: RawCourse) => normalizeCourse(item)));
+      setTotalPages(total);
     } catch (error) {
       console.error('Erro ao carregar cursos:', error);
     } finally {
@@ -260,45 +250,29 @@ export default function CoursesPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [page, activeSearch]);
+
+  const handleSearch = (value: string) => {
+    setActiveSearch(value);
+    setPage(1);
+  };
 
   const handleExpand = async (courseId: string) => {
     const isOpening = expandedCourse !== courseId;
     setExpandedCourse(isOpening ? courseId : null);
-
     if (isOpening && !courseSubjects[courseId]) {
       setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: true }));
       try {
         const res = await getSubjectsByCourse(courseId);
-
         const list = res?.data?.items || res?.items || res || [];
-
         setCourseSubjects((prev) => ({ ...prev, [courseId]: list }));
       } catch (e) {
-        console.error('Erro ao carregar disciplinas:', e);
         setCourseSubjects((prev) => ({ ...prev, [courseId]: [] }));
       } finally {
         setCourseSubjectsLoading((prev) => ({ ...prev, [courseId]: false }));
       }
     }
   };
-
-  const filtered = useMemo(
-    () =>
-      courses.filter(
-        (c) =>
-          c.name.toLowerCase().includes(activeSearch.toLowerCase()) &&
-          (typeFilter === 'TODOS' || c.type === typeFilter),
-      ),
-    [activeSearch, typeFilter, courses],
-  );
-
-  const paginatedCourses = useMemo(() => {
-    const start = (page - 1) * itemsPerPage;
-    return filtered.slice(start, start + itemsPerPage);
-  }, [filtered, page]);
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   const onSubmit = async (data: CourseType) => {
     try {
@@ -311,13 +285,38 @@ export default function CoursesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteCourse = async (id: string) => {
     if (confirm('Deseja realmente excluir este curso?')) {
       try {
         await deleteCourse(id);
         await loadData();
       } catch (e) {
         console.error(e);
+      }
+    }
+  };
+
+  // Função de delete de disciplina otimizada conforme orientação da Claudiane
+  const handleDeleteSubject = async (subjectId: string) => {
+    if (confirm('Deseja realmente excluir esta disciplina?')) {
+      try {
+        // A API só precisa do ID da disciplina
+        await deleteSubject(subjectId);
+
+        // Atualização reativa global do estado das disciplinas carregadas
+        setCourseSubjects((prev) => {
+          const updatedState = { ...prev };
+          Object.keys(updatedState).forEach((courseKey) => {
+            updatedState[courseKey] = updatedState[courseKey].filter(
+              (sub) => sub.id !== subjectId,
+            );
+          });
+          return updatedState;
+        });
+
+        console.log('Disciplina removida com sucesso (Service Claudiane).');
+      } catch (e) {
+        console.error('Erro ao deletar disciplina:', e);
       }
     }
   };
@@ -330,70 +329,50 @@ export default function CoursesPage() {
     );
 
   return (
-    <ContentLayoutComponent title="Cursos">
-      <Box sx={{ width: '100%', mt: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-          <Select
-            size="small"
-            value={typeFilter}
-            onChange={(e) => {
-              setTypeFilter(e.target.value);
-              setPage(1);
-            }}
-            startAdornment={
-              <FilterIcon sx={{ fontSize: 18, mr: 0.5, color: '#0B0A7A' }} />
-            }
-            sx={{
-              bgcolor: '#f1f5f9',
-              borderRadius: 2,
-              minWidth: 160,
-              height: 38,
-              color: '#0B0A7A',
-              fontWeight: 600,
-            }}
-          >
-            <MenuItem value="TODOS">Todas Modalidades</MenuItem>
-            <MenuItem value="INTEGRADO">Integrado</MenuItem>
-            <MenuItem value="SUBSEQUENTE">Subsequente</MenuItem>
-            <MenuItem value="SUPERIOR">Superior</MenuItem>
-          </Select>
-
-          <TextField
-            size="small"
-            placeholder="Buscar curso..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && setActiveSearch(searchTerm)}
-            sx={{
-              bgcolor: '#f1f5f9',
-              borderRadius: 2,
-              flexGrow: 1,
-              maxWidth: 300,
-              '& fieldset': { border: '1px solid #cbd5e1' },
-            }}
-          />
+    <ContentLayoutComponent
+      title="Cursos"
+      description="Gerencie os cursos do sistema."
+      hasPagination={true}
+      count={totalPages}
+      page={page}
+      onChange={(_, value) => setPage(value)}
+    >
+      <Box
+        sx={{
+          width: '100%',
+          mt: 1,
+          '& .MuiPaginationItem-root.Mui-selected': {
+            backgroundColor: '#0B0A7A !important',
+            color: '#ffffff !important',
+            '&:hover': { backgroundColor: '#08075a !important' },
+          },
+          '& .MuiPaginationItem-root': { color: '#0B0A7A', fontWeight: 600 },
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 1.5,
+            mb: 3,
+          }}
+        >
+          <SearchBarComponent delay={500} onSearch={handleSearch} />
 
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenModalCourse(true)}
+            color="secondary"
             sx={{
-              background: '#0B0A7A',
-              borderRadius: 2,
+              borderRadius: '50px',
               px: 3,
               fontWeight: 700,
-              ml: 'auto',
-              height: 38,
+              height: 40,
               fontSize: '0.85rem',
               textTransform: 'none',
               whiteSpace: 'nowrap',
-              minWidth: 'fit-content',
-              boxShadow: '0 4px 6px -1px rgba(11, 10, 122, 0.3)',
-              '&:hover': { background: '#08075a' },
-              '& .MuiButton-startIcon': {
-                display: 'flex',
-                alignItems: 'center',
-              },
             }}
           >
             Novo Curso
@@ -409,16 +388,17 @@ export default function CoursesPage() {
             bgcolor: '#fff',
           }}
         >
-          {filtered.length > 0 ? (
+          {courses.length > 0 ? (
             <List disablePadding>
-              {paginatedCourses.map((course, idx) => (
+              {courses.map((course, idx) => (
                 <CourseItem
                   key={course.id}
                   index={idx}
                   course={course}
                   isExpanded={expandedCourse === course.id}
                   onToggle={() => handleExpand(course.id)}
-                  onDelete={handleDelete}
+                  onDelete={handleDeleteCourse}
+                  onDeleteSubject={handleDeleteSubject} // Prop limpa
                   subjects={courseSubjects[course.id] ?? []}
                   subjectsLoading={!!courseSubjectsLoading[course.id]}
                 />
@@ -433,18 +413,6 @@ export default function CoursesPage() {
             </Box>
           )}
         </Paper>
-
-        {totalPages > 1 && (
-          <Stack sx={{ mt: 4, alignItems: 'center' }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(_, v) => setPage(v)}
-              color="primary"
-              size="large"
-            />
-          </Stack>
-        )}
       </Box>
 
       {/* Modal - Novo Curso */}
