@@ -18,6 +18,17 @@ export async function getAllCourses(filters?: {
   }
 }
 
+export async function getSubjectsByCourse(course_id: string) {
+  try {
+    const { data } = await api.get('/subject', {
+      params: { course_id },
+    });
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
 export async function getCourseById(id: string) {
   try {
     const { data } = await api.get(`/course/${id}`);
