@@ -24,7 +24,7 @@ import {
 } from '@mui/icons-material';
 import { CourseData, Subject } from '../_types/course.types';
 
-import { getAllSubjectsByCourse } from '../../subjects/_services/subjects.service';
+import { getAllSubjects } from '../../subjects/_services/subjects.service';
 
 interface CourseItemProps {
   course: CourseData;
@@ -54,7 +54,11 @@ export function CourseItem({
 
     setLoading(true);
     try {
-      const res = await getAllSubjectsByCourse(course.id);
+      const res = await getAllSubjects({
+        course_id: course.id,
+        with_course: false,
+        with_pagination: false,
+      });
       // Padrão estrito da API: data.items
       setSubjects(res?.data?.items || []);
     } catch (e) {

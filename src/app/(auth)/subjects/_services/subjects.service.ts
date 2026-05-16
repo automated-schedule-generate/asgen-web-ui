@@ -41,20 +41,27 @@ export async function updateSubject(payload: SubjectType) {
 export async function getAllSubjects({
   page = 1,
   limit = 10,
-  search = '',
+  search,
+  with_course = true,
+  with_pagination = true,
+  course_id,
 }: {
   page?: number;
   limit?: number;
   search?: string;
+  with_course?: boolean;
+  with_pagination?: boolean;
+  course_id?: string;
 } = {}) {
   try {
     const { data } = await api.get('/subject', {
       params: {
-        with_course: true,
-        with_pagination: true,
+        with_course,
+        with_pagination,
         page,
         limit,
         search,
+        course_id,
       },
     });
 
@@ -75,17 +82,6 @@ export async function getSubjectById(id: string) {
   }
 }
 
-export async function getAllSubjectsByCourse(course_id: string) {
-  try {
-    const { data } = await api.get('/subject', {
-      params: { course_id: course_id },
-    });
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
 export async function getAllSubjectsByPrerequisite(prerequisite_id: string) {
   try {
     const { data } = await api.get(`/subject/prerequisite/${prerequisite_id}`);
