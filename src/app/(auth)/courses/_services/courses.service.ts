@@ -1,18 +1,18 @@
 'use server';
+
 import { getApi } from '@/plugin/api.plugin';
 import type { CourseType } from '../_schemas/course.schema';
+
 const api = await getApi();
 
 export async function getAllCourses({
   page = 1,
   limit = 10,
   search = '',
-  // type = '', // Comentado para uso futuro
 }: {
   page?: number;
   limit?: number;
   search?: string;
-  // type?: string; // Comentado para uso futuro
 } = {}) {
   try {
     const { data } = await api.get('/course', {
@@ -21,7 +21,6 @@ export async function getAllCourses({
         page,
         limit,
         search,
-        // type: type || undefined, // Comentado para uso futuro
       },
     });
     return data;
@@ -31,17 +30,6 @@ export async function getAllCourses({
   }
 }
 
-export async function getSubjectsByCourse(course_id: string) {
-  try {
-    const { data } = await api.get('/subject', {
-      params: { course_id },
-    });
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
 export async function getCourseById(id: string) {
   try {
     const { data } = await api.get(`/course/${id}`);

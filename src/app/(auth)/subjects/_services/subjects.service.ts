@@ -75,9 +75,11 @@ export async function getSubjectById(id: string) {
   }
 }
 
-export async function getAllSubjectsByCourse(couse_id: string) {
+export async function getAllSubjectsByCourse(course_id: string) {
   try {
-    const { data } = await api.get(`/subject/course/${couse_id}`);
+    const { data } = await api.get('/subject', {
+      params: { course_id: course_id },
+    });
     return data;
   } catch (error) {
     console.log(error);

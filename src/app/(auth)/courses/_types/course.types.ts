@@ -13,3 +13,12 @@ export interface CourseData {
   type: 'INTEGRADO' | 'SUBSEQUENTE' | 'SUPERIOR' | 'OUTRO';
   subjects?: Subject[];
 }
+
+export interface CourseItemProps {
+  course: CourseData;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onDelete: (id: string) => void;
+  onDeleteSubject: (subjectId: string, courseId: string) => Promise<void>;
+  index: number;
+}
