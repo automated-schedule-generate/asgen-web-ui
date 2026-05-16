@@ -18,12 +18,12 @@ import {
 } from '@mui/material';
 import {
   DeleteOutline as DeleteIcon,
+  EditOutlined as EditIcon,
   KeyboardArrowRight,
   School as SchoolIcon,
 } from '@mui/icons-material';
 import { CourseData, Subject } from '../_types/course.types';
 
-// Importa a função do service de subjects conforme exigência do Guilherme
 import { getAllSubjectsByCourse } from '../../subjects/_services/subjects.service';
 
 interface CourseItemProps {
@@ -31,6 +31,7 @@ interface CourseItemProps {
   isExpanded: boolean;
   onToggle: () => void;
   onDelete: (id: string) => void;
+  onEdit: (course: CourseData) => void;
   onDeleteSubject: (subjectId: string) => Promise<void>;
   index: number;
 }
@@ -40,6 +41,7 @@ export function CourseItem({
   isExpanded,
   onToggle,
   onDelete,
+  onEdit,
   onDeleteSubject,
   index,
 }: CourseItemProps) {
@@ -47,7 +49,6 @@ export function CourseItem({
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Busca as disciplinas isoladamente usando o endpoint corrigido pela Claudiane
   const fetchSubjects = useCallback(async () => {
     if (!course.id) return;
 
@@ -101,6 +102,19 @@ export function CourseItem({
           </Box>
         </Box>
 
+        {/* Botão de Atualizar / Editar */}
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(course);
+          }}
+          sx={{ color: 'inherit', mr: 0.5 }}
+        >
+          <EditIcon sx={{ fontSize: 20 }} />
+        </IconButton>
+
+        {/* Botão de Deletar */}
         <IconButton
           size="small"
           onClick={(e) => {
@@ -164,7 +178,6 @@ export function CourseItem({
                           onClick={async (e) => {
                             e.stopPropagation();
                             await onDeleteSubject(sub.id);
-                            // Conforme revisão do Guilherme: refaz a requisição para atualizar os dados em tela
                             fetchSubjects();
                           }}
                         >

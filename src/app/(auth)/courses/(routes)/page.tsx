@@ -23,6 +23,7 @@ import { CourseForm } from '../_components/course-form.component';
 import {
   getAllCourses,
   createCourse,
+  updateCourse,
   deleteCourse,
 } from '../_services/courses.service';
 import { deleteSubject } from '../../subjects/_services/subjects.service';
@@ -31,6 +32,7 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [openModalCourse, setOpenModalCourse] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null); // Estado para controlar atualização
   const [activeSearch, setActiveSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -70,14 +72,34 @@ export default function CoursesPage() {
     setExpandedCourse((prev) => (prev === courseId ? null : courseId));
   };
 
+  // Aciona quando clicam no lápis do item
+  const handleEditClick = (course: CourseData) => {
+    setEditingCourseId(course.id);
+    formMethods.reset({
+      name: course.name,
+      class_time: course.class_time as '45' | '60', // Cast de proteção do TS
+      total_semesters: Number(course.total_semesters),
+    });
+    setOpenModalCourse(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModalCourse(false);
+    setEditingCourseId(null);
+    formMethods.reset({ class_time: '45', total_semesters: 1 });
+  };
+
   const onSubmit = async (data: CourseType) => {
     try {
-      await createCourse(data);
+      if (editingCourseId) {
+        await updateCourse(editingCourseId, data);
+      } else {
+        await createCourse(data);
+      }
       await loadData();
-      setOpenModalCourse(false);
-      formMethods.reset();
+      handleCloseModal();
     } catch (e) {
-      console.error(e);
+      console.error('Erro ao submeter curso:', e);
     }
   };
 
@@ -177,6 +199,7 @@ export default function CoursesPage() {
                   isExpanded={expandedCourse === course.id}
                   onToggle={() => handleToggle(course.id)}
                   onDelete={handleDeleteCourse}
+                  onEdit={handleEditClick} // Repassa a função de edição
                   onDeleteSubject={handleDeleteSubject}
                 />
               ))}
@@ -194,17 +217,17 @@ export default function CoursesPage() {
 
       <Dialog
         open={openModalCourse}
-        onClose={() => setOpenModalCourse(false)}
+        onClose={handleCloseModal}
         fullWidth
         maxWidth="xs"
       >
         <DialogTitle sx={{ fontWeight: 800, color: '#0B0A7A' }}>
-          Novo Curso
+          {editingCourseId ? 'Editar Curso' : 'Novo Curso'}
         </DialogTitle>
         <CourseForm
           formMethods={formMethods}
           onSubmit={onSubmit}
-          onCancel={() => setOpenModalCourse(false)}
+          onCancel={handleCloseModal}
         />
       </Dialog>
     </ContentLayoutComponent>

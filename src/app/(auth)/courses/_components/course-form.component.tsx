@@ -89,7 +89,7 @@ export function CourseForm({
           variant="contained"
           sx={{ bgcolor: '#0B0A7A', fontWeight: 700 }}
         >
-          Criar Curso
+          Atualizar Curso
         </Button>
       </DialogActions>
     </form>
