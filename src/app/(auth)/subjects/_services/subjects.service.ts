@@ -41,20 +41,27 @@ export async function updateSubject(payload: SubjectType) {
 export async function getAllSubjects({
   page = 1,
   limit = 10,
-  search = '',
+  search,
+  with_course = true,
+  with_pagination = true,
+  course_id,
 }: {
   page?: number;
   limit?: number;
   search?: string;
+  with_course?: boolean;
+  with_pagination?: boolean;
+  course_id?: string;
 } = {}) {
   try {
     const { data } = await api.get('/subject', {
       params: {
-        with_course: true,
-        with_pagination: true,
+        with_course,
+        with_pagination,
         page,
         limit,
         search,
+        course_id,
       },
     });
 
