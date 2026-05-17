@@ -49,9 +49,9 @@ export default function SubjectsEditFormComponent({
     },
   });
 
-  async function submit(data: SubjectType) {
+  async function submit(id: string, data: SubjectType) {
     try {
-      await updateSubject({ id: subject.id, ...data });
+      await updateSubject(id, data);
       reset();
       router.push('/subjects');
     } catch (error) {
@@ -61,7 +61,10 @@ export default function SubjectsEditFormComponent({
 
   return (
     <>
-      <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-2">
+      <form
+        onSubmit={handleSubmit((data) => submit(subject.id!, data))}
+        className="flex flex-col gap-2"
+      >
         <FormInput
           name="name"
           label="Nome:"
