@@ -19,41 +19,60 @@ import { courseSchema, type CourseType } from '../_schemas/course.schema';
 import { CourseData } from '../_types/course.types';
 import { CourseItem } from '../_components/course-item.component';
 import { CourseForm } from '../_components/course-form.component';
-
 import {
   getAllCourses,
   createCourse,
   updateCourse,
-  deleteCourse,
 } from '../_services/courses.service';
-import { deleteSubject } from '../../subjects/_services/subjects.service';
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
-  const [openModalCourse, setOpenModalCourse] = useState(false);
-  const [editingCourseId, setEditingCourseId] = useState<string | null>(null); // Estado para controlar atualização
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [activeSearch, setActiveSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 8;
 
-  const formMethods = useFormWithZod(courseSchema, {
+  const createFormMethods = useFormWithZod(courseSchema, {
     defaultValues: { class_time: '45', total_semesters: 1 },
   });
+
+  const editFormMethods = useFormWithZod(courseSchema, {
+    defaultValues: { class_time: '45', total_semesters: 1 },
+  });
+
+  useEffect(() => {
+    if (openCreateModal) {
+      console.log('--- LOGS DO FORMULÁRIO DE CRIAÇÃO ---');
+      console.log('Valores atuais do Create:', createFormMethods.getValues());
+      console.log(
+        'Erros ativos do Create:',
+        createFormMethods.formState.errors,
+      );
+    }
+  }, [openCreateModal, createFormMethods]);
+
+  useEffect(() => {
+    if (openEditModal) {
+      console.log('--- LOGS DO FORMULÁRIO DE EDIÇÃO ---');
+      console.log('ID do curso a ser editado:', editingCourseId);
+      console.log('Valores carregados no Edit:', editFormMethods.getValues());
+      console.log('Erros ativos do Edit:', editFormMethods.formState.errors);
+    }
+  }, [openEditModal, editingCourseId, editFormMethods]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getAllCourses({ page, limit, search: activeSearch });
-      const items = res?.data?.items || [];
-      const total = res?.data?.page?.total || 1;
-
-      setCourses(items);
-      setTotalPages(total);
+      setCourses(res?.data?.items || []);
+      setTotalPages(res?.data?.page?.total || 1);
     } catch (error) {
-      console.error('Erro ao carregar cursos:', error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -63,65 +82,38 @@ export default function CoursesPage() {
     loadData();
   }, [loadData]);
 
-  const handleSearch = (value: string) => {
-    setActiveSearch(value);
-    setPage(1);
+  const onCreateSubmit = async (data: CourseType) => {
+    try {
+      await createCourse(data);
+      await loadData();
+      setOpenCreateModal(false);
+      createFormMethods.reset({ class_time: '45', total_semesters: 1 });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const handleToggle = (courseId: string) => {
-    setExpandedCourse((prev) => (prev === courseId ? null : courseId));
+  const onEditSubmit = async (data: CourseType) => {
+    if (!editingCourseId) return;
+    try {
+      await updateCourse(editingCourseId, data);
+      await loadData();
+      setOpenEditModal(false);
+      setEditingCourseId(null);
+      editFormMethods.reset({ class_time: '45', total_semesters: 1 });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  // Aciona quando clicam no lápis do item
   const handleEditClick = (course: CourseData) => {
     setEditingCourseId(course.id);
-    formMethods.reset({
+    editFormMethods.reset({
       name: course.name,
-      class_time: course.class_time as '45' | '60', // Cast de proteção do TS
+      class_time: course.class_time as '45' | '60',
       total_semesters: Number(course.total_semesters),
     });
-    setOpenModalCourse(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModalCourse(false);
-    setEditingCourseId(null);
-    formMethods.reset({ class_time: '45', total_semesters: 1 });
-  };
-
-  const onSubmit = async (data: CourseType) => {
-    try {
-      if (editingCourseId) {
-        await updateCourse(editingCourseId, data);
-      } else {
-        await createCourse(data);
-      }
-      await loadData();
-      handleCloseModal();
-    } catch (e) {
-      console.error('Erro ao submeter curso:', e);
-    }
-  };
-
-  const handleDeleteCourse = async (id: string) => {
-    if (window.confirm('Deseja realmente excluir este curso?')) {
-      try {
-        await deleteCourse(id);
-        await loadData();
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  };
-
-  const handleDeleteSubject = async (subjectId: string) => {
-    if (window.confirm('Deseja realmente excluir esta disciplina?')) {
-      try {
-        await deleteSubject(subjectId);
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    setOpenEditModal(true);
   };
 
   if (loading)
@@ -140,17 +132,7 @@ export default function CoursesPage() {
       page={page}
       onChange={(_, value) => setPage(value)}
     >
-      <Box
-        sx={{
-          width: '100%',
-          mt: 1,
-          '& .MuiPaginationItem-root.Mui-selected': {
-            backgroundColor: '#0B0A7A !important',
-            color: '#ffffff !important',
-          },
-          '& .MuiPaginationItem-root': { color: '#0B0A7A', fontWeight: 600 },
-        }}
-      >
+      <Box sx={{ width: '100%', mt: 1 }}>
         <Box
           sx={{
             display: 'flex',
@@ -160,12 +142,18 @@ export default function CoursesPage() {
             mb: 3,
           }}
         >
-          <SearchBarComponent delay={500} onSearch={handleSearch} />
+          <SearchBarComponent
+            delay={500}
+            onSearch={(v) => {
+              setActiveSearch(v);
+              setPage(1);
+            }}
+          />
 
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => setOpenModalCourse(true)}
+            onClick={() => setOpenCreateModal(true)}
             color="secondary"
             sx={{
               borderRadius: '50px',
@@ -173,7 +161,6 @@ export default function CoursesPage() {
               fontWeight: 700,
               height: 40,
               textTransform: 'none',
-              whiteSpace: 'nowrap',
             }}
           >
             Novo Curso
@@ -197,10 +184,13 @@ export default function CoursesPage() {
                   index={idx}
                   course={course}
                   isExpanded={expandedCourse === course.id}
-                  onToggle={() => handleToggle(course.id)}
-                  onDelete={handleDeleteCourse}
-                  onEdit={handleEditClick} // Repassa a função de edição
-                  onDeleteSubject={handleDeleteSubject}
+                  onToggle={() =>
+                    setExpandedCourse((prev) =>
+                      prev === course.id ? null : course.id,
+                    )
+                  }
+                  onEditClick={handleEditClick}
+                  onRefresh={loadData}
                 />
               ))}
             </List>
@@ -216,18 +206,36 @@ export default function CoursesPage() {
       </Box>
 
       <Dialog
-        open={openModalCourse}
-        onClose={handleCloseModal}
+        open={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
         fullWidth
         maxWidth="xs"
       >
         <DialogTitle sx={{ fontWeight: 800, color: '#0B0A7A' }}>
-          {editingCourseId ? 'Editar Curso' : 'Novo Curso'}
+          Novo Curso
         </DialogTitle>
         <CourseForm
-          formMethods={formMethods}
-          onSubmit={onSubmit}
-          onCancel={handleCloseModal}
+          formMethods={createFormMethods}
+          onSubmit={onCreateSubmit}
+          onCancel={() => setOpenCreateModal(false)}
+          isEdit={false}
+        />
+      </Dialog>
+
+      <Dialog
+        open={openEditModal}
+        onClose={() => setOpenEditModal(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle sx={{ fontWeight: 800, color: '#0B0A7A' }}>
+          Editar Curso
+        </DialogTitle>
+        <CourseForm
+          formMethods={editFormMethods}
+          onSubmit={onEditSubmit}
+          onCancel={() => setOpenEditModal(false)}
+          isEdit={true}
         />
       </Dialog>
     </ContentLayoutComponent>

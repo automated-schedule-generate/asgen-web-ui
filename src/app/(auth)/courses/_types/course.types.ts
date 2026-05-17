@@ -10,7 +10,6 @@ export interface CourseData {
   name: string;
   total_semesters: number;
   class_time: string;
-  type: 'INTEGRADO' | 'SUBSEQUENTE' | 'SUPERIOR' | 'OUTRO';
   subjects?: Subject[];
 }
 

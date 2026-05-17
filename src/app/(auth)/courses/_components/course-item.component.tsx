@@ -22,17 +22,20 @@ import {
   KeyboardArrowRight,
   School as SchoolIcon,
 } from '@mui/icons-material';
-import { CourseData, Subject } from '../_types/course.types';
-
-import { getAllSubjects } from '../../subjects/_services/subjects.service';
+import { CourseData } from '../_types/course.types';
+import { deleteCourse } from '../_services/courses.service';
+import {
+  getAllSubjects,
+  deleteSubject,
+} from '../../subjects/_services/subjects.service';
+import type { SubjectType } from '../../subjects/_schemas/subject.schema';
 
 interface CourseItemProps {
   course: CourseData;
   isExpanded: boolean;
   onToggle: () => void;
-  onDelete: (id: string) => void;
-  onEdit: (course: CourseData) => void;
-  onDeleteSubject: (subjectId: string) => Promise<void>;
+  onEditClick: (course: CourseData) => void;
+  onRefresh: () => Promise<void>;
   index: number;
 }
 
@@ -40,18 +43,16 @@ export function CourseItem({
   course,
   isExpanded,
   onToggle,
-  onDelete,
-  onEdit,
-  onDeleteSubject,
+  onEditClick,
+  onRefresh,
   index,
 }: CourseItemProps) {
   const isEven = index % 2 === 0;
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjects, setSubjects] = useState<SubjectType[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchSubjects = useCallback(async () => {
     if (!course.id) return;
-
     setLoading(true);
     try {
       const res = await getAllSubjects({
@@ -59,10 +60,11 @@ export function CourseItem({
         with_course: false,
         with_pagination: false,
       });
-      // Padrão estrito da API: data.items
-      setSubjects(res?.data?.items || []);
+
+      const items = res?.data?.items || res?.items || res?.data || [];
+      setSubjects(Array.isArray(items) ? items : []);
     } catch (e) {
-      console.error('Erro ao buscar disciplinas:', e);
+      console.error('Erro ao carregar disciplinas:', e);
     } finally {
       setLoading(false);
     }
@@ -70,8 +72,29 @@ export function CourseItem({
 
   const handleToggleClick = () => {
     onToggle();
-    if (!isExpanded) {
-      fetchSubjects();
+    if (!isExpanded) fetchSubjects();
+  };
+
+  const handleDeleteCourseClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Deseja realmente excluir este curso?')) {
+      try {
+        await deleteCourse(course.id);
+        await onRefresh();
+      } catch (err) {
+        console.error('Erro ao deletar curso:', err);
+      }
+    }
+  };
+
+  const handleDeleteSubjectClick = async (subjectId: string) => {
+    if (window.confirm('Deseja realmente excluir esta disciplina?')) {
+      try {
+        await deleteSubject(subjectId);
+        await fetchSubjects();
+      } catch (err) {
+        console.error('Erro ao deletar disciplina:', err);
+      }
     }
   };
 
@@ -96,35 +119,25 @@ export function CourseItem({
           sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}
         >
           <SchoolIcon sx={{ fontSize: 20, opacity: 0.8 }} />
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 800, lineHeight: 1.1, fontSize: '0.9rem' }}
-            >
-              {course.name}
-            </Typography>
-          </Box>
+          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+            {course.name}
+          </Typography>
         </Box>
 
-        {/* Botão de Atualizar / Editar */}
         <IconButton
           size="small"
           onClick={(e) => {
             e.stopPropagation();
-            onEdit(course);
+            onEditClick(course);
           }}
           sx={{ color: 'inherit', mr: 0.5 }}
         >
           <EditIcon sx={{ fontSize: 20 }} />
         </IconButton>
 
-        {/* Botão de Deletar */}
         <IconButton
           size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(course.id);
-          }}
+          onClick={handleDeleteCourseClick}
           sx={{ color: 'inherit', mr: 1 }}
         >
           <DeleteIcon sx={{ fontSize: 20 }} />
@@ -147,12 +160,12 @@ export function CourseItem({
             <Table size="small">
               <TableHead sx={{ bgcolor: '#e2e8f0' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, py: 1, color: '#0B0A7A' }}>
+                  <TableCell sx={{ fontWeight: 800, color: '#0B0A7A' }}>
                     Disciplina
                   </TableCell>
                   <TableCell
                     align="right"
-                    sx={{ fontWeight: 800, py: 1, color: '#0B0A7A' }}
+                    sx={{ fontWeight: 800, color: '#0B0A7A' }}
                   >
                     Ação
                   </TableCell>
@@ -162,28 +175,20 @@ export function CourseItem({
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={2} align="center" sx={{ py: 3 }}>
-                      <CircularProgress
-                        size={24}
-                        thickness={5}
-                        sx={{ color: '#0B0A7A' }}
-                      />
+                      <CircularProgress size={24} sx={{ color: '#0B0A7A' }} />
                     </TableCell>
                   </TableRow>
                 ) : subjects.length > 0 ? (
                   subjects.map((sub, idx) => (
                     <TableRow key={sub.id || idx} hover>
                       <TableCell sx={{ py: 1, fontWeight: 500 }}>
-                        {sub.name || sub.nome || sub.titulo}
+                        {sub.name}
                       </TableCell>
                       <TableCell align="right">
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            await onDeleteSubject(sub.id);
-                            fetchSubjects();
-                          }}
+                          onClick={() => handleDeleteSubjectClick(sub.id!)}
                         >
                           <DeleteIcon sx={{ fontSize: 16 }} />
                         </IconButton>
