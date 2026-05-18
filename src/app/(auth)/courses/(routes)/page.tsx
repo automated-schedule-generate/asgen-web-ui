@@ -9,19 +9,19 @@ import {
   Stack,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { useRouter } from 'next/navigation';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 
 import { CourseItem } from '@/app/(auth)/courses/_components/course-item.component';
+import { CreateCourseModal } from '@/app/(auth)/courses/_components/create-course-modal.component';
 import { getAllCourses } from '@/app/(auth)/courses/_services/courses.service';
 import { CourseData } from '@/app/(auth)/courses/_types/course.types';
 
 export default function CoursesPage() {
-  const router = useRouter();
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const fetchCourses = useCallback(async () => {
     setLoading(true);
@@ -61,17 +61,15 @@ export default function CoursesPage() {
             flexDirection: { xs: 'column', sm: 'row' },
           }}
         >
-          <Box sx={{ maxWidth: '400px', width: '100%' }}>
-            <SearchBarComponent
-              placeholder="Buscar..."
-              onSearch={setSearchTerm}
-            />
-          </Box>
+          <SearchBarComponent
+            placeholder="Buscar..."
+            onSearch={setSearchTerm}
+          />
 
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => router.push('/courses/new')}
+            onClick={() => setIsCreateModalOpen(true)}
             sx={{
               bgcolor: '#0B0A7A',
               '&:hover': { bgcolor: '#060554' },
@@ -120,6 +118,12 @@ export default function CoursesPage() {
           </Box>
         )}
       </Box>
+
+      <CreateCourseModal
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onRefresh={fetchCourses}
+      />
     </ContentLayoutComponent>
   );
 }
