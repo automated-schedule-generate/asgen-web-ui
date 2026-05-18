@@ -1,16 +1,11 @@
-export interface Subject {
-  id: string;
-  name?: string;
-  titulo?: string;
-  nome?: string;
-}
+import type { SubjectType } from '../../subjects/_schemas/subject.schema';
 
 export interface CourseData {
   id: string;
   name: string;
-  total_semesters: number;
-  class_time: string;
-  subjects?: Subject[];
+  class_time: string | number;
+  total_semesters: string | number;
+  subjects?: SubjectType[];
 }
 
 export interface CourseItemProps {

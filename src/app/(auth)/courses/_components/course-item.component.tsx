@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Typography,
   Box,
   IconButton,
   CircularProgress,
   Collapse,
-  ListItem,
   Table,
   TableBody,
   TableCell,
@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import {
   DeleteOutline as DeleteIcon,
-  EditOutlined as EditIcon,
+  Edit as EditIcon,
   KeyboardArrowRight,
   School as SchoolIcon,
 } from '@mui/icons-material';
@@ -32,22 +32,14 @@ import type { SubjectType } from '../../subjects/_schemas/subject.schema';
 
 interface CourseItemProps {
   course: CourseData;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onEditClick: (course: CourseData) => void;
   onRefresh: () => Promise<void>;
   index: number;
 }
 
-export function CourseItem({
-  course,
-  isExpanded,
-  onToggle,
-  onEditClick,
-  onRefresh,
-  index,
-}: CourseItemProps) {
-  const isEven = index % 2 === 0;
+// Alterado aqui para exportação nomeada (Sem o 'default')
+export function CourseItem({ course, onRefresh }: CourseItemProps) {
+  const router = useRouter();
+  const [isExpanded, setIsExpanded] = useState(false);
   const [subjects, setSubjects] = useState<SubjectType[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -60,7 +52,6 @@ export function CourseItem({
         with_course: false,
         with_pagination: false,
       });
-
       const items = res?.data?.items || res?.items || res?.data || [];
       setSubjects(Array.isArray(items) ? items : []);
     } catch (e) {
@@ -71,8 +62,9 @@ export function CourseItem({
   }, [course.id]);
 
   const handleToggleClick = () => {
-    onToggle();
-    if (!isExpanded) fetchSubjects();
+    const nextState = !isExpanded;
+    setIsExpanded(nextState);
+    if (nextState) fetchSubjects();
   };
 
   const handleDeleteCourseClick = async (e: React.MouseEvent) => {
@@ -99,59 +91,88 @@ export function CourseItem({
   };
 
   return (
-    <Box sx={{ borderBottom: '2px solid #cbd5e1' }}>
-      <ListItem
+    <Box
+      sx={{
+        backgroundColor: '#fff',
+        border: '1px solid #cbd5e1',
+        borderRadius: '10px',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        transition: 'all 0.3s ease',
+      }}
+    >
+      <Box
         onClick={handleToggleClick}
         sx={{
-          py: 1.8,
-          px: 2,
-          cursor: 'pointer',
-          bgcolor: isExpanded ? '#0B0A7A' : isEven ? '#ffffff' : '#f8fafc',
+          backgroundColor: isExpanded ? '#0B0A7A' : '#fff',
           color: isExpanded ? '#fff' : '#0B0A7A',
+          padding: '12px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'pointer',
           transition: 'all 0.2s ease',
-          borderLeft: isExpanded
-            ? '6px solid #3b82f6'
-            : '6px solid transparent',
-          '&:hover': { bgcolor: isExpanded ? '#0B0A7A' : '#f1f5f9' },
+          '&:hover': {
+            backgroundColor: isExpanded ? '#0B0A7A' : '#f8fafc',
+          },
         }}
       >
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}
-        >
-          <SchoolIcon sx={{ fontSize: 20, opacity: 0.8 }} />
-          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <SchoolIcon sx={{ color: 'inherit', fontSize: 22, opacity: 0.9 }} />
+          <Typography
+            sx={{
+              fontWeight: 700,
+              fontSize: '1rem',
+              color: 'inherit',
+            }}
+          >
             {course.name}
           </Typography>
         </Box>
 
-        <IconButton
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEditClick(course);
-          }}
-          sx={{ color: 'inherit', mr: 0.5 }}
-        >
-          <EditIcon sx={{ fontSize: 20 }} />
-        </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/courses/${course.id}/edit`);
+            }}
+            sx={{ color: 'inherit' }}
+          >
+            <EditIcon sx={{ fontSize: 20 }} />
+          </IconButton>
 
-        <IconButton
-          size="small"
-          onClick={handleDeleteCourseClick}
-          sx={{ color: 'inherit', mr: 1 }}
-        >
-          <DeleteIcon sx={{ fontSize: 20 }} />
-        </IconButton>
-        <KeyboardArrowRight
-          sx={{
-            transform: isExpanded ? 'rotate(90deg)' : '0',
-            transition: '0.3s',
-          }}
-        />
-      </ListItem>
+          <IconButton
+            size="small"
+            onClick={handleDeleteCourseClick}
+            sx={{
+              color: isExpanded ? '#fff' : '#BD0000',
+              '&:hover': {
+                backgroundColor: isExpanded
+                  ? 'rgba(255,255,255,0.1)'
+                  : '#fef2f2',
+              },
+            }}
+          >
+            <DeleteIcon sx={{ fontSize: 20 }} />
+          </IconButton>
+
+          <KeyboardArrowRight
+            sx={{
+              transform: isExpanded ? 'rotate(90deg)' : '0',
+              transition: '0.3s',
+              fontSize: 22,
+              color: 'inherit',
+              ml: 0.5,
+            }}
+          />
+        </Box>
+      </Box>
 
       <Collapse in={isExpanded} unmountOnExit>
-        <Box sx={{ p: 2, bgcolor: '#f1f5f9' }}>
+        <Box sx={{ p: 2, bgcolor: '#f8fafc' }}>
           <TableContainer
             component={Paper}
             elevation={0}
@@ -181,16 +202,18 @@ export function CourseItem({
                 ) : subjects.length > 0 ? (
                   subjects.map((sub, idx) => (
                     <TableRow key={sub.id || idx} hover>
-                      <TableCell sx={{ py: 1, fontWeight: 500 }}>
+                      <TableCell
+                        sx={{ py: 1, fontWeight: 500, color: '#334155' }}
+                      >
                         {sub.name}
                       </TableCell>
                       <TableCell align="right">
                         <IconButton
                           size="small"
-                          color="error"
                           onClick={() => handleDeleteSubjectClick(sub.id!)}
+                          sx={{ '&:hover': { backgroundColor: '#fef2f2' } }}
                         >
-                          <DeleteIcon sx={{ fontSize: 16 }} />
+                          <DeleteIcon sx={{ color: '#BD0000', fontSize: 18 }} />
                         </IconButton>
                       </TableCell>
                     </TableRow>
