@@ -1,14 +1,24 @@
 'use client';
 
 import React from 'react';
-import { UseFormReturn, FieldValues, Path } from 'react-hook-form';
-import { Box, TextField, MenuItem } from '@mui/material';
+import { UseFormReturn, FieldValues, Path, Controller } from 'react-hook-form';
+import { Box, TextField, FormLabel, Autocomplete } from '@mui/material';
 
 interface CourseFormProps<T extends FieldValues> {
   formMethods: UseFormReturn<T, unknown, unknown>;
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   children?: React.ReactNode;
 }
+
+interface ClassTimeOption {
+  label: string;
+  value: '45' | '60';
+}
+
+const classTimeOptions: ClassTimeOption[] = [
+  { label: '45 minutos', value: '45' },
+  { label: '60 minutos', value: '60' },
+];
 
 export function CourseForm<T extends FieldValues>({
   formMethods,
@@ -17,6 +27,7 @@ export function CourseForm<T extends FieldValues>({
 }: CourseFormProps<T>) {
   const {
     register,
+    control,
     formState: { errors },
   } = formMethods;
 
@@ -33,46 +44,81 @@ export function CourseForm<T extends FieldValues>({
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        gap: 3,
+        gap: 4,
+        '& .MuiInputLabel-root': { color: '#0B0A7A', fontWeight: 500 },
+        '& .MuiFormLabel-root': {
+          color: '#0B0A7A',
+          fontWeight: 500,
+          mb: '6px',
+          display: 'block',
+        },
+        '& .MuiOutlinedInput-root': { borderRadius: '4px' },
       }}
     >
-      <TextField
-        {...register(nameKey)}
-        label="Nome do Curso"
-        fullWidth
-        error={!!errors.name}
-        helperText={errors.name ? String(errors.name.message) : ''}
-      />
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <FormLabel htmlFor="name">Nome do Curso:</FormLabel>
+        <TextField
+          {...register(nameKey)}
+          id="name"
+          placeholder="Digite o nome do curso"
+          fullWidth
+          error={!!errors.name}
+          helperText={errors.name ? String(errors.name.message) : ''}
+        />
+      </Box>
 
       <Box
         sx={{
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
+          gap: 3,
           width: '100%',
+          mt: 0.75,
         }}
       >
-        <Box sx={{ flex: 1, width: '100%' }}>
-          <TextField
-            {...register(classTimeKey)}
-            select
-            label="Tempo da Aula"
-            fullWidth
-            defaultValue="45"
-            error={!!errors.class_time}
-            helperText={
-              errors.class_time ? String(errors.class_time.message) : ''
-            }
-          >
-            <MenuItem value="45">45 minutos</MenuItem>
-            <MenuItem value="60">60 minutos</MenuItem>
-          </TextField>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <FormLabel htmlFor="class_time">Carga Horária:</FormLabel>
+          <Controller
+            name={classTimeKey}
+            control={control}
+            render={({ field: { onChange, value, onBlur, ref } }) => (
+              <Autocomplete
+                options={classTimeOptions}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, val) =>
+                  option.value === (val as unknown as ClassTimeOption)?.value ||
+                  option.value === (val as unknown as string)
+                }
+                value={
+                  classTimeOptions.find((opt) => opt.value === value) || null
+                }
+                onChange={(_event, newValue) => {
+                  onChange(newValue ? newValue.value : '');
+                }}
+                onBlur={onBlur}
+                fullWidth
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    inputRef={ref}
+                    placeholder="Selecione 45 ou 60"
+                    error={!!errors.class_time}
+                    helperText={
+                      errors.class_time ? String(errors.class_time.message) : ''
+                    }
+                  />
+                )}
+              />
+            )}
+          />
         </Box>
 
-        <Box sx={{ flex: 1, width: '100%' }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <FormLabel htmlFor="total_semesters">Total de Semestres:</FormLabel>
           <TextField
             {...register(totalSemestersKey, { valueAsNumber: true })}
-            label="Total de Semestres"
+            id="total_semesters"
+            placeholder="Digite o total de semestres"
             type="number"
             fullWidth
             error={!!errors.total_semesters}
