@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -10,7 +11,7 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
-
+import { Cancel, Send } from '@mui/icons-material';
 import { courseSchema, CourseType } from '../_schemas/course.schema';
 import { CourseForm } from './course-form.component';
 import { createCourse } from '../_services/courses.service';
@@ -26,10 +27,12 @@ export function CreateCourseModal({
   onClose,
   onRefresh,
 }: CreateCourseModalProps) {
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
 
   const formMethods = useForm({
     resolver: zodResolver(courseSchema),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       class_time: '45',
@@ -37,11 +40,22 @@ export function CreateCourseModal({
     },
   });
 
+  const {
+    handleSubmit,
+    reset,
+    formState: { isValid },
+  } = formMethods;
+
+  const handleCancel = () => {
+    reset();
+    onClose();
+  };
+
   const handleCreateSubmit = async (data: FieldValues) => {
     setSubmitting(true);
     try {
       await createCourse(data as unknown as CourseType);
-      formMethods.reset();
+      reset();
       await onRefresh();
       onClose();
     } catch (error) {
@@ -52,33 +66,35 @@ export function CreateCourseModal({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={handleCancel} fullWidth maxWidth="sm">
       <DialogTitle sx={{ fontWeight: 700, color: '#0B0A7A' }}>
         Novo Curso
       </DialogTitle>
       <DialogContent dividers>
         <CourseForm
           formMethods={formMethods}
-          onSubmit={formMethods.handleSubmit(handleCreateSubmit)}
+          onSubmit={handleSubmit(handleCreateSubmit)}
         >
           <DialogActions sx={{ px: 0, mt: 1, justifyContent: 'end', gap: 2 }}>
-            <Button onClick={onClose} disabled={submitting} color="inherit">
+            <Button
+              type="button"
+              variant="outlined"
+              color="error"
+              className="self-end"
+              startIcon={<Cancel />}
+              onClick={handleCancel}
+            >
               Cancelar
             </Button>
             <Button
               type="submit"
+              disabled={!isValid}
               variant="contained"
-              disabled={submitting}
-              sx={{
-                bgcolor: '#0B0A7A',
-                '&:hover': { bgcolor: '#060554' },
-                borderRadius: '50px',
-                textTransform: 'none',
-                fontWeight: 700,
-                px: 3,
-              }}
+              color="secondary"
+              className="self-end"
+              endIcon={<Send />}
             >
-              {submitting ? 'Salvando...' : 'Criar Curso'}
+              {submitting ? 'Enviando...' : 'Enviar'}
             </Button>
           </DialogActions>
         </CourseForm>

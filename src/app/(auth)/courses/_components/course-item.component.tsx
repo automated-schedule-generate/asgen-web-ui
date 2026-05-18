@@ -29,6 +29,8 @@ import {
   deleteSubject,
 } from '../../subjects/_services/subjects.service';
 import type { SubjectType } from '../../subjects/_schemas/subject.schema';
+import { UseFormReturn } from 'react-hook-form';
+import { CourseType } from '../_schemas/course.schema';
 
 interface CourseItemProps {
   course: CourseData;
@@ -36,7 +38,6 @@ interface CourseItemProps {
   index: number;
 }
 
-// Alterado aqui para exportação nomeada (Sem o 'default')
 export function CourseItem({ course, onRefresh }: CourseItemProps) {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);

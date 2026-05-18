@@ -73,7 +73,7 @@ export default function CoursesPage() {
             sx={{
               bgcolor: '#0B0A7A',
               '&:hover': { bgcolor: '#060554' },
-              borderRadius: '50px',
+              borderRadius: '4px',
               px: 3,
               fontWeight: 700,
               textTransform: 'none',
@@ -106,7 +106,7 @@ export default function CoursesPage() {
               justifyContent: 'center',
               py: 8,
               border: '1px dashed #cbd5e1',
-              borderRadius: '10px',
+              borderRadius: '4px',
               bgcolor: '#f8fafc',
             }}
           >
