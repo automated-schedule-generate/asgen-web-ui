@@ -29,8 +29,6 @@ import {
   deleteSubject,
 } from '../../subjects/_services/subjects.service';
 import type { SubjectType } from '../../subjects/_schemas/subject.schema';
-import { UseFormReturn } from 'react-hook-form';
-import { CourseType } from '../_schemas/course.schema';
 
 interface CourseItemProps {
   course: CourseData;

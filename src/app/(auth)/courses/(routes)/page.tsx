@@ -1,14 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  CircularProgress,
-  Stack,
-} from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Box, Typography, CircularProgress, Stack } from '@mui/material';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 
@@ -21,34 +14,41 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   const fetchCourses = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getAllCourses({ page: 1, limit: 100 });
-      const items = res?.data?.items || res?.items || res?.data || res || [];
-      setCourses(Array.isArray(items) ? items : []);
+      const res = await getAllCourses({ page, limit, search: searchTerm });
+      const items = res?.data?.items || [];
+
+      const totalItems = res?.data?.meta?.totalItems || 0;
+      const calculatedTotalPages = Math.ceil(totalItems / limit) || 1;
+
+      setCourses(items);
+      setTotalPages(calculatedTotalPages);
     } catch (error) {
       console.error('Erro ao buscar listagem de cursos:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, searchTerm]);
 
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
-  const filteredCourses = courses.filter((course) =>
-    course.name?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
   return (
     <ContentLayoutComponent
       title="Cursos"
       description="Gerencie os cursos e suas respectivas disciplinas."
-      hasPagination={false}
+      hasPagination={true}
+      count={totalPages}
+      page={page}
+      onChange={(_, value) => setPage(value)}
     >
       <Box sx={{ width: '100%', mt: 1 }}>
         <Box
@@ -63,34 +63,22 @@ export default function CoursesPage() {
         >
           <SearchBarComponent
             placeholder="Buscar..."
-            onSearch={setSearchTerm}
+            onSearch={(term) => {
+              setSearchTerm(term);
+              setPage(1);
+            }}
           />
 
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setIsCreateModalOpen(true)}
-            sx={{
-              bgcolor: '#0B0A7A',
-              '&:hover': { bgcolor: '#060554' },
-              borderRadius: '4px',
-              px: 3,
-              fontWeight: 700,
-              textTransform: 'none',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Novo Curso
-          </Button>
+          <CreateCourseModal onRefresh={fetchCourses} />
         </Box>
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
             <CircularProgress size={40} sx={{ color: '#0B0A7A' }} />
           </Box>
-        ) : filteredCourses.length > 0 ? (
+        ) : courses.length > 0 ? (
           <Stack gap={2} sx={{ width: '100%' }}>
-            {filteredCourses.map((course, index) => (
+            {courses.map((course, index) => (
               <CourseItem
                 key={course.id || index}
                 course={course}
@@ -111,19 +99,13 @@ export default function CoursesPage() {
             }}
           >
             <Typography sx={{ color: '#64748b', fontWeight: 500 }}>
-              {courses.length === 0
+              {searchTerm === ''
                 ? 'Nenhum curso cadastrado no sistema.'
                 : 'Nenhum curso corresponde à sua pesquisa.'}
             </Typography>
           </Box>
         )}
       </Box>
-
-      <CreateCourseModal
-        open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onRefresh={fetchCourses}
-      />
     </ContentLayoutComponent>
   );
 }

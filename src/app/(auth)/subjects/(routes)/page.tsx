@@ -1,81 +1,111 @@
 'use client';
 
-import { Box, Button } from '@mui/material';
-
+import { useState, useEffect, useCallback } from 'react';
+import { Box, Typography, CircularProgress, Stack } from '@mui/material';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
-
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 
-import { Add } from '@mui/icons-material';
+import { CourseItem } from '@/app/(auth)/courses/_components/course-item.component';
+import { CreateCourseModal } from '@/app/(auth)/courses/_components/create-course-modal.component';
+import { getAllCourses } from '@/app/(auth)/courses/_services/courses.service';
+import { CourseData } from '@/app/(auth)/courses/_types/course.types';
 
-import { useState, useEffect, useCallback } from 'react';
+export default function CoursesPage() {
+  const [courses, setCourses] = useState<CourseData[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
-import { getAllSubjects } from '../_services/subjects.service';
-
-import { useRouter } from 'next/navigation';
-import { Subject } from '../_interfaces/subject.interface';
-import SubjectsList from '../_components/subjects-list.component';
-
-export default function SubjectsPage() {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const limit = 10;
 
-  async function loadSubjects(currentPage = 1) {
-    setIsLoading(true);
-
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
     try {
-      const response = await getAllSubjects({
-        page: currentPage,
-        limit: 10,
-        search: search,
-      });
+      const res = await getAllCourses({ page, limit, search: searchTerm });
+      const items = res?.data?.items || [];
 
-      setSubjects(response.data.items);
+      const totalItems = res?.data?.meta?.totalItems || 0;
+      const calculatedTotalPages = Math.ceil(totalItems / limit) || 1;
 
-      setTotalPages(response.data.page.total);
+      setCourses(items);
+      setTotalPages(calculatedTotalPages);
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao buscar listagem de cursos:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }
+  }, [page, searchTerm]);
+
   useEffect(() => {
-    loadSubjects(page);
-  }, [page, search]);
-
-  const handleSearch = useCallback((term: string) => {
-    setSearch(term);
-    setPage(1);
-  }, []);
-
-  const router = useRouter();
+    fetchCourses();
+  }, [fetchCourses]);
 
   return (
     <ContentLayoutComponent
-      title="Disciplinas"
-      description="Gerencie as disciplinas do sistema."
-      hasPagination
+      title="Cursos"
+      description="Gerencie os cursos e suas respectivas disciplinas."
+      hasPagination={true}
       count={totalPages}
       page={page}
       onChange={(_, value) => setPage(value)}
     >
-      <Box className="flex flex-row items-center justify-between">
-        <SearchBarComponent delay={500} onSearch={handleSearch} />
-
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          color="secondary"
-          onClick={() => router.push('/subjects/create')}
+      <Box sx={{ width: '100%', mt: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 2,
+            mb: 4,
+            flexDirection: { xs: 'column', sm: 'row' },
+          }}
         >
-          Nova disciplina
-        </Button>
-      </Box>
+          <SearchBarComponent
+            placeholder="Buscar..."
+            onSearch={(term) => {
+              setSearchTerm(term);
+              setPage(1);
+            }}
+          />
 
-      <SubjectsList subjects={subjects} isLoading={isLoading} />
+          <CreateCourseModal onRefresh={fetchCourses} />
+        </Box>
+
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress size={40} sx={{ color: '#0B0A7A' }} />
+          </Box>
+        ) : courses.length > 0 ? (
+          <Stack gap={2} sx={{ width: '100%' }}>
+            {courses.map((course, index) => (
+              <CourseItem
+                key={course.id || index}
+                course={course}
+                index={index}
+                onRefresh={fetchCourses}
+              />
+            ))}
+          </Stack>
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              py: 8,
+              border: '1px dashed #cbd5e1',
+              borderRadius: '4px',
+              bgcolor: '#f8fafc',
+            }}
+          >
+            <Typography sx={{ color: '#64748b', fontWeight: 500 }}>
+              {searchTerm === ''
+                ? 'Nenhum curso cadastrado no sistema.'
+                : 'Nenhum curso corresponde à sua pesquisa.'}
+            </Typography>
+          </Box>
+        )}
+      </Box>
     </ContentLayoutComponent>
   );
 }
