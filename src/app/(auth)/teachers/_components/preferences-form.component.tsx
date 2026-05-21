@@ -13,7 +13,7 @@ import { Cancel, Send, Edit } from '@mui/icons-material';
 import { FormInput } from '@/components/utilities/form-input.component';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { PreferenceDaysTable } from './preference-days-table.component';
-import { Controller, watch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import {
   preferencesFormSchema,
   preferencesFormDefaultValues,
@@ -25,7 +25,6 @@ import { useUser } from '@/contexts/user.context';
 export function PreferencesForm() {
   const {
     control,
-    watch,
     handleSubmit,
     trigger,
     reset,
@@ -34,7 +33,10 @@ export function PreferencesForm() {
     mode: 'onChange',
     defaultValues: preferencesFormDefaultValues,
   });
-  const hasSpecialNeed = watch('special_need');
+  const hasSpecialNeed = useWatch({
+    name: 'special_need',
+    control,
+  });
   const { user } = useUser();
   const [isEditing, setIsEditing] = React.useState(false);
 

@@ -1,9 +1,9 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
-import type { SubjectSchema } from '../_schemas/subject.schema';
+import type { SubjectType } from '../_schemas/subject.schema';
 const api = await getApi();
 
-export async function createSubject(payload: SubjectSchema) {
+export async function createSubject(payload: SubjectType) {
   try {
     if (!payload.prerequisite_id) {
       delete payload.prerequisite_id;
@@ -16,12 +16,12 @@ export async function createSubject(payload: SubjectSchema) {
   }
 }
 
-export async function updateSubject(payload: SubjectSchema) {
+export async function updateSubject(id: string, payload: SubjectType) {
   try {
     if (!payload.prerequisite_id) {
       payload.prerequisite_id = null;
     }
-    const { data } = await api.put(`/subject/${payload.id}`, payload);
+    const { data } = await api.put(`/subject/${id}`, payload);
     return data;
   } catch (error) {
     console.log(error);
@@ -41,20 +41,27 @@ export async function updateSubject(payload: SubjectSchema) {
 export async function getAllSubjects({
   page = 1,
   limit = 10,
-  search = '',
+  search,
+  with_course = true,
+  with_pagination = true,
+  course_id,
 }: {
   page?: number;
   limit?: number;
   search?: string;
-}) {
+  with_course?: boolean;
+  with_pagination?: boolean;
+  course_id?: string;
+} = {}) {
   try {
     const { data } = await api.get('/subject', {
       params: {
-        with_course: true,
-        with_pagination: true,
+        with_course,
+        with_pagination,
         page,
         limit,
         search,
+        course_id,
       },
     });
 

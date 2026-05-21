@@ -8,15 +8,13 @@ import { SearchBarComponent } from '@/components/utilities/search-bar.component'
 
 import { Add } from '@mui/icons-material';
 
-import { Subject } from '../_schemas/subject.schema';
-
 import { useState, useEffect, useCallback } from 'react';
 
 import { getAllSubjects } from '../_services/subjects.service';
 
-import SubjectsList from '../_components/subjects-list.component';
-
 import { useRouter } from 'next/navigation';
+import { Subject } from '../_interfaces/subject.interface';
+import SubjectsList from '../_components/subjects-list.component';
 
 export default function SubjectsPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -25,28 +23,32 @@ export default function SubjectsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function loadSubjects(currentPage = 1) {
-    setIsLoading(true);
+  const loadSubjects = useCallback(
+    async (currentPage = 1) => {
+      setIsLoading(true);
 
-    try {
-      const response = await getAllSubjects({
-        page: currentPage,
-        limit: 10,
-        search: search,
-      });
+      try {
+        const response = await getAllSubjects({
+          page: currentPage,
+          limit: 10,
+          search: search,
+        });
 
-      setSubjects(response.data.items);
+        setSubjects(response.data.items);
 
-      setTotalPages(response.data.page.total);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+        setTotalPages(response.data.page.total);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [search],
+  );
+
   useEffect(() => {
     loadSubjects(page);
-  }, [page, search]);
+  }, [page, loadSubjects]);
 
   const handleSearch = useCallback((term: string) => {
     setSearch(term);

@@ -6,10 +6,8 @@ import {
   Autocomplete,
   Box,
   Button,
-  Container,
   FormControlLabel,
   FormLabel,
-  OutlinedInput,
   Radio,
   RadioGroup,
   TextField,
@@ -20,14 +18,17 @@ import { FormInput } from '@/components/utilities/form-input.component';
 import { CourseType } from '../../courses/_schemas/course.schema';
 import { Cancel, Send } from '@mui/icons-material';
 import { updateSubject } from '../_services/subjects.service';
+import { Subject } from '../_interfaces/subject.interface';
+import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
+import { useState } from 'react';
 
 export default function SubjectsEditFormComponent({
   subject,
   subjects,
   courses,
 }: {
-  subject: SubjectType;
-  subjects: SubjectType[];
+  subject: Subject;
+  subjects: Subject[];
   courses: CourseType[];
 }) {
   const router = useRouter();
@@ -35,7 +36,6 @@ export default function SubjectsEditFormComponent({
     control,
     watch,
     handleSubmit,
-    trigger,
     reset,
     formState: { isValid },
   } = useFormWithZod(subjectSchema, {
@@ -45,13 +45,15 @@ export default function SubjectsEditFormComponent({
       workload: subject.workload,
       is_optional: subject.is_optional,
       prerequisite_id: subject.prerequisite_id,
-      course_id: subject.course_id,
+      course_id: subject.course_id || '',
     },
   });
 
-  async function submit(data: SubjectType) {
+  const [confirmEditOpen, setConfirmEditOpen] = useState(false);
+
+  async function submit(id: string, data: SubjectType) {
     try {
-      await updateSubject({ id: subject.id, ...data });
+      await updateSubject(id, data);
       reset();
       router.push('/subjects');
     } catch (error) {
@@ -61,7 +63,10 @@ export default function SubjectsEditFormComponent({
 
   return (
     <>
-      <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-2">
+      <form
+        onSubmit={handleSubmit((data) => submit(subject.id, data))}
+        className="flex flex-col gap-2"
+      >
         <FormInput
           name="name"
           label="Nome:"
@@ -114,7 +119,7 @@ export default function SubjectsEditFormComponent({
         <Controller
           name="prerequisite_id"
           control={control}
-          render={({ field }) => {
+          render={({ field, fieldState: { error } }) => {
             const options = subjects.map((s) => ({
               label: s.name,
               value: s.id,
@@ -130,7 +135,13 @@ export default function SubjectsEditFormComponent({
                     options.find((opt) => opt.value === field.value) || null
                   }
                   sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} />}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={!!error}
+                      helperText={error?.message}
+                    />
+                  )}
                   onChange={(_event, newValue) =>
                     field.onChange(newValue?.value || null)
                   }
@@ -142,7 +153,7 @@ export default function SubjectsEditFormComponent({
         <Controller
           name="course_id"
           control={control}
-          render={({ field }) => {
+          render={({ field, fieldState: { error } }) => {
             const options = courses.map((c) => ({
               label: c.name,
               value: c.id,
@@ -154,13 +165,17 @@ export default function SubjectsEditFormComponent({
                 <Autocomplete
                   {...field}
                   options={options}
-                  value={
-                    options.find((opt) => opt.value === field.value) || null
-                  }
+                  value={options.find((opt) => opt.value === field.value)}
                   sx={{ width: 300 }}
-                  renderInput={(params) => <TextField {...params} />}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={!!error}
+                      helperText={error?.message}
+                    />
+                  )}
                   onChange={(_event, newValue) =>
-                    field.onChange(newValue?.value || '')
+                    field.onChange(newValue?.value || null)
                   }
                 />
               </>
@@ -179,15 +194,25 @@ export default function SubjectsEditFormComponent({
             Cancelar
           </Button>
           <Button
-            type="submit"
+            type="button"
             disabled={!isValid}
             variant="contained"
             color="secondary"
             className="self-end"
             endIcon={<Send />}
+            onClick={() => setConfirmEditOpen(true)}
           >
             Enviar
           </Button>
+          <ConfirmDialog
+            open={confirmEditOpen}
+            content="Tem certeza que deseja editar a disciplina?"
+            title="Editar Disciplina"
+            onConfirm={() => {
+              submit(subject.id, watch());
+            }}
+            onCancel={() => setConfirmEditOpen(false)}
+          />
         </Box>
       </form>
     </>
