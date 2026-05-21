@@ -103,7 +103,7 @@ export default function SubjectsCreateFormComponent({
           name="prerequisite_id"
           defaultValue={''}
           control={control}
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <>
               <FormLabel id="demo-row-radio-buttons-group-label">
                 Pré-requisito:
@@ -115,7 +115,13 @@ export default function SubjectsCreateFormComponent({
                   value: subject.id,
                 }))}
                 sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!!error}
+                    helperText={error?.message}
+                  />
+                )}
                 onChange={(_event, value) => field.onChange(value?.value)}
               />
             </>
@@ -124,7 +130,7 @@ export default function SubjectsCreateFormComponent({
         <Controller
           name="course_id"
           control={control}
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <>
               <FormLabel id="demo-row-radio-buttons-group-label">
                 Curso:
@@ -136,7 +142,13 @@ export default function SubjectsCreateFormComponent({
                   value: course.id,
                 }))}
                 sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!!error}
+                    helperText={error?.message}
+                  />
+                )}
                 onChange={(_event, value) => field.onChange(value?.value)}
               />
             </>
