@@ -34,7 +34,6 @@ export default function SubjectsCreateFormComponent({
     reset,
     formState: { isValid },
   } = useFormWithZod(subjectSchema, {
-    mode: 'onChange',
     defaultValues: {
       is_optional: false,
     },
