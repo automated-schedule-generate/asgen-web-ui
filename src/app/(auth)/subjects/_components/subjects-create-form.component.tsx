@@ -35,6 +35,9 @@ export default function SubjectsCreateFormComponent({
     formState: { isValid },
   } = useFormWithZod(subjectSchema, {
     mode: 'onChange',
+    defaultValues: {
+      is_optional: false,
+    },
   });
 
   async function submit(data: SubjectType) {

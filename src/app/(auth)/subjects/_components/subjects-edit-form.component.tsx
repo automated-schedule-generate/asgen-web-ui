@@ -36,7 +36,6 @@ export default function SubjectsEditFormComponent({
     control,
     watch,
     handleSubmit,
-    trigger,
     reset,
     formState: { isValid },
   } = useFormWithZod(subjectSchema, {
