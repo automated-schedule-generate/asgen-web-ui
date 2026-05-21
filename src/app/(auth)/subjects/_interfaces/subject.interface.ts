@@ -3,6 +3,8 @@ import { SubjectType } from '../_schemas/subject.schema';
 
 export interface Subject extends SubjectType {
   id: string;
+  prerequisite?: Subject;
+  course: CourseType;
   teachers: {
     user: {
       name: string;

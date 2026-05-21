@@ -6,10 +6,8 @@ import {
   Autocomplete,
   Box,
   Button,
-  Container,
   FormControlLabel,
   FormLabel,
-  OutlinedInput,
   Radio,
   RadioGroup,
   TextField,
@@ -22,6 +20,7 @@ import { Cancel, Send } from '@mui/icons-material';
 import { updateSubject } from '../_services/subjects.service';
 import { Subject } from '../_interfaces/subject.interface';
 import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
+import { useState } from 'react';
 
 export default function SubjectsEditFormComponent({
   subject,
@@ -50,6 +49,8 @@ export default function SubjectsEditFormComponent({
       course_id: subject.course_id || '',
     },
   });
+
+  const [confirmEditOpen, setConfirmEditOpen] = useState(false);
 
   async function submit(id: string, data: SubjectType) {
     try {
@@ -165,7 +166,7 @@ export default function SubjectsEditFormComponent({
                 <Autocomplete
                   {...field}
                   options={options}
-                  value={options.find((opt) => opt.value === field.value) || ''}
+                  value={options.find((opt) => opt.value === field.value)}
                   sx={{ width: 300 }}
                   renderInput={(params) => (
                     <TextField
@@ -175,7 +176,7 @@ export default function SubjectsEditFormComponent({
                     />
                   )}
                   onChange={(_event, newValue) =>
-                    field.onChange(newValue?.value || '')
+                    field.onChange(newValue?.value || null)
                   }
                 />
               </>
@@ -194,21 +195,24 @@ export default function SubjectsEditFormComponent({
             Cancelar
           </Button>
           <Button
-            type="submit"
+            type="button"
             disabled={!isValid}
             variant="contained"
             color="secondary"
             className="self-end"
             endIcon={<Send />}
+            onClick={() => setConfirmEditOpen(true)}
           >
             Enviar
           </Button>
           <ConfirmDialog
-            open={submit}
+            open={confirmEditOpen}
             content="Tem certeza que deseja editar a disciplina?"
             title="Editar Disciplina"
-            onConfirm={() => submit(subject.id, watch())}
-            onCancel={() => reset()}
+            onConfirm={() => {
+              submit(subject.id, watch());
+            }}
+            onCancel={() => setConfirmEditOpen(false)}
           />
         </Box>
       </form>
