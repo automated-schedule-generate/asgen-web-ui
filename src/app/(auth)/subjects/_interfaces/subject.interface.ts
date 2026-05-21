@@ -1,14 +1,10 @@
 import { CourseType } from '../../courses/_schemas/course.schema';
+import { SubjectType } from '../_schemas/subject.schema';
 
-export interface Subject {
+export interface Subject extends SubjectType {
   id: string;
-  name: string;
-  workload: number;
-  is_optional: boolean;
-  prerequisite_id?: string;
   prerequisite?: Subject;
-  course_id?: string;
-  course?: CourseType;
+  course: CourseType;
   teachers: {
     user: {
       name: string;

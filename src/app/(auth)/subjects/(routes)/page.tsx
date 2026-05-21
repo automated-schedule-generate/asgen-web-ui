@@ -23,28 +23,32 @@ export default function SubjectsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function loadSubjects(currentPage = 1) {
-    setIsLoading(true);
+  const loadSubjects = useCallback(
+    async (currentPage = 1) => {
+      setIsLoading(true);
 
-    try {
-      const response = await getAllSubjects({
-        page: currentPage,
-        limit: 10,
-        search: search,
-      });
+      try {
+        const response = await getAllSubjects({
+          page: currentPage,
+          limit: 10,
+          search: search,
+        });
 
-      setSubjects(response.data.items);
+        setSubjects(response.data.items);
 
-      setTotalPages(response.data.page.total);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+        setTotalPages(response.data.page.total);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [search],
+  );
+
   useEffect(() => {
     loadSubjects(page);
-  }, [page, search]);
+  }, [page, loadSubjects]);
 
   const handleSearch = useCallback((term: string) => {
     setSearch(term);
