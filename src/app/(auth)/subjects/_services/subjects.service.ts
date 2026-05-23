@@ -16,12 +16,12 @@ export async function createSubject(payload: SubjectType) {
   }
 }
 
-export async function updateSubject(payload: SubjectType) {
+export async function updateSubject(id: string, payload: SubjectType) {
   try {
     if (!payload.prerequisite_id) {
       payload.prerequisite_id = null;
     }
-    const { data } = await api.put(`/subject/${payload.id}`, payload);
+    const { data } = await api.put(`/subject/${id}`, payload);
     return data;
   } catch (error) {
     console.log(error);
