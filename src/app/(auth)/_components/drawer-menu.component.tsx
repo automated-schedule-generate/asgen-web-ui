@@ -51,7 +51,7 @@ export function DrawerMenu() {
         width: drawerWidth,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          top: 64,
+          top: 55,
           paddingY: 5,
           width: drawerWidth,
           backgroundColor: 'secondary.main',

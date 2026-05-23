@@ -30,10 +30,15 @@ a {
 }
 label {
   font-size: 1rem;
+  color: var(--mui-palette-text-primary);
 }
 .main-content {
   margin-left: 20vw;
   margin-right: 20vw;
-  margin-top: 20vh;
+  margin-top: 15vh;
   margin-bottom: 10vh;
 }
+
+/* label{
+  color: var(--mui-palette-text-primary);
+} */

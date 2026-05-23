@@ -53,7 +53,7 @@ export default function SubjectsItems({
               aria-label="Editar disciplina"
               onClick={(event) => {
                 event.stopPropagation();
-                router.push(`/subjects/${id}`);
+                router.push(`/subjects/${id}/edit`);
               }}
             >
               <Edit color="secondary" />

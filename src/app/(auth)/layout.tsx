@@ -3,6 +3,7 @@ import { DefaultAppBar } from './_components/app-bar.component';
 import { UserProvider } from '@/contexts/user.context';
 import { me } from './auth/_services/auth.service';
 import { DrawerMenu } from './_components/drawer-menu.component';
+import AutoBreadcrumbs from './_components/breadcrumb.component';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,7 +21,10 @@ export default async function CustomLayout({ children }: LayoutProps) {
       <UserProvider currentUser={user}>
         <DefaultAppBar />
         <DrawerMenu />
-        <main className="main-content">{children}</main>
+        <main className="main-content">
+          <AutoBreadcrumbs />
+          {children}
+        </main>
       </UserProvider>
     </div>
   );
