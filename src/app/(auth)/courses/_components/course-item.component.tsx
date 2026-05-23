@@ -56,8 +56,7 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
         with_course: false,
         with_pagination: false,
       });
-      const items = res?.data?.items || res?.items || res?.data || [];
-      setSubjects(Array.isArray(items) ? items : []);
+      setSubjects(res.data.items);
     } catch (e) {
       console.error('Erro ao carregar disciplinas:', e);
     } finally {

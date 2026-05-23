@@ -82,15 +82,6 @@ export async function getSubjectById(id: string) {
   }
 }
 
-export async function getAllSubjectsByPrerequisite(prerequisite_id: string) {
-  try {
-    const { data } = await api.get(`/subject/prerequisite/${prerequisite_id}`);
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
 export async function deleteSubject(id: string) {
   try {
     await api.delete(`/subject/${id}`);

@@ -35,8 +35,6 @@ export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
     formState: { isValid },
   } = formMethods;
 
-  const handleOpen = () => setIsOpen(true);
-
   const handleCancel = () => {
     reset();
     setIsOpen(false);
@@ -61,7 +59,7 @@ export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
       <Button
         variant="contained"
         startIcon={<AddIcon />}
-        onClick={handleOpen}
+        onClick={() => setIsOpen(true)}
         sx={{
           bgcolor: '#0B0A7A',
           '&:hover': { bgcolor: '#060554' },

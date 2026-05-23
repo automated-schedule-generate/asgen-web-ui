@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  useRouter as useNextRouter,
-  useParams as useNextParams,
-} from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Box, Button, CircularProgress, DialogActions } from '@mui/material';
 import { Cancel, Send } from '@mui/icons-material';
 
@@ -20,14 +17,16 @@ import {
 } from '@/app/(auth)/courses/_services/courses.service';
 import { CourseForm } from '@/app/(auth)/courses/_components/course-form.component';
 import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+
 export default function EditCoursePage() {
-  const router = useNextRouter();
-  const { id } = useNextParams();
+  const router = useRouter();
+  const { id } = useParams();
   const [loadingData, setLoadingData] = useState(true);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingData, setPendingData] = useState<CourseType | null>(null);
 
   const formMethods = useFormWithZod(courseSchema, {
+    mode: 'onChange',
     defaultValues: {
       class_time: '45',
       total_semesters: 1,
@@ -37,6 +36,7 @@ export default function EditCoursePage() {
   const {
     handleSubmit,
     reset,
+    trigger,
     formState: { isValid },
   } = formMethods;
 
@@ -53,6 +53,7 @@ export default function EditCoursePage() {
           class_time: String(currentCourse.class_time) as '45' | '60',
           total_semesters: Number(currentCourse.total_semesters),
         } as CourseType);
+        await trigger();
       } else {
         console.error('Curso não encontrado.');
         router.push('/courses');
@@ -70,6 +71,7 @@ export default function EditCoursePage() {
   }, [loadCourseData]);
 
   const handleEditSubmit = async (data: CourseType) => {
+    console.log('data:', data);
     setPendingData(data);
     setConfirmOpen(true);
   };
@@ -105,7 +107,9 @@ export default function EditCoursePage() {
         <Box sx={{ width: '100%', mt: 2 }}>
           <CourseForm
             formMethods={formMethods}
-            onSubmit={handleSubmit(handleEditSubmit)}
+            onSubmit={handleSubmit(handleEditSubmit, (errors) =>
+              console.log('errors:', errors),
+            )}
           >
             <DialogActions sx={{ px: 0, mt: 1, justifyContent: 'end', gap: 2 }}>
               <Button
@@ -124,7 +128,6 @@ export default function EditCoursePage() {
               </Button>
               <Button
                 type="submit"
-                disabled={!isValid}
                 variant="contained"
                 color="secondary"
                 endIcon={<Send />}
