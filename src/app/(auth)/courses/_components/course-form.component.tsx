@@ -88,6 +88,7 @@ export function CourseForm<T extends FieldValues>({
                 }}
                 onBlur={onBlur}
                 fullWidth
+                sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -104,7 +105,9 @@ export function CourseForm<T extends FieldValues>({
           />
         </Box>
 
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box
+          sx={{ flex: 1, width: 300, display: 'flex', flexDirection: 'column' }}
+        >
           <FormInput<T>
             control={control}
             id="total_semesters"

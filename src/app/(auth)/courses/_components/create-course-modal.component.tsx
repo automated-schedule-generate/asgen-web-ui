@@ -13,6 +13,7 @@ import { courseSchema, CourseType } from '../_schemas/course.schema';
 import { CourseForm } from './course-form.component';
 import { createCourse } from '../_services/courses.service';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
+import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 
 interface CreateCourseModalProps {
   onRefresh: () => Promise<void>;
@@ -21,6 +22,8 @@ interface CreateCourseModalProps {
 export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingData, setPendingData] = useState<CourseType | null>(null);
 
   const formMethods = useFormWithZod(courseSchema, {
     defaultValues: {
@@ -43,9 +46,15 @@ export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
   };
 
   const handleCreateSubmit = async (data: CourseType) => {
+    setPendingData(data);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!pendingData) return;
     setSubmitting(true);
     try {
-      await createCourse(data);
+      await createCourse(pendingData);
       reset();
       await onRefresh();
       setIsOpen(false);
@@ -53,6 +62,8 @@ export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
       console.error('Erro ao criar curso:', error);
     } finally {
       setSubmitting(false);
+      setConfirmOpen(false);
+      setPendingData(null);
     }
   };
 
@@ -109,6 +120,17 @@ export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
           </CourseForm>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Criar Curso"
+        content="Tem certeza que deseja criar este curso?"
+        onConfirm={handleConfirm}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setPendingData(null);
+        }}
+      />
     </>
   );
 }

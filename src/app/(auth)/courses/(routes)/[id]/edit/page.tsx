@@ -19,11 +19,14 @@ import {
   updateCourse,
 } from '@/app/(auth)/courses/_services/courses.service';
 import { CourseForm } from '@/app/(auth)/courses/_components/course-form.component';
+import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 
 export default function EditCoursePage() {
   const router = useNextRouter();
   const { id } = useNextParams();
   const [loadingData, setLoadingData] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingData, setPendingData] = useState<CourseType | null>(null);
 
   const formMethods = useFormWithZod(courseSchema, {
     defaultValues: {
@@ -68,12 +71,20 @@ export default function EditCoursePage() {
   }, [loadCourseData]);
 
   const handleEditSubmit = async (data: CourseType) => {
-    if (!id) return;
+    setPendingData(data);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!id || !pendingData) return;
     try {
-      await updateCourse(id as string, data);
+      await updateCourse(id as string, pendingData);
       router.push('/courses');
     } catch (error) {
       console.error('Erro ao processar atualização:', error);
+    } finally {
+      setConfirmOpen(false);
+      setPendingData(null);
     }
   };
 
@@ -86,48 +97,61 @@ export default function EditCoursePage() {
   }
 
   return (
-    <ContentLayoutComponent
-      title="Editar Curso"
-      description="Modifique as informações gerais do curso selecionado."
-      hasPagination={false}
-    >
-      <Box sx={{ width: '100%', mt: 2 }}>
-        <CourseForm
-          formMethods={formMethods}
-          onSubmit={handleSubmit(handleEditSubmit)}
-        >
-          <DialogActions sx={{ px: 0, mt: 1, justifyContent: 'end', gap: 2 }}>
-            <Button
-              type="button"
-              variant="outlined"
-              color="error"
-              startIcon={<Cancel />}
-              onClick={() => router.push('/courses')}
-              sx={{
-                borderRadius: '4px',
-                textTransform: 'none',
-                fontWeight: 700,
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isValid}
-              variant="contained"
-              color="secondary"
-              endIcon={<Send />}
-              sx={{
-                borderRadius: '4px',
-                textTransform: 'none',
-                fontWeight: 700,
-              }}
-            >
-              Enviar
-            </Button>
-          </DialogActions>
-        </CourseForm>
-      </Box>
-    </ContentLayoutComponent>
+    <>
+      <ContentLayoutComponent
+        title="Editar Curso"
+        description="Modifique as informações gerais do curso selecionado."
+        hasPagination={false}
+      >
+        <Box sx={{ width: '100%', mt: 2 }}>
+          <CourseForm
+            formMethods={formMethods}
+            onSubmit={handleSubmit(handleEditSubmit)}
+          >
+            <DialogActions sx={{ px: 0, mt: 1, justifyContent: 'end', gap: 2 }}>
+              <Button
+                type="button"
+                variant="outlined"
+                color="error"
+                startIcon={<Cancel />}
+                onClick={() => router.push('/courses')}
+                sx={{
+                  borderRadius: '4px',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={!isValid}
+                variant="contained"
+                color="secondary"
+                endIcon={<Send />}
+                sx={{
+                  borderRadius: '4px',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                }}
+              >
+                Enviar
+              </Button>
+            </DialogActions>
+          </CourseForm>
+        </Box>
+      </ContentLayoutComponent>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Editar Curso"
+        content="Tem certeza que deseja salvar as alterações deste curso?"
+        onConfirm={handleConfirm}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setPendingData(null);
+        }}
+      />
+    </>
   );
 }
