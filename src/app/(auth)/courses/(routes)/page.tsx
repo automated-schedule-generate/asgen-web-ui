@@ -28,6 +28,10 @@ export default function CoursesPage() {
       const totalItems = res?.data?.total || 0;
       const calculatedTotalPages = Math.ceil(totalItems / limit) || 1;
 
+      if (page > calculatedTotalPages) {
+        setPage(1);
+        return;
+      }
       setCourses(items);
       setTotalPages(calculatedTotalPages);
     } catch (error) {

@@ -19,8 +19,7 @@ import {
   updateCourse,
 } from '@/app/(auth)/courses/_services/courses.service';
 import { CourseForm } from '@/app/(auth)/courses/_components/course-form.component';
-import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
-
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
 export default function EditCoursePage() {
   const router = useNextRouter();
   const { id } = useNextParams();
@@ -142,7 +141,7 @@ export default function EditCoursePage() {
         </Box>
       </ContentLayoutComponent>
 
-      <ConfirmDialog
+      <ConfirmDialogBlue
         open={confirmOpen}
         title="Editar Curso"
         content="Tem certeza que deseja salvar as alterações deste curso?"
