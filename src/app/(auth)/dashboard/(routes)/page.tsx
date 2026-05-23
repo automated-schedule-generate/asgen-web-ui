@@ -52,17 +52,17 @@ const dashboardCards = [
   {
     title: 'Gerar grades',
     icon: <AutoModeIcon sx={{ fontSize: 30 }} />,
-    path: '#',
+    path: '#pdnszbsbijfo',
   },
   {
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
-    path: '#',
+    path: '#sbsbninisafn',
   },
   {
     title: 'Preferencias',
     icon: <TuneIcon sx={{ fontSize: 30 }} />,
-    path: '#',
+    path: '#preference',
   },
 ];
 
@@ -109,6 +109,9 @@ export default function DashboardPage() {
               md: 'repeat(3, 1fr)',
             },
             justifyItems: 'center',
+            maxWidth: 470,
+            mx: 'auto',
+            width: '100%',
           }}
         >
           {dashboardCards.map(({ title, icon, path }) => (

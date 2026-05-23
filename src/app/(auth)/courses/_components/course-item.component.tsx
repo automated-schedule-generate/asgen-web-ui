@@ -33,7 +33,6 @@ import type { SubjectType } from '../../subjects/_schemas/subject.schema';
 interface CourseItemProps {
   course: CourseData;
   onRefresh: () => Promise<void>;
-  index: number;
 }
 
 export function CourseItem({ course, onRefresh }: CourseItemProps) {
@@ -136,6 +135,7 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
             size="small"
             onClick={(e) => {
               e.stopPropagation();
+              console.log('course.id:', course.id);
               router.push(`/courses/${course.id}/edit`);
             }}
             sx={{ color: 'inherit' }}

@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   useRouter as useNextRouter,
   useParams as useNextParams,
-  redirect,
 } from 'next/navigation';
 import { Box, Button, CircularProgress, DialogActions } from '@mui/material';
 import { Cancel, Send } from '@mui/icons-material';
@@ -72,7 +71,7 @@ export default function EditCoursePage() {
     if (!id) return;
     try {
       await updateCourse(id as string, data);
-      redirect('/courses');
+      router.push('/courses');
     } catch (error) {
       console.error('Erro ao processar atualização:', error);
     }

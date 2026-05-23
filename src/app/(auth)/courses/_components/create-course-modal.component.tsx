@@ -1,9 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm, FieldValues } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
   DialogTitle,
@@ -15,6 +12,7 @@ import { Cancel, Send, Add as AddIcon } from '@mui/icons-material';
 import { courseSchema, CourseType } from '../_schemas/course.schema';
 import { CourseForm } from './course-form.component';
 import { createCourse } from '../_services/courses.service';
+import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 
 interface CreateCourseModalProps {
   onRefresh: () => Promise<void>;
@@ -24,11 +22,8 @@ export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const formMethods = useForm({
-    resolver: zodResolver(courseSchema),
-    mode: 'onChange',
+  const formMethods = useFormWithZod(courseSchema, {
     defaultValues: {
-      name: '',
       class_time: '45',
       total_semesters: 1,
     },
@@ -40,19 +35,17 @@ export function CreateCourseModal({ onRefresh }: CreateCourseModalProps) {
     formState: { isValid },
   } = formMethods;
 
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
+  const handleOpen = () => setIsOpen(true);
 
   const handleCancel = () => {
     reset();
     setIsOpen(false);
   };
 
-  const handleCreateSubmit = async (data: FieldValues) => {
+  const handleCreateSubmit = async (data: CourseType) => {
     setSubmitting(true);
     try {
-      await createCourse(data as unknown as CourseType);
+      await createCourse(data);
       reset();
       await onRefresh();
       setIsOpen(false);

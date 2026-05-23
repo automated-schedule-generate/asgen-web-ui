@@ -25,7 +25,7 @@ export default function CoursesPage() {
       const res = await getAllCourses({ page, limit, search: searchTerm });
       const items = res?.data?.items || [];
 
-      const totalItems = res?.data?.meta?.totalItems || 0;
+      const totalItems = res?.data?.total || 0;
       const calculatedTotalPages = Math.ceil(totalItems / limit) || 1;
 
       setCourses(items);
@@ -82,7 +82,6 @@ export default function CoursesPage() {
               <CourseItem
                 key={course.id || index}
                 course={course}
-                index={index}
                 onRefresh={fetchCourses}
               />
             ))}

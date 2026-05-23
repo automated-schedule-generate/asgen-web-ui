@@ -2,23 +2,20 @@
 
 import React from 'react';
 import { UseFormReturn, FieldValues, Path, Controller } from 'react-hook-form';
-import { Box, TextField, FormLabel, Autocomplete } from '@mui/material';
+import { Box, FormLabel, Autocomplete, TextField } from '@mui/material';
+import { ClassTimeEnum } from '../_enums/course.enum';
+import { FormInput } from '@/components/utilities/form-input.component';
 
 interface CourseFormProps<T extends FieldValues> {
-  formMethods: UseFormReturn<T, unknown, unknown>;
+  formMethods: UseFormReturn<T>;
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   children?: React.ReactNode;
 }
 
-interface ClassTimeOption {
-  label: string;
-  value: '45' | '60';
-}
-
-const classTimeOptions: ClassTimeOption[] = [
-  { label: '45 minutos', value: '45' },
-  { label: '60 minutos', value: '60' },
-];
+const classTimeOptions = Object.values(ClassTimeEnum).map((val) => ({
+  label: `${val} minutos`,
+  value: val,
+}));
 
 export function CourseForm<T extends FieldValues>({
   formMethods,
@@ -26,14 +23,9 @@ export function CourseForm<T extends FieldValues>({
   children,
 }: CourseFormProps<T>) {
   const {
-    register,
     control,
     formState: { errors },
   } = formMethods;
-
-  const nameKey = 'name' as Path<T>;
-  const classTimeKey = 'class_time' as Path<T>;
-  const totalSemestersKey = 'total_semesters' as Path<T>;
 
   return (
     <Box
@@ -45,8 +37,7 @@ export function CourseForm<T extends FieldValues>({
         display: 'flex',
         flexDirection: 'column',
         gap: 4,
-        '& .MuiInputLabel-root': { color: '#0B0A7A', fontWeight: 500 },
-        '& .MuiFormLabel-root': {
+        '& label, & .MuiFormLabel-root': {
           color: '#0B0A7A',
           fontWeight: 500,
           mb: '6px',
@@ -56,21 +47,20 @@ export function CourseForm<T extends FieldValues>({
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        <FormLabel htmlFor="name">Nome do Curso:</FormLabel>
-        <TextField
-          {...register(nameKey)}
+        <FormInput<T>
+          control={control}
           id="name"
+          name="name"
+          type="text"
+          label="Nome do Curso:"
           placeholder="Digite o nome do curso"
-          fullWidth
-          error={!!errors.name}
-          helperText={errors.name ? String(errors.name.message) : ''}
         />
       </Box>
 
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
+          flexDirection: { xs: 'column' },
           gap: 3,
           width: '100%',
           mt: 0.75,
@@ -79,15 +69,16 @@ export function CourseForm<T extends FieldValues>({
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <FormLabel htmlFor="class_time">Carga Horária:</FormLabel>
           <Controller
-            name={classTimeKey}
+            name={'class_time' as Path<T>}
             control={control}
             render={({ field: { onChange, value, onBlur, ref } }) => (
               <Autocomplete
                 options={classTimeOptions}
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, val) =>
-                  option.value === (val as unknown as ClassTimeOption)?.value ||
-                  option.value === (val as unknown as string)
+                  option.value ===
+                    (val as unknown as { value: ClassTimeEnum })?.value ||
+                  option.value === (val as unknown as ClassTimeEnum)
                 }
                 value={
                   classTimeOptions.find((opt) => opt.value === value) || null
@@ -114,19 +105,13 @@ export function CourseForm<T extends FieldValues>({
         </Box>
 
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <FormLabel htmlFor="total_semesters">Total de Semestres:</FormLabel>
-          <TextField
-            {...register(totalSemestersKey, { valueAsNumber: true })}
+          <FormInput<T>
+            control={control}
             id="total_semesters"
-            placeholder="Digite o total de semestres"
+            name="total_semesters"
             type="number"
-            fullWidth
-            error={!!errors.total_semesters}
-            helperText={
-              errors.total_semesters
-                ? String(errors.total_semesters.message)
-                : ''
-            }
+            label="Total de Semestres:"
+            placeholder="Digite o total de semestres"
           />
         </Box>
       </Box>

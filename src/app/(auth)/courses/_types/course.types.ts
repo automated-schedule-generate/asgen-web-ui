@@ -1,11 +1,11 @@
-import type { SubjectType } from '../../subjects/_schemas/subject.schema';
+import type { Subject } from '../../subjects/_interfaces/subject.interface';
 
 export interface CourseData {
   id: string;
   name: string;
   class_time: string | number;
   total_semesters: string | number;
-  subjects?: SubjectType[];
+  subjects?: Subject[];
 }
 
 export interface CourseItemProps {
