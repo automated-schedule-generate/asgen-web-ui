@@ -49,7 +49,7 @@ export function ContentLayoutComponent({
                 count={count}
                 page={page}
                 onChange={onChange}
-                color="primary"
+                color="secondary"
               />
             </Stack>
           </Box>

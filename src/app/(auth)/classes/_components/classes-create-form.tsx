@@ -1,33 +1,32 @@
 'use client';
 
-import { Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import {
   Autocomplete,
   Box,
   Button,
   FormControl,
-  FormControlLabel,
   FormLabel,
   InputLabel,
-  Radio,
-  RadioGroup,
+  Select,
   TextField,
+  MenuItem,
 } from '@mui/material';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
-import { SubjectType, subjectSchema } from '../_schemas/subject.schema';
-import { createSubject } from '../_services/subjects.service';
 import { FormInput } from '@/components/utilities/form-input.component';
 import { CourseType } from '../../courses/_schemas/course.schema';
 import { Cancel, Send } from '@mui/icons-material';
-import { Subject } from '../_interfaces/subject.interface';
+import { classSchema, ClassType } from '../_schemas/class.schema';
+import { createClass } from '../_services/classes.service';
+import { Controller } from 'react-hook-form';
+import { Semester } from '../../semesters/_interfaces/semester.interface';
 
-export default function SubjectsCreateFormComponent({
-  subjects,
+export default function ClassesCreateFormComponent({
   courses,
+  semesters,
 }: {
-  subjects: Subject[];
   courses: CourseType[];
+  semesters: Semester[];
 }) {
   const router = useRouter();
   const {
@@ -35,17 +34,17 @@ export default function SubjectsCreateFormComponent({
     handleSubmit,
     reset,
     formState: { isValid },
-  } = useFormWithZod(subjectSchema, {
+  } = useFormWithZod(classSchema, {
     defaultValues: {
-      is_optional: false,
+      shift: 'MATUTINO',
     },
   });
 
-  async function submit(data: SubjectType) {
+  async function submit(data: ClassType) {
     try {
-      await createSubject(data);
+      await createClass(data);
       reset();
-      router.push('/subjects');
+      router.push('/classes');
     } catch (error) {
       console.error(error);
     }
@@ -55,81 +54,12 @@ export default function SubjectsCreateFormComponent({
     <>
       <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-2">
         <FormInput
-          name="name"
+          name="identify"
           label="Nome:"
-          id="name"
-          placeholder="Digite o nome da disciplina"
+          id="identify"
+          placeholder="Digite o nome da turma"
           type="text"
           control={control}
-        />
-
-        <FormInput
-          name="workload"
-          label="Carga Horária:"
-          id="workload"
-          placeholder="Digite a carga horária"
-          type="number"
-          control={control}
-        />
-        <Controller
-          name="is_optional"
-          defaultValue={false}
-          control={control}
-          render={({ field }) => (
-            <>
-              <FormLabel id="demo-row-radio-buttons-group-label">
-                A disciplina é Optativa?
-              </FormLabel>
-              <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-                value={field.value === true ? 'true' : 'false'}
-                onChange={(event) =>
-                  field.onChange(event.target.value === 'true')
-                }
-              >
-                <FormControlLabel
-                  value={true}
-                  control={<Radio />}
-                  label="Sim"
-                />
-                <FormControlLabel
-                  value={false}
-                  control={<Radio />}
-                  label="Não"
-                />
-              </RadioGroup>
-            </>
-          )}
-        />
-        <Controller
-          name="prerequisite_id"
-          defaultValue={''}
-          control={control}
-          render={({ field, fieldState: { error } }) => (
-            <>
-              <FormLabel id="demo-row-radio-buttons-group-label">
-                Pré-requisito:
-              </FormLabel>
-              <Autocomplete
-                disablePortal
-                options={subjects.map((subject: Subject) => ({
-                  label: subject.name,
-                  value: subject.id,
-                }))}
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    error={!!error}
-                    helperText={error?.message}
-                  />
-                )}
-                onChange={(_event, value) => field.onChange(value?.value)}
-              />
-            </>
-          )}
         />
         <Controller
           name="course_id"
@@ -158,6 +88,63 @@ export default function SubjectsCreateFormComponent({
             </>
           )}
         />
+        <FormInput
+          name="course_semester"
+          label="Período do Curso:"
+          id="course_semester"
+          placeholder="Digite o período do curso"
+          type="number"
+          control={control}
+        />
+        <Controller
+          name="shift"
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <>
+              <FormLabel htmlFor="demo-simple-select">Turno:</FormLabel>
+              <FormControl>
+                <Select
+                  value={field.value ?? ''}
+                  onChange={(event) => field.onChange(event.target.value)}
+                >
+                  <MenuItem value="" disabled>
+                    Selecione um turno
+                  </MenuItem>
+                  <MenuItem value="MATUTINO">Matutino</MenuItem>
+                  <MenuItem value="VESPERTINO">Vespertino</MenuItem>
+                  <MenuItem value="NOTURNO">Noturno</MenuItem>
+                </Select>
+              </FormControl>
+            </>
+          )}
+        />
+        <Controller
+          name="semester_id"
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <>
+              <FormLabel id="demo-row-radio-buttons-group-label">
+                Semestre letivo:
+              </FormLabel>
+              <Autocomplete
+                disablePortal
+                options={semesters.map((semester: Semester) => ({
+                  label: semester.year + '.' + semester.semester,
+                  value: semester.id,
+                }))}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!!error}
+                    helperText={error?.message}
+                  />
+                )}
+                onChange={(_event, value) => field.onChange(value?.value)}
+              />
+            </>
+          )}
+        />
         <Box className="flex justify-end gap-2">
           <Button
             type="button"
@@ -165,7 +152,7 @@ export default function SubjectsCreateFormComponent({
             color="error"
             className="self-end"
             startIcon={<Cancel />}
-            onClick={() => router.push('/subjects')}
+            onClick={() => router.push('/classes')}
           >
             Cancelar
           </Button>
