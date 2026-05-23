@@ -6,15 +6,18 @@ const api = await getApi();
 export async function getAllClasses({
   page = 1,
   limit = 10,
+  search = '',
 }: {
   page?: number;
   limit?: number;
+  search?: string;
 }) {
   try {
     const { data } = await api.get('/class', {
       params: {
         page,
         limit,
+        search,
       },
     });
     return data;

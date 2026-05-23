@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { Box, Button } from '@mui/material';
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 import { Add } from '@mui/icons-material';
+import ClassesList from '../_components/classes-list.component';
+import { Class } from '../_interfaces/class.interface';
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
@@ -15,27 +17,32 @@ export default function ClassesPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function loadClasses(currentPage = 1) {
-    setIsLoading(true);
+  const loadClasses = useCallback(
+    async (currentPage = 1) => {
+      setIsLoading(true);
 
-    try {
-      const response = await getAllClasses({
-        page: currentPage,
-        limit: 10,
-      });
+      try {
+        const response = await getAllClasses({
+          page: currentPage,
+          limit: 10,
+          search: search,
+        });
 
-      setClasses(response.data.items);
+        setClasses(response.data.items);
 
-      setTotalPages(response.data.page.total);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+        setTotalPages(response.data.page.total);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [search],
+  );
+
   useEffect(() => {
     loadClasses(page);
-  }, [page]);
+  }, [page, loadClasses]);
 
   const router = useRouter();
   const handleSearch = useCallback((term: string) => {
@@ -59,12 +66,12 @@ export default function ClassesPage() {
           variant="contained"
           startIcon={<Add />}
           color="secondary"
-          onClick={() => router.push('/subjects/create')}
+          onClick={() => router.push('/classes/create')}
         >
           Nova turma
         </Button>
       </Box>
-      <div className="p-4 bg-background flex flex-col gap-4">aaaaaaaaa</div>
+      <ClassesList classes={classes} isLoading={isLoading} />
     </ContentLayoutComponent>
   );
 }
