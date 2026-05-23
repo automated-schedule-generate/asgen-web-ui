@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 import { deleteClass } from '../_services/classes.service';
-interface SubjectsItemsComponentProps {
+interface ClassesItemsComponentProps {
   id: string;
   identify: string;
   shift: string;
@@ -18,21 +18,22 @@ interface SubjectsItemsComponentProps {
   course_semester: number;
   semester: string;
 }
-export default function SubjectsItems({
+export default function ClassesItems({
   id,
   identify,
   shift,
   course,
   course_semester,
   semester,
-}: SubjectsItemsComponentProps) {
+}: ClassesItemsComponentProps) {
+  const router = useRouter();
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   async function handleDelete(id: string) {
     console.log('id:', id);
     await deleteClass(id);
-    window.location.reload();
+    setConfirmDeleteOpen(false);
+    router.refresh();
   }
-  const router = useRouter();
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   return (
     <>
       <Accordion>
