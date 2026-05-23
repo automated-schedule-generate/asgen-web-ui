@@ -11,7 +11,7 @@ interface SearchBarProps {
 
 export function SearchBarComponent({
   onSearch,
-  placeholder = 'Buscar...',
+  placeholder = 'Pesquisar...',
   delay = 500,
 }: SearchBarProps) {
   const [term, setTerm] = useState('');
@@ -48,11 +48,13 @@ export function SearchBarComponent({
             <Search color="secondary" />
           </InputAdornment>
         ),
-        endAdornment: term.length > 0 && (
+        endAdornment: (
           <InputAdornment position="end">
-            <IconButton onClick={handleClear}>
-              <Close color="secondary" />
-            </IconButton>
+            {term.length > 0 && (
+              <IconButton onClick={handleClear}>
+                <Close color="secondary" />
+              </IconButton>
+            )}
           </InputAdornment>
         ),
       }}

@@ -1,6 +1,7 @@
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
+  cssVariables: true,
   palette: {
     primary: {
       main: '#1a1a1a',
@@ -17,7 +18,7 @@ const theme = createTheme({
       paper: '#ffffff',
     },
     text: {
-      primary: '#1e293b',
+      primary: 'rgba(3, 1, 125, 1)',
       secondary: '#64748b',
     },
   },
@@ -35,6 +36,13 @@ const theme = createTheme({
           '&.Mui-completed': {
             color: '#22c55e', // Verde para sucesso
           },
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          color: 'var(--mui-palette-text-primary)',
         },
       },
     },

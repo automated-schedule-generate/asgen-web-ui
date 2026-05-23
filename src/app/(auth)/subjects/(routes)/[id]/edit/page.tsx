@@ -2,8 +2,8 @@ import { ContentLayoutComponent } from '@/components/utilities/content-layout.co
 import {
   getAllSubjects,
   getSubjectById,
-} from '../../_services/subjects.service';
-import SubjectsEditFormComponent from '../../_components/subjects-edit-form.component';
+} from '../../../_services/subjects.service';
+import SubjectsEditFormComponent from '../../../_components/subjects-edit-form.component';
 import { getAllCourses } from '@/app/(auth)/courses/_services/courses.service';
 
 export default async function Page({
