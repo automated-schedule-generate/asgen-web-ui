@@ -11,6 +11,7 @@ import {
   School,
   Groups,
   Visibility,
+  People,
 } from '@mui/icons-material';
 import { MenuItem } from './menu-item.component';
 import { usePathname } from 'next/navigation';
@@ -36,6 +37,11 @@ export function DrawerMenu() {
       text: 'Gestão de funções',
       icon: <AdminPanelSettings />,
       path: '/functions',
+    },
+    {
+      text: 'Gestão de Usuários',
+      icon: <People />,
+      path: '/users',
     },
     { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
     { text: 'Visualizar grades', icon: <Visibility />, path: '#' },

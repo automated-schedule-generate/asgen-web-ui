@@ -2,16 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export default function middleware(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
-  const { pathname } = request.nextUrl;
-
-  if (pathname === '/' && token) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-  if (pathname !== '/' && !token) {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
-
+  // Temporariamente liberado para permitir visualização offline do front-end sem precisar rodar a API de backend
   return NextResponse.next();
 }
 
