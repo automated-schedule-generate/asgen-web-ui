@@ -26,7 +26,6 @@ export default function EditCoursePage() {
   const [pendingData, setPendingData] = useState<CourseType | null>(null);
 
   const formMethods = useFormWithZod(courseSchema, {
-    mode: 'onChange',
     defaultValues: {
       class_time: '45',
       total_semesters: 1,

@@ -25,15 +25,14 @@ export default function CoursesPage() {
       const res = await getAllCourses({ page, limit, search: searchTerm });
       const items = res?.data?.items || [];
 
-      const totalItems = res?.data?.total || 0;
-      const calculatedTotalPages = Math.ceil(totalItems / limit) || 1;
+      const totalPages = res?.data?.totalPages || 1;
 
-      if (page > calculatedTotalPages) {
+      if (page > totalPages) {
         setPage(1);
         return;
       }
       setCourses(items);
-      setTotalPages(calculatedTotalPages);
+      setTotalPages(totalPages);
     } catch (error) {
       console.error('Erro ao buscar listagem de cursos:', error);
     } finally {
