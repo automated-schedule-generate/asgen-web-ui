@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { FormInput } from '@/components/utilities/form-input.component';
-import { CourseType } from '../../courses/_schemas/course.schema';
+import { CourseData } from '../../courses/_types/course.types';
 import { Cancel, Send } from '@mui/icons-material';
 import { classSchema, ClassType } from '../_schemas/class.schema';
 import { createClass } from '../_services/classes.service';
@@ -25,7 +25,7 @@ export default function ClassesCreateFormComponent({
   courses,
   semesters,
 }: {
-  courses: CourseType[];
+  courses: CourseData[];
   semesters: Semester[];
 }) {
   const router = useRouter();
@@ -71,7 +71,7 @@ export default function ClassesCreateFormComponent({
               </FormLabel>
               <Autocomplete
                 disablePortal
-                options={courses.map((course: CourseType) => ({
+                options={courses.map((course: CourseData) => ({
                   label: course.name,
                   value: course.id,
                 }))}
