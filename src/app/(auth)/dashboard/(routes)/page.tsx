@@ -60,7 +60,7 @@ const dashboardCards = [
   {
     title: 'Preferencias',
     icon: <AutoFixHighIcon sx={{ fontSize: 30 }} />,
-    path: '#',
+    path: '/teachers/preferences',
   },
 ];
 
