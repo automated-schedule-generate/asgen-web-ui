@@ -25,7 +25,7 @@ export default function CoursesPage() {
       const res = await getAllCourses({ page, limit, search: searchTerm });
       const items = res?.data?.items || [];
 
-      const totalPages = res?.data?.totalPages || 1;
+      const totalPages = res.data.page.total || 1;
 
       if (page > totalPages) {
         setPage(1);

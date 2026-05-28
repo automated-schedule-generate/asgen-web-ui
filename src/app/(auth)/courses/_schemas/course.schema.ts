@@ -8,4 +8,4 @@ export const courseSchema = z.object({
   total_semesters: z.coerce.number().min(1, 'Mínimo de 1 semestre'),
 });
 
-export type CourseType = z.infer<typeof courseSchema> & { id?: string };
+export type CourseType = z.infer<typeof courseSchema>;

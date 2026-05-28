@@ -32,12 +32,7 @@ export default function EditCoursePage() {
     },
   });
 
-  const {
-    handleSubmit,
-    reset,
-    trigger,
-    formState: { isValid },
-  } = formMethods;
+  const { handleSubmit, reset, trigger } = formMethods;
 
   const loadCourseData = useCallback(async () => {
     if (!id) return;
