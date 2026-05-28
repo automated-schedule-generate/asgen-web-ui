@@ -13,6 +13,8 @@ import {
   IconButton,
   Button,
   Box,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import { Visibility, VisibilityOff, Close } from '@mui/icons-material';
 import { Logo } from '@/components/layout/logo.component';
@@ -30,17 +32,22 @@ export function AuthForm({
   const { control, handleSubmit } = useFormWithZod(authSchema);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [erro, setErro] = React.useState('');
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   async function submit(data: AuthType) {
+    setLoading(true);
+    setErro('');
     try {
       await login(data);
-    } catch (error) {
-      console.log('Login failed:', error);
-      return;
+      router.push('/dashboard');
+    } catch {
+      setErro('Email ou senha incorretos. Verifique suas credenciais.');
+    } finally {
+      setLoading(false);
     }
-    router.push('/dashboard');
   }
 
   return (
@@ -108,8 +115,21 @@ export function AuthForm({
               )}
             />
           </Box>
-          <Button type="submit" variant="contained" color="secondary">
-            Login
+          {erro && (
+            <Alert severity="error" sx={{ borderRadius: 2 }}>
+              {erro}
+            </Alert>
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            color="secondary"
+            disabled={loading}
+            startIcon={
+              loading ? <CircularProgress size={16} color="inherit" /> : null
+            }
+          >
+            {loading ? 'Entrando...' : 'Login'}
           </Button>
           <a
             onClick={() => openRegisterDialog()}

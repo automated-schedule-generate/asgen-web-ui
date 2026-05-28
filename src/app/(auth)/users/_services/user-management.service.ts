@@ -1,6 +1,29 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
 import type { IUser } from '@/interfaces/user.interface';
+import { UserType } from '../_schemas/user.schema';
+import { firstLetterUpperCase } from '@/utils/first-letter-uppercase.util';
+
+export async function createUser(payload: UserType) {
+  const api = await getApi();
+  try {
+    const { data } = await api.post('/user/register', {
+      ...payload,
+      name: `${firstLetterUpperCase(payload.name.trim())} ${firstLetterUpperCase(payload.surname.trim())}`,
+    });
+    return data;
+  } catch (error: unknown) {
+    const err = error as {
+      response?: { data?: { message?: string | string[] } };
+      message?: string;
+    };
+    if (err.response && err.response.data && err.response.data.message) {
+      const messages = err.response.data.message;
+      throw new Error(Array.isArray(messages) ? messages[0] : messages);
+    }
+    throw new Error(err.message || 'Erro ao criar usuário');
+  }
+}
 
 export async function getAllUsers(): Promise<IUser[]> {
   const api = await getApi();
@@ -10,44 +33,8 @@ export async function getAllUsers(): Promise<IUser[]> {
     if (data && Array.isArray(data.items)) return data.items;
     return [];
   } catch (error) {
-    console.error('Error fetching users from API, using mock data:', error);
-    return [
-      {
-        id: 1,
-        nome: 'Guilherme Rodrigues',
-        email: 'guilherme@asgen.com',
-        funcao: 'Coordenador',
-        matricula: '20260001',
-      },
-      {
-        id: 2,
-        nome: 'Joana Gomes',
-        email: 'joana@asgen.com',
-        funcao: 'Professor',
-        matricula: '20260002',
-      },
-      {
-        id: 3,
-        nome: 'Claudiane Rodrigues',
-        email: 'claudiane@asgen.com',
-        funcao: 'Professor',
-        matricula: '20260003',
-      },
-      {
-        id: 4,
-        nome: 'Maria Souza',
-        email: 'maria@asgen.com',
-        funcao: 'CRADT',
-        matricula: '20260004',
-      },
-      {
-        id: 5,
-        nome: 'Pedro Alencar',
-        email: 'pedro@asgen.com',
-        funcao: 'Coordenador',
-        matricula: '20260005',
-      },
-    ];
+    console.error('Error fetching users from API:', error);
+    throw error;
   }
 }
 

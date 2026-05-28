@@ -6,7 +6,6 @@ import {
   Home,
   Attribution,
   AutoMode,
-  AdminPanelSettings,
   SquareFoot,
   School,
   Groups,
@@ -33,11 +32,6 @@ export function DrawerMenu() {
     { text: 'Turmas', icon: <Groups />, path: '/classes' },
     { text: 'Cursos', icon: <School />, path: '/courses' },
     { text: 'Disciplinas', icon: <SquareFoot />, path: '/subjects' },
-    {
-      text: 'Gestão de funções',
-      icon: <AdminPanelSettings />,
-      path: '/functions',
-    },
     {
       text: 'Gestão de Usuários',
       icon: <People />,

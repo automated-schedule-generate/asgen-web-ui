@@ -16,6 +16,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -26,7 +27,7 @@ import {
 } from '@mui/icons-material';
 import { Logo } from '@/components/layout/logo.component';
 import { UserType, userSchema } from '../_schemas/user.schema';
-import { register } from '../_services/user.service';
+import { register as defaultRegister } from '../_services/user.service';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { TextMaskCustom } from '@/components/utilities/mask-input.component';
 
@@ -34,15 +35,20 @@ export function RegisterForm({
   open,
   onClose,
   openAuthDialog,
+  onSuccess,
+  onSubmitAction,
 }: {
   open: boolean;
   onClose: () => void;
-  openAuthDialog: () => void;
+  openAuthDialog?: () => void;
+  onSuccess?: () => void;
+  onSubmitAction?: (data: UserType) => Promise<void>;
 }) {
   const { control, handleSubmit, watch, trigger } = useFormWithZod(userSchema);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleClickShowConfirmPassword = () =>
@@ -73,8 +79,30 @@ export function RegisterForm({
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
   async function submit(data: UserType) {
-    await register(data);
-    router.push('/dashboard');
+    setErrorMsg('');
+    try {
+      if (onSubmitAction) {
+        await onSubmitAction(data);
+      } else {
+        await defaultRegister(data);
+      }
+
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error: unknown) {
+      const err = error as {
+        response?: { data?: { message?: string[] } };
+        message?: string;
+      };
+      const msg =
+        err.response?.data?.message?.[0] ||
+        err.message ||
+        'Erro ao cadastrar usuário. Verifique os dados.';
+      setErrorMsg(msg);
+    }
   }
 
   return (
@@ -113,6 +141,13 @@ export function RegisterForm({
             </Step>
           ))}
         </Stepper>
+        {errorMsg && (
+          <Box sx={{ mt: 2 }}>
+            <Alert severity="error" sx={{ borderRadius: 2 }}>
+              {errorMsg}
+            </Alert>
+          </Box>
+        )}
         <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
           <Box sx={{ mt: 2, minHeight: '200px' }}>
             {activeStep === 0 && (
@@ -330,14 +365,16 @@ export function RegisterForm({
           </Button>
         </Box>
       </DialogActions>
-      <Box sx={{ px: 3, py: 2, textAlign: 'center' }}>
-        <a
-          onClick={() => openAuthDialog()}
-          className="text-sm text-blue-500 text-center"
-        >
-          Já tem uma conta? Faça login.
-        </a>
-      </Box>
+      {openAuthDialog && (
+        <Box sx={{ px: 3, py: 2, textAlign: 'center' }}>
+          <a
+            onClick={() => openAuthDialog()}
+            className="text-sm text-blue-500 text-center cursor-pointer"
+          >
+            Já tem uma conta? Faça login.
+          </a>
+        </Box>
+      )}
     </Dialog>
   );
 }
