@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import {
   Container,
   Typography,
@@ -9,18 +9,17 @@ import {
   CardActionArea,
   Avatar,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 import {
   School as SchoolIcon,
   Groups as GroupsIcon,
   Visibility as VisibilityIcon,
+  AutoFixHigh as AutoFixHighIcon,
   SquareFoot as SquareFootIcon,
   Attribution as AttributionIcon,
   AutoMode as AutoModeIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
-  Tune as TuneIcon,
 } from '@mui/icons-material';
-
-import { useUser } from '@/contexts/user.context';
 
 const dashboardCards = [
   {
@@ -51,34 +50,32 @@ const dashboardCards = [
   {
     title: 'Gerar grades',
     icon: <AutoModeIcon sx={{ fontSize: 30 }} />,
-    path: '#pdnszbsbijfo',
+    path: '#',
   },
   {
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
-    path: '#sbsbninisafn',
+    path: '#',
   },
   {
     title: 'Preferencias',
-    icon: <TuneIcon sx={{ fontSize: 30 }} />,
-    path: '#preference',
+    icon: <AutoFixHighIcon sx={{ fontSize: 30 }} />,
+    path: '/teachers/preferences',
   },
 ];
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user } = useUser();
-
   const hora = new Date().getHours();
-  let saudacao = 'Boa noite';
-  if (hora >= 5 && hora < 12) saudacao = 'Bom dia';
-  else if (hora >= 12 && hora < 18) saudacao = 'Boa tarde';
+  let saudacao = 'boa noite';
 
+  if (hora >= 5 && hora < 12) saudacao = 'bom dia';
+  else if (hora >= 12 && hora < 18) saudacao = 'boa tarde';
   return (
     <>
       <Box sx={{ width: '100%', maxWidth: 700, mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#333' }}>
-          {saudacao}, {user?.name}
+          Olá, {saudacao}
         </Typography>
       </Box>
 
@@ -108,14 +105,12 @@ export default function DashboardPage() {
               md: 'repeat(3, 1fr)',
             },
             justifyItems: 'center',
-            maxWidth: 470,
-            mx: 'auto',
-            width: '100%',
           }}
         >
           {dashboardCards.map(({ title, icon, path }) => (
             <Card
               key={title}
+              onClick={() => router.push(path)}
               sx={{
                 borderRadius: 5,
                 border: '1px solid #eceef2',
@@ -124,6 +119,7 @@ export default function DashboardPage() {
                 maxWidth: '180px',
                 aspectRatio: '1 / 1',
                 transition: 'all 0.2s',
+                cursor: 'pointer',
                 '&:hover': {
                   transform: 'translateY(-4px)',
                   borderColor: '#03017D',
@@ -132,7 +128,6 @@ export default function DashboardPage() {
               }}
             >
               <CardActionArea
-                onClick={() => router.push(path)}
                 sx={{
                   height: '100%',
                   display: 'flex',
