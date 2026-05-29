@@ -44,6 +44,7 @@ export async function getAllSubjects({
   search,
   with_course = true,
   with_pagination = true,
+  with_prerequisite = true,
   course_id,
 }: {
   page?: number;
@@ -51,6 +52,7 @@ export async function getAllSubjects({
   search?: string;
   with_course?: boolean;
   with_pagination?: boolean;
+  with_prerequisite?: boolean;
   course_id?: string;
 } = {}) {
   try {
@@ -62,6 +64,7 @@ export async function getAllSubjects({
         limit,
         search,
         course_id,
+        with_prerequisite,
       },
     });
 

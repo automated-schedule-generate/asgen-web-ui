@@ -1,17 +1,11 @@
 'use client';
-import { getTeachers } from '../_services/teacher.service';
+import { getTeacherById, getTeachers } from '../_services/teacher.service';
 import { TeachersListComponent } from '../_components/list/teachers-list.component';
-import type { TeacherListType } from '../_types/teacher-list.type';
+import type { Teacher, TeacherListType } from '../_types/teacher-list.type';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 import { useEffect, useState } from 'react';
-import {
-  Box,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-} from '@mui/material';
+import { Box } from '@mui/material';
 
 export default function TeachersPage() {
   const [allTeachers, setAllTeachers] = useState<TeacherListType>([]);
@@ -33,7 +27,6 @@ export default function TeachersPage() {
     }
     loadData();
   }, []);
-
   const handleSearch = (term: string) => {
     const filtered = allTeachers.filter((teacher) =>
       teacher.user?.name?.toLowerCase().includes(term.toLowerCase()),
