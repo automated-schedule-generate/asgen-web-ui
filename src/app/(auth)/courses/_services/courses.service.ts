@@ -1,11 +1,28 @@
 'use server';
+
 import { getApi } from '@/plugin/api.plugin';
 import type { CourseType } from '../_schemas/course.schema';
+
 const api = await getApi();
 
-export async function getAllCourses() {
+export async function getAllCourses({
+  page = 1,
+  limit = 10,
+  search = '',
+}: {
+  page?: number;
+  limit?: number;
+  search?: string;
+} = {}) {
   try {
-    const { data } = await api.get('/course');
+    const { data } = await api.get('/course', {
+      params: {
+        with_pagination: true,
+        page,
+        limit,
+        search,
+      },
+    });
     return data;
   } catch (error) {
     console.log(error);

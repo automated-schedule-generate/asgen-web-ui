@@ -1,0 +1,153 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { Box, Button, CircularProgress, DialogActions } from '@mui/material';
+import { Cancel, Send } from '@mui/icons-material';
+
+import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
+import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
+import {
+  courseSchema,
+  CourseType,
+} from '@/app/(auth)/courses/_schemas/course.schema';
+import {
+  getCourseById,
+  updateCourse,
+} from '@/app/(auth)/courses/_services/courses.service';
+import { CourseForm } from '@/app/(auth)/courses/_components/course-form.component';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+
+export default function EditCoursePage() {
+  const router = useRouter();
+  const { id } = useParams();
+  const [loadingData, setLoadingData] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingData, setPendingData] = useState<CourseType | null>(null);
+
+  const formMethods = useFormWithZod(courseSchema, {
+    defaultValues: {
+      class_time: '45',
+      total_semesters: 1,
+    },
+  });
+
+  const { handleSubmit, reset, trigger } = formMethods;
+
+  const loadCourseData = useCallback(async () => {
+    if (!id) return;
+    setLoadingData(true);
+    try {
+      const res = await getCourseById(id as string);
+      const currentCourse = res?.data || res;
+
+      if (currentCourse) {
+        reset({
+          name: currentCourse.name,
+          class_time: String(currentCourse.class_time) as '45' | '60',
+          total_semesters: Number(currentCourse.total_semesters),
+        } as CourseType);
+        await trigger();
+      } else {
+        console.error('Curso não encontrado.');
+        router.push('/courses');
+      }
+    } catch (error) {
+      console.error('Erro na requisição dos dados do curso:', error);
+      router.push('/courses');
+    } finally {
+      setLoadingData(false);
+    }
+  }, [id, reset, router]);
+
+  useEffect(() => {
+    loadCourseData();
+  }, [loadCourseData]);
+
+  const handleEditSubmit = async (data: CourseType) => {
+    console.log('data:', data);
+    setPendingData(data);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    if (!id || !pendingData) return;
+    try {
+      await updateCourse(id as string, pendingData);
+      router.push('/courses');
+    } catch (error) {
+      console.error('Erro ao processar atualização:', error);
+    } finally {
+      setConfirmOpen(false);
+      setPendingData(null);
+    }
+  };
+
+  if (loadingData) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+        <CircularProgress size={50} sx={{ color: '#0B0A7A' }} />
+      </Box>
+    );
+  }
+
+  return (
+    <>
+      <ContentLayoutComponent
+        title="Editar Curso"
+        description="Modifique as informações gerais do curso selecionado."
+        hasPagination={false}
+      >
+        <Box sx={{ width: '100%', mt: 2 }}>
+          <CourseForm
+            formMethods={formMethods}
+            onSubmit={handleSubmit(handleEditSubmit, (errors) =>
+              console.log('errors:', errors),
+            )}
+          >
+            <DialogActions sx={{ px: 0, mt: 1, justifyContent: 'end', gap: 2 }}>
+              <Button
+                type="button"
+                variant="outlined"
+                color="error"
+                startIcon={<Cancel />}
+                onClick={() => router.push('/courses')}
+                sx={{
+                  borderRadius: '4px',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                color="secondary"
+                endIcon={<Send />}
+                sx={{
+                  borderRadius: '4px',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                }}
+              >
+                Enviar
+              </Button>
+            </DialogActions>
+          </CourseForm>
+        </Box>
+      </ContentLayoutComponent>
+
+      <ConfirmDialogBlue
+        open={confirmOpen}
+        title="Editar Curso"
+        content="Tem certeza que deseja salvar as alterações deste curso?"
+        onConfirm={handleConfirm}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setPendingData(null);
+        }}
+      />
+    </>
+  );
+}

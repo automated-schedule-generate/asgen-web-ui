@@ -15,7 +15,7 @@ import {
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { SubjectType, subjectSchema } from '../_schemas/subject.schema';
 import { FormInput } from '@/components/utilities/form-input.component';
-import { CourseType } from '../../courses/_schemas/course.schema';
+import { CourseData } from '@/app/(auth)/courses/_types/course.types';
 import { Cancel, Send } from '@mui/icons-material';
 import { updateSubject } from '../_services/subjects.service';
 import { Subject } from '../_interfaces/subject.interface';
@@ -29,7 +29,7 @@ export default function SubjectsEditFormComponent({
 }: {
   subject: Subject;
   subjects: Subject[];
-  courses: CourseType[];
+  courses: CourseData[];
 }) {
   const router = useRouter();
   const {
