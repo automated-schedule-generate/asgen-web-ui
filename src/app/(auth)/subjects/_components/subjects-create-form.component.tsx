@@ -18,7 +18,7 @@ import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { SubjectType, subjectSchema } from '../_schemas/subject.schema';
 import { createSubject } from '../_services/subjects.service';
 import { FormInput } from '@/components/utilities/form-input.component';
-import { CourseType } from '../../courses/_schemas/course.schema';
+import { CourseData } from '../../courses/_types/course.types';
 import { Cancel, Send } from '@mui/icons-material';
 import { Subject } from '../_interfaces/subject.interface';
 
@@ -27,7 +27,7 @@ export default function SubjectsCreateFormComponent({
   courses,
 }: {
   subjects: Subject[];
-  courses: CourseType[];
+  courses: CourseData[];
 }) {
   const router = useRouter();
   const {
@@ -141,7 +141,7 @@ export default function SubjectsCreateFormComponent({
               </FormLabel>
               <Autocomplete
                 disablePortal
-                options={courses.map((course: CourseType) => ({
+                options={courses.map((course: CourseData) => ({
                   label: course.name,
                   value: course.id,
                 }))}

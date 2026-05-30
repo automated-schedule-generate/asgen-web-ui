@@ -4,13 +4,13 @@ import SubjectsCreateFormComponent from '../../_components/subjects-create-form.
 import { Box } from '@mui/material';
 import { getAllSubjects } from '../../_services/subjects.service';
 import { useEffect, useState } from 'react';
-import { CourseType } from '@/app/(auth)/courses/_schemas/course.schema';
+import { CourseData } from '@/app/(auth)/courses/_types/course.types';
 import { Subject } from '../../_interfaces/subject.interface';
 import { getAllCourses } from '@/app/(auth)/courses/_services/courses.service';
 
 export default function CreateSubjectPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [courses, setCourses] = useState<CourseType[]>([]);
+  const [courses, setCourses] = useState<CourseData[]>([]);
   const [, setIsLoading] = useState(true);
 
   useEffect(() => {
