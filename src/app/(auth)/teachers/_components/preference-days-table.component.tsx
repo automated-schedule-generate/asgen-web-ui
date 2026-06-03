@@ -13,9 +13,15 @@ import { TableCellComponent } from './table/table-cell.component';
 
 interface PreferenceDaysTableProps {
   disabled?: boolean;
+  onChangeMorning?: (morning: boolean[]) => void;
+  onChangeAfternoon?: (afternoon: boolean[]) => void;
 }
 
-export function PreferenceDaysTable({ disabled }: PreferenceDaysTableProps) {
+export function PreferenceDaysTable({
+  disabled,
+  onChangeMorning,
+  onChangeAfternoon,
+}: PreferenceDaysTableProps) {
   const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
   const [preferenceMorning, setPreferenceMorning] = useState(
     new Array(5).fill(false),
@@ -28,12 +34,18 @@ export function PreferenceDaysTable({ disabled }: PreferenceDaysTableProps) {
     const newPreferences = [...preferenceMorning];
     newPreferences[index] = !newPreferences[index];
     setPreferenceMorning(newPreferences);
+    if (onChangeMorning) {
+      onChangeMorning(newPreferences);
+    }
   };
 
   const toggleAfternoon = (index: number) => {
     const newPreferences = [...preferenceAfternoon];
     newPreferences[index] = !newPreferences[index];
     setPreferenceAfternoon(newPreferences);
+    if (onChangeAfternoon) {
+      onChangeAfternoon(newPreferences);
+    }
   };
 
   return (

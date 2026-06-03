@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   FormLabel,
@@ -21,6 +21,7 @@ import {
 } from '../_schemas/preferences-form.schema';
 import { updateTeacher } from '../_services/teacher.service';
 import { useUser } from '@/contexts/user.context';
+import { createTeacherPreferences } from '../(routes)/preferences/_services/preferences.service';
 
 export function PreferencesForm() {
   const {
@@ -50,10 +51,31 @@ export function PreferencesForm() {
       });
     }
   }, [user, reset]);
+  const [preferenceMorning, setPreferenceMorning] = useState<boolean[]>(
+    new Array(5).fill(false),
+  );
+  const [preferenceAfternoon, setPreferenceAfternoon] = useState<boolean[]>(
+    new Array(5).fill(false),
+  );
 
   async function submit(data: PreferencesFormType) {
+    const preferencesPayload = {
+      preferences: [
+        {
+          turn: 'morning',
+          preference: preferenceMorning.map((value) => Array(6).fill(value)),
+        },
+        {
+          turn: 'afternoon',
+          preference: preferenceAfternoon.map((value) => Array(6).fill(value)),
+        },
+      ],
+    };
     try {
+      console.log('cheguei aqui', 'eu sou:', preferencesPayload);
       await updateTeacher(data);
+      await createTeacherPreferences(preferencesPayload);
+      console.log('enviei');
       setIsEditing(false);
       console.log(data);
     } catch (error) {
@@ -77,7 +99,15 @@ export function PreferencesForm() {
           <Typography variant="body1">
             Marque na tabela abaixo seus dias e turnos de preferência:
           </Typography>
-          <PreferenceDaysTable disabled={!isEditing} />
+          <PreferenceDaysTable
+            disabled={!isEditing}
+            onChangeMorning={(preferenceMorning) =>
+              setPreferenceMorning(preferenceMorning)
+            }
+            onChangeAfternoon={(preferenceAfternoon) =>
+              setPreferenceAfternoon(preferenceAfternoon)
+            }
+          />
         </Box>
         <Box>
           <Controller
