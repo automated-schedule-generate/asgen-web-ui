@@ -1,0 +1,10 @@
+[33m360595d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/courses[m[33m)[m fix(classes): substituir CourseType por CourseData em create page
+[33mf5955f6[m fix(classes): substituir CourseType por CourseData em classes-create-form
+[33ma784d93[m fix(courses): resolver comentários da revisão
+[33mbb44264[m[33m ([m[1;31morigin/feat/courses[m[33m)[m refactor(courses): aplicar sugestões do code review
+[33m0b2b410[m fix(courses): adicionar id opcional no CourseType para compatibilidade
+[33ma31822e[m fix(courses): corrigir validação do formulário de edição
+[33m516340b[m fix(courses): resetar página ao navegar e ajustes no dialog de edição
+[33m4044f99[m Merge remote-tracking branch 'origin/developer' into feat/courses
+[33m73e0684[m[33m ([m[1;31morigin/developer[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #32 from automated-schedule-generate/feature/style-adjusts
+[33m318e815[m feat: removendo reload do javascript para o realod do next

@@ -1,13 +1,13 @@
 'use client';
 import { getAllCourses } from '@/app/(auth)/courses/_services/courses.service';
 import { useEffect, useState } from 'react';
-import { CourseType } from '@/app/(auth)/courses/_schemas/course.schema';
+import { CourseData } from '@/app/(auth)/courses/_types/course.types';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { getAllSemesters } from '@/app/(auth)/semesters/_services/semesters.service';
 import { Semester } from '@/app/(auth)/semesters/_interfaces/semester.interface';
 import ClassesCreateFormComponent from '../../_components/classes-create-form';
 export default function CreatePage() {
-  const [courses, setCourses] = useState<CourseType[]>([]);
+  const [courses, setCourses] = useState<CourseData[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
