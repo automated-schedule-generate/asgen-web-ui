@@ -17,6 +17,7 @@ import {
 import { Visibility, VisibilityOff, Close } from '@mui/icons-material';
 import { Logo } from '@/components/layout/logo.component';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
+import { toast } from 'react-toastify';
 
 export function AuthForm({
   open,
@@ -30,15 +31,35 @@ export function AuthForm({
   const { control, handleSubmit } = useFormWithZod(authSchema);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [wrongCredentials, setWrongCredentials] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   async function submit(data: AuthType) {
+    const toastId = toast.loading('Fazendo login...');
     try {
       await login(data);
-    } catch (error) {
-      console.log('Login failed:', error);
-      return;
+      toast.update(toastId, {
+        render: 'Login realizado!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 1000,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Falha ao fazer login! Tente novamente';
+
+      if (message === 'Login ou senha incorretos') {
+        setWrongCredentials(true);
+      }
+      toast.update(toastId, {
+        render: message,
+        type: 'error',
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
     router.push('/dashboard');
   }
@@ -62,7 +83,13 @@ export function AuthForm({
           <Logo orientation="vertical" theme="dark" />
         </div>
         <h2 className="text-2xl text-center font-bold mb-4">Login</h2>
+
         <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
+          {wrongCredentials && (
+            <p className="text-sm text-red-500 text-center">
+              Credenciais inválidas!
+            </p>
+          )}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <label htmlFor="email">Email:</label>
             <Controller

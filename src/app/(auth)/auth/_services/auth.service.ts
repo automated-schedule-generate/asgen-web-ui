@@ -16,9 +16,10 @@ export async function login(payload: AuthType) {
     cookieStore.set('token', response.data.data.session.token);
 
     return response.data;
-  } catch (error) {
-    console.log('Login error:', error);
-    throw error;
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : 'Falha ao fazer login';
+    throw new Error(message);
   }
 }
 
