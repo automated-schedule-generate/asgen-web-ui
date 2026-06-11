@@ -17,6 +17,7 @@ interface ClassesItemsComponentProps {
   course: string;
   course_semester: number;
   semester: string;
+  onDelete: () => void;
 }
 export default function ClassesItems({
   id,
@@ -25,14 +26,14 @@ export default function ClassesItems({
   course,
   course_semester,
   semester,
+  onDelete,
 }: ClassesItemsComponentProps) {
   const router = useRouter();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   async function handleDelete(id: string) {
-    console.log('id:', id);
     await deleteClass(id);
     setConfirmDeleteOpen(false);
-    router.refresh();
+    onDelete();
   }
   return (
     <>
@@ -52,7 +53,7 @@ export default function ClassesItems({
               aria-label="Editar turma"
               onClick={(event) => {
                 event.stopPropagation();
-                router.push(`/classes/${id}`);
+                router.push(`/classes/${id}/edit`);
               }}
             >
               <Edit color="secondary" />
