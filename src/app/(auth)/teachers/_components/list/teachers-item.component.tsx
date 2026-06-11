@@ -1,22 +1,12 @@
 'use client';
-import {
-  DeleteOutline,
-  Edit,
-  ExpandMore,
-  Add,
-  SquareFoot,
-  Attribution,
-} from '@mui/icons-material';
+import { Edit, ExpandMore, Attribution } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Autocomplete,
   Box,
-  Button,
-  Icon,
-  listItemSecondaryActionClasses,
   Paper,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -26,31 +16,26 @@ import {
   TablePagination,
   TablePaginationActions,
   TableRow,
-  TextField,
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 import { Teacher } from '../../_types/teacher-list.type';
-import { deleteTeacher, getTeacherById } from '../../_services/teacher.service';
+import { getTeacherById } from '../../_services/teacher.service';
 import { getAllSubjects } from '@/app/(auth)/subjects/_services/subjects.service';
 import { Subject } from '@/app/(auth)/subjects/_interfaces/subject.interface';
-
+import { PreferenceDaysTable } from '../preference-days-table.component';
 export function TeachersItem({ teacher_id }: { teacher_id: string }) {
-  async function handleDelete(id: string) {
-    try {
-      await deleteTeacher(id);
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-    }
-  }
   const router = useRouter();
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [teacher, setTeacher] = useState<
     (Teacher & { subjects?: Subject[] }) | null
   >(null);
+  const [morningPreferences, setMorningPreferences] = useState<boolean[]>(
+    new Array(5).fill(false),
+  );
+  const [afternoonPreferences, setAfternoonPreferences] = useState<boolean[]>(
+    new Array(5).fill(false),
+  );
 
   useEffect(() => {
     async function loadData() {
@@ -73,19 +58,35 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
             }
           : null;
         setTeacher(teacher);
+
+        const preferences = teacher.preferences;
+        const morningValues = new Array(5).fill(false);
+        const afternoonValues = new Array(5).fill(false);
+        for (const item of preferences) {
+          const dayIndex = parseInt(item.day);
+          if (dayIndex < 0 || dayIndex > 4) continue;
+          const isSelected = !!(
+            item.preferenceTimes && item.preferenceTimes.length > 0
+          );
+          if (item.turn === 'morning') morningValues[dayIndex] = isSelected;
+          else if (item.turn === 'afternoon')
+            afternoonValues[dayIndex] = isSelected;
+        }
+        setMorningPreferences(morningValues);
+        setAfternoonPreferences(afternoonValues);
       } catch (error) {
         console.error(error);
       }
     }
     loadData();
-  }, []);
+  }, [teacher_id]);
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const tableHeaders = ['Nome', 'Carga Horária', 'Curso'];
 
   const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
+    _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
     setPage(newPage);
@@ -99,14 +100,25 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
   };
 
   if (!teacher) {
-    return null;
+    return (
+      <Skeleton
+        variant="rounded"
+        height={64}
+        sx={{ borderRadius: '0.8rem', border: '1px solid #cbd5e1' }}
+      />
+    );
   }
 
   return (
     <>
       <Accordion
-        sx={{ borderRadius: '0.8rem', '&:before': { display: 'none' } }}
+        sx={{
+          borderRadius: '0.8rem',
+          border: '1px solid #cbd5e1',
+          '&:before': { display: 'none' },
+        }}
         square={true}
+        elevation={0}
       >
         <AccordionSummary
           expandIcon={<ExpandMore />}
@@ -114,6 +126,7 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
           sx={{
             minHeight: '4rem !important',
             '&.Mui-expanded': {
+              height: '1rem',
               backgroundColor: 'secondary.main',
               borderRadius: '8px 8px 0 0',
               '& .MuiSvgIcon-root': {
@@ -137,7 +150,7 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
               aria-label="Editar professor"
               onClick={(event) => {
                 event.stopPropagation();
-                router.push(`/teachers/${teacher_id}`);
+                router.push(`/teachers/${teacher_id}/edit`);
               }}
             >
               <Edit color="secondary" />
@@ -151,19 +164,25 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
             </Typography>
             <Box mt={2}>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                Disciplinas Atribuídas{' '}
+                Disciplinas Atribuídas
               </Typography>
 
               <TableContainer component={Paper} elevation={1}>
                 {teacher?.subjects?.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      sx={{ textAlign: 'center', height: '20vh' }}
-                    >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      py: 8,
+                      border: '1px dashed #cbd5e1',
+                      borderRadius: '4px',
+                      bgcolor: '#f8fafc',
+                    }}
+                  >
+                    <Typography sx={{ color: '#64748b', fontWeight: 500 }}>
                       Nenhuma disciplina atribuída
-                    </TableCell>
-                  </TableRow>
+                    </Typography>
+                  </Box>
                 ) : (
                   <Table size="small">
                     <TableHead>
@@ -182,13 +201,18 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
                       ))}
                     </TableHead>
                     <TableBody>
-                      {teacher?.subjects?.map((subject: Subject) => (
-                        <TableRow key={subject.id}>
-                          <TableCell>{subject.name}</TableCell>
-                          <TableCell>{subject.workload}</TableCell>
-                          <TableCell>{subject.course.name}</TableCell>
-                        </TableRow>
-                      ))}
+                      {teacher?.subjects
+                        ?.slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage,
+                        )
+                        .map((subject: Subject) => (
+                          <TableRow key={subject.id}>
+                            <TableCell>{subject.name}</TableCell>
+                            <TableCell>{subject.workload}</TableCell>
+                            <TableCell>{subject.course.name}</TableCell>
+                          </TableRow>
+                        ))}
                     </TableBody>
                     <TableFooter>
                       <TableRow>
@@ -219,16 +243,19 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
                 )}
               </TableContainer>
             </Box>
+            <Box mt={2}>
+              <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                Dias de preferência
+              </Typography>
+              <PreferenceDaysTable
+                disabled={true}
+                initialMorning={morningPreferences}
+                initialAfternoon={afternoonPreferences}
+              />
+            </Box>
           </Box>
         </AccordionDetails>
       </Accordion>
-      <ConfirmDialog
-        open={confirmDeleteOpen}
-        content={`Tem certeza que deseja excluir o professor ${teacher?.user?.name}?`}
-        title="Excluir Professor"
-        onConfirm={() => handleDelete(teacher_id)}
-        onCancel={() => setConfirmDeleteOpen(false)}
-      />
     </>
   );
 }

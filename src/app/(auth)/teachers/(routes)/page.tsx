@@ -1,7 +1,7 @@
 'use client';
-import { getTeacherById, getTeachers } from '../_services/teacher.service';
+import { getTeachers } from '../_services/teacher.service';
 import { TeachersListComponent } from '../_components/list/teachers-list.component';
-import type { Teacher, TeacherListType } from '../_types/teacher-list.type';
+import type { TeacherListType } from '../_types/teacher-list.type';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 import { useEffect, useState } from 'react';
@@ -19,9 +19,9 @@ export default function TeachersPage() {
         const { data } = await getTeachers();
         setAllTeachers(data.items);
         setFilteredTeachers(data.items);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
-      } finally {
         setIsLoading(false);
       }
     }
