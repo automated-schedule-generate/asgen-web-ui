@@ -13,22 +13,40 @@ import { TableCellComponent } from './table/table-cell.component';
 
 interface PreferenceDaysTableProps {
   disabled?: boolean;
+  initialMorning?: boolean[];
+  initialAfternoon?: boolean[];
   onChangeMorning?: (morning: boolean[]) => void;
   onChangeAfternoon?: (afternoon: boolean[]) => void;
 }
 
 export function PreferenceDaysTable({
   disabled,
+  initialMorning,
+  initialAfternoon,
   onChangeMorning,
   onChangeAfternoon,
 }: PreferenceDaysTableProps) {
   const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
   const [preferenceMorning, setPreferenceMorning] = useState(
-    new Array(5).fill(false),
+    initialMorning ?? new Array(5).fill(false),
   );
   const [preferenceAfternoon, setPreferenceAfternoon] = useState(
-    new Array(5).fill(false),
+    initialAfternoon ?? new Array(5).fill(false),
   );
+
+  // Sync prop changes to state during render (React's getDerivedStateFromProps pattern)
+  const [prevInitialMorning, setPrevInitialMorning] = useState(initialMorning);
+  if (prevInitialMorning !== initialMorning) {
+    setPrevInitialMorning(initialMorning);
+    if (initialMorning) setPreferenceMorning(initialMorning);
+  }
+
+  const [prevInitialAfternoon, setPrevInitialAfternoon] =
+    useState(initialAfternoon);
+  if (prevInitialAfternoon !== initialAfternoon) {
+    setPrevInitialAfternoon(initialAfternoon);
+    if (initialAfternoon) setPreferenceAfternoon(initialAfternoon);
+  }
 
   const toggleMorning = (index: number) => {
     const newPreferences = [...preferenceMorning];
@@ -89,11 +107,12 @@ export function PreferenceDaysTable({
                 sx={{
                   backgroundColor: 'secondary.main',
                   color: 'primary.contrastText',
+                  width: '10rem',
                 }}
               >
                 Manhã
               </TableCell>
-              {weekDays.map((day, index) => (
+              {weekDays.map((_day, index) => (
                 <TableCellComponent
                   key={`morning-${index}`}
                   index={index}
@@ -112,7 +131,7 @@ export function PreferenceDaysTable({
               >
                 Tarde
               </TableCell>
-              {weekDays.map((day, index) => (
+              {weekDays.map((_day, index) => (
                 <TableCellComponent
                   key={`afternoon-${index}`}
                   index={index}

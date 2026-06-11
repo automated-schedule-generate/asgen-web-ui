@@ -9,7 +9,7 @@ import {
   Typography,
   Button,
 } from '@mui/material';
-import { Cancel, Send, Edit } from '@mui/icons-material';
+import { Cancel, Edit, Save } from '@mui/icons-material';
 import { FormInput } from '@/components/utilities/form-input.component';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { PreferenceDaysTable } from './preference-days-table.component';
@@ -21,14 +21,24 @@ import {
 } from '../_schemas/preferences-form.schema';
 import { updateTeacher } from '../_services/teacher.service';
 import { useUser } from '@/contexts/user.context';
-import { createTeacherPreferences } from '../(routes)/preferences/_services/preferences.service';
+import {
+  createTeacherPreferences,
+  getTeacherPreferences,
+} from '../(routes)/preferences/_services/preferences.service';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+import { useRouter } from 'next/navigation';
 
-export function PreferencesForm() {
+export function PreferencesForm({
+  defaultEditing = false,
+}: {
+  defaultEditing?: boolean;
+}) {
+  const router = useRouter();
   const {
     control,
     handleSubmit,
-    trigger,
     reset,
+    setValue,
     formState: { isValid },
   } = useFormWithZod(preferencesFormSchema, {
     mode: 'onChange',
@@ -38,26 +48,65 @@ export function PreferencesForm() {
     name: 'special_need',
     control,
   });
-  const { user } = useUser();
-  const [isEditing, setIsEditing] = React.useState(false);
+  const { user, setUser } = useUser();
+  const [isEditing, setIsEditing] = React.useState(defaultEditing);
 
   React.useEffect(() => {
     if (user?.teacher) {
       reset({
-        ...preferencesFormDefaultValues,
+        user_id: user.id ?? '',
+        workload: (user.teacher.workload as '20' | '40') ?? '20',
         special_need: user.teacher.special_need ?? false,
         description_special_need: user.teacher.description_special_need ?? '',
         observation: user.teacher.observation ?? '',
       });
     }
   }, [user, reset]);
+
   const [preferenceMorning, setPreferenceMorning] = useState<boolean[]>(
     new Array(5).fill(false),
   );
   const [preferenceAfternoon, setPreferenceAfternoon] = useState<boolean[]>(
     new Array(5).fill(false),
   );
+  const [initialMorning, setInitialMorning] = useState<boolean[] | undefined>();
+  const [initialAfternoon, setInitialAfternoon] = useState<
+    boolean[] | undefined
+  >();
 
+  React.useEffect(() => {
+    if (!user?.id) return;
+
+    type PreferencesApiResponse = {
+      preferences: { turn: string; preference: boolean[][] }[];
+    };
+
+    getTeacherPreferences(user.id)
+      .then((data) => {
+        const morningValues = new Array(5).fill(false);
+        const afternoonValues = new Array(5).fill(false);
+
+        const response = data as unknown as PreferencesApiResponse;
+        const list = response?.preferences ?? [];
+
+        for (const item of list) {
+          const values =
+            item.turn === 'morning' ? morningValues : afternoonValues;
+          item.preference?.forEach((daySlots, dayIndex) => {
+            if (dayIndex >= 0 && dayIndex < 5) {
+              values[dayIndex] = daySlots.some(Boolean);
+            }
+          });
+        }
+
+        setInitialMorning(morningValues);
+        setPreferenceMorning(morningValues);
+        setInitialAfternoon(afternoonValues);
+        setPreferenceAfternoon(afternoonValues);
+      })
+      .catch((err) => console.error('[preferences] fetch error:', err));
+  }, [user?.id]);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   async function submit(data: PreferencesFormType) {
     const preferencesPayload = {
       preferences: [
@@ -72,12 +121,22 @@ export function PreferencesForm() {
       ],
     };
     try {
-      console.log('cheguei aqui', 'eu sou:', preferencesPayload);
       await updateTeacher(data);
       await createTeacherPreferences(preferencesPayload);
-      console.log('enviei');
-      setIsEditing(false);
-      console.log(data);
+      setUser({
+        ...user,
+        teacher: {
+          ...user?.teacher,
+          special_need: data.special_need,
+          description_special_need: data.description_special_need ?? '',
+          observation: data.observation ?? '',
+        },
+      });
+      if (defaultEditing) {
+        router.push('/teachers/preferences');
+      } else {
+        setIsEditing(false);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -86,21 +145,26 @@ export function PreferencesForm() {
   return (
     <>
       <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
-        <Button
-          startIcon={<Edit />}
-          onClick={() => setIsEditing(true)}
-          disabled={isEditing}
-          variant="outlined"
-          color="secondary"
-        >
-          Editar preferências
-        </Button>
+        {!defaultEditing && (
+          <Button
+            startIcon={<Edit />}
+            onClick={() => setIsEditing(true)}
+            disabled={isEditing}
+            variant="outlined"
+            color="secondary"
+            className="flex self-end"
+          >
+            Editar preferências
+          </Button>
+        )}
         <Box>
           <Typography variant="body1">
             Marque na tabela abaixo seus dias e turnos de preferência:
           </Typography>
           <PreferenceDaysTable
             disabled={!isEditing}
+            initialMorning={initialMorning}
+            initialAfternoon={initialAfternoon}
             onChangeMorning={(preferenceMorning) =>
               setPreferenceMorning(preferenceMorning)
             }
@@ -123,9 +187,11 @@ export function PreferencesForm() {
                   aria-labelledby="demo-row-radio-buttons-group-label"
                   name="row-radio-buttons-group"
                   value={field.value}
-                  onChange={(event) =>
-                    field.onChange(event.target.value === 'true')
-                  }
+                  onChange={(event) => {
+                    const val = event.target.value === 'true';
+                    field.onChange(val);
+                    if (!val) setValue('description_special_need', '');
+                  }}
                 >
                   <FormControlLabel
                     value={true}
@@ -146,7 +212,7 @@ export function PreferencesForm() {
           <Box className="flex flex-col gap-2">
             <FormInput
               name={'description_special_need'}
-              label={'Descrição da necessidade especial*:'}
+              label={'Descrição da necessidade especial:'}
               id={'description_special_need'}
               placeholder={'Escreva sobre sua necessidade especial'}
               type={'textarea'}
@@ -155,19 +221,7 @@ export function PreferencesForm() {
               minRows={3}
               maxRows={3}
               disabled={!isEditing}
-            />
-            <FormInput
-              name={'observation'}
-              label={'Observação:'}
-              id={'observation'}
-              placeholder={'Escreva uma observação'}
-              type={'textarea'}
-              defaultValue={user?.teacher?.observation || ''}
-              control={control}
-              minRows={3}
-              maxRows={3}
-              disabled={!isEditing}
-              onFocus={() => trigger('description_special_need')}
+              required
             />
           </Box>
         )}
@@ -177,7 +231,20 @@ export function PreferencesForm() {
               variant="outlined"
               type="button"
               color="error"
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                if (defaultEditing) {
+                  router.push('/teachers/preferences');
+                } else {
+                  setIsEditing(false);
+                  reset({
+                    ...preferencesFormDefaultValues,
+                    special_need: user?.teacher?.special_need ?? false,
+                    description_special_need:
+                      user?.teacher?.description_special_need ?? '',
+                    observation: user?.teacher?.observation ?? '',
+                  });
+                }
+              }}
               startIcon={<Cancel />}
             >
               Cancelar
@@ -185,15 +252,29 @@ export function PreferencesForm() {
             <Button
               disabled={!isValid && hasSpecialNeed}
               variant="contained"
-              type="submit"
+              type="button"
+              onClick={() => setConfirmDialogOpen(true)}
               className="self-end"
               color="secondary"
-              endIcon={<Send />}
+              endIcon={<Save />}
             >
-              Enviar
+              Salvar
             </Button>
           </Box>
         )}
+        <ConfirmDialogBlue
+          open={confirmDialogOpen}
+          title="Atenção"
+          content={`As preferências selecionadas só serão consideradas em uma nova geração de horário. Deseja continuar?`}
+          onConfirm={() => {
+            setConfirmDialogOpen(false);
+            handleSubmit(submit)();
+          }}
+          onCancel={() => {
+            setConfirmDialogOpen(false);
+            setIsEditing(false);
+          }}
+        />
       </form>
     </>
   );

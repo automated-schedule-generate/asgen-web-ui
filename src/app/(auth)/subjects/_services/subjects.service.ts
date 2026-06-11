@@ -93,3 +93,24 @@ export async function deleteSubject(id: string) {
     throw error;
   }
 }
+
+export async function addSubjectTeacher({
+  subject_id,
+  teacher_id,
+  semester_id,
+}: {
+  subject_id: string;
+  teacher_id: string;
+  semester_id: string;
+}) {
+  try {
+    const { data } = await api.post(
+      `/subject/${subject_id}/add-teacher-and-semester`,
+      { teacher_id, semester_id },
+    );
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
