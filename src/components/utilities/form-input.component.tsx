@@ -15,6 +15,7 @@ interface FormInputProps<T extends object> {
   onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   defaultValue?: string;
   disabled?: boolean;
+  required?: boolean;
 }
 
 export function FormInput<T extends object>({
@@ -29,6 +30,7 @@ export function FormInput<T extends object>({
   onFocus,
   defaultValue,
   disabled,
+  required,
 }: FormInputProps<T>) {
   if (type === 'number') {
     return (
@@ -85,6 +87,11 @@ export function FormInput<T extends object>({
                 sx={{ mb: 0, display: 'block' }}
               >
                 {label}
+                {required && (
+                  <Typography component="span" color="error" aria-hidden>
+                    {' *Campo obrigatório'}
+                  </Typography>
+                )}
               </Typography>
               <TextField
                 {...field}

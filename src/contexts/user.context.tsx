@@ -13,6 +13,18 @@ interface UserData {
     special_need?: boolean;
     description_special_need?: string;
     observation?: string;
+    workload?: string;
+    preferences?: {
+      id: string;
+      day: string;
+      turn: string;
+      teacherId: string;
+      preferenceTimes?: {
+        id: string;
+        preference_id: string;
+        selected_time: string;
+      }[];
+    }[];
   };
 }
 type UserContextType = {
@@ -32,7 +44,7 @@ export function UserProvider({
   currentUser: UserData | null;
 }) {
   const [user, setUser] = useState<UserData | null>(currentUser);
-  const [loading, setLoading] = useState(false);
+  const loading = false;
 
   return (
     <UserContext.Provider

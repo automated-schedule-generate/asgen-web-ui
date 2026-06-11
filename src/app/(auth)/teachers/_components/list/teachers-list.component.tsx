@@ -1,7 +1,7 @@
 'use client';
-import { Box, Typography } from '@mui/material';
-import { TeachersListItemComponent } from './teachers-list-item.component';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import type { TeacherListType } from '../../_types/teacher-list.type';
+import { TeachersItem } from './teachers-item.component';
 
 export function TeachersListComponent({
   teachers,
@@ -14,38 +14,27 @@ export function TeachersListComponent({
     <Box className="flex flex-col gap-2">
       {teachers.length === 0 && !isLoading && (
         <Box
-          className="flex items-center justify-center"
           sx={{
-            height: '25rem',
-            backgroundColor: 'primary',
-            borderRadius: '1.5rem',
-            borderWidth: '1px',
-            borderColor: 'primary',
+            display: 'flex',
+            justifyContent: 'center',
+            py: 8,
+            border: '1px dashed #cbd5e1',
+            borderRadius: '4px',
+            bgcolor: '#f8fafc',
           }}
         >
-          <Typography variant="body2">Nenhum docente encontrado</Typography>
+          <Typography sx={{ color: '#64748b', fontWeight: 500 }}>
+            Nenhum docente encontrado no sistema.
+          </Typography>
         </Box>
       )}
       {isLoading && (
-        <Box
-          className="flex items-center justify-center"
-          sx={{
-            height: '25rem',
-            backgroundColor: 'primary',
-            borderRadius: '1.5rem',
-            borderWidth: '1px',
-            borderColor: 'primary',
-          }}
-        >
-          <Typography variant="body2">Carregando...</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress size={40} sx={{ color: '#0B0A7A' }} />
         </Box>
       )}
       {teachers.map((teacher) => (
-        <TeachersListItemComponent
-          key={teacher.user_id}
-          name={teacher.user.name}
-          id={teacher.user_id}
-        />
+        <TeachersItem key={teacher.user_id} teacher_id={teacher.user_id} />
       ))}
     </Box>
   );
