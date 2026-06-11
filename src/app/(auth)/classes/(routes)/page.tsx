@@ -71,7 +71,11 @@ export default function ClassesPage() {
           Nova turma
         </Button>
       </Box>
-      <ClassesList classes={classes} isLoading={isLoading} />
+      <ClassesList
+        classes={classes}
+        isLoading={isLoading}
+        onDelete={() => loadClasses(page)}
+      />
     </ContentLayoutComponent>
   );
 }
