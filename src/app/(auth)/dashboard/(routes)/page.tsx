@@ -43,9 +43,9 @@ const dashboardCards = [
     path: '/subjects',
   },
   {
-    title: 'Gestão de funções',
+    title: 'Gestão de Usuários',
     icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />,
-    path: '/functions',
+    path: '/users',
   },
   {
     title: 'Gerar grades',

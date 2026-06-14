@@ -94,14 +94,20 @@ export function RegisterForm({
       }
     } catch (error: unknown) {
       const err = error as {
-        response?: { data?: { message?: string[] } };
+        response?: { status?: number; data?: { message?: string[] } };
         message?: string;
       };
-      const msg =
-        err.response?.data?.message?.[0] ||
-        err.message ||
-        'Erro ao cadastrar usuário. Verifique os dados.';
-      setErrorMsg(msg);
+      if (err.response?.status && err.response.status >= 500) {
+        setErrorMsg(
+          'Erro de comunicação com o servidor. Tente novamente mais tarde.',
+        );
+      } else {
+        const msg =
+          err.response?.data?.message?.[0] ||
+          err.message ||
+          'Erro ao cadastrar usuário. Verifique os dados.';
+        setErrorMsg(msg);
+      }
     }
   }
 

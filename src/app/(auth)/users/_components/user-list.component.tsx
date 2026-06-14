@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -44,13 +44,13 @@ import {
   updateUserName,
   deleteUser,
   createUser,
-} from '../_services/user-management.service';
+} from '../_services/user.service';
 import { RegisterForm } from './register-form.component';
 
 const ROLES = [
-  { value: 'Professor', icon: <School />, color: '#10b981', bg: '#ecfdf5' },
+  { value: 'Teacher', icon: <School />, color: '#10b981', bg: '#ecfdf5' },
   {
-    value: 'Coordenador',
+    value: 'Coordinator',
     icon: <AdminPanelSettings />,
     color: '#3b82f6',
     bg: '#eff6ff',
@@ -59,54 +59,53 @@ const ROLES = [
 ];
 
 export function UserList() {
-  const [listaUsuarios, setListaUsuarios] = useState<IUser[]>([]);
+  const [userList, setUserList] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
-  const [utilizadorEncontrado, setUtilizadorEncontrado] =
-    useState<IUser | null>(null);
+  const [error, setError] = useState('');
+  const [searchResult, setSearchResult] = useState<IUser | null>(null);
 
-  const [abaSelecionada, setAbaSelecionada] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(0);
 
-  const [dialogFuncaoAberto, setDialogFuncaoAberto] = useState(false);
-  const [dialogExclusaoAberto, setDialogExclusaoAberto] = useState(false);
-  const [dialogEditarAberto, setDialogEditarAberto] = useState(false);
-  const [salvando, setSalvando] = useState(false);
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [usuarioEditado, setUsuarioEditado] = useState<IUser | null>(null);
-  const [novaFuncao, setNovaFuncao] = useState('');
-  const [novoNome, setNovoNome] = useState('');
-  const [dialogAdicionarAberto, setDialogAdicionarAberto] = useState(false);
+  const [editedUser, setEditedUser] = useState<IUser | null>(null);
+  const [newRole, setNewRole] = useState('');
+  const [newName, setNewName] = useState('');
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const [snackbar, setSnackbar] = useState({
-    visivel: false,
-    texto: '',
-    cor: 'info' as AlertColor,
+    open: false,
+    message: '',
+    severity: 'info' as AlertColor,
   });
 
-  const carregarUsuarios = useCallback(async () => {
+  const loadUsers = async (search = '') => {
     setLoading(true);
-    setErro('');
+    setError('');
     try {
-      const usuarios = await getAllUsers();
-      setListaUsuarios(usuarios);
+      const users = await getAllUsers({ search });
+      setUserList(users);
     } catch {
-      setErro(
+      setError(
         'Erro ao carregar usuários. Verifique a conexão e tente novamente.',
       );
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     let cancelled = false;
     getAllUsers()
-      .then((usuarios) => {
-        if (!cancelled) setListaUsuarios(usuarios);
+      .then((users) => {
+        if (!cancelled) setUserList(users);
       })
       .catch(() => {
         if (!cancelled)
-          setErro(
+          setError(
             'Erro ao carregar usuários. Verifique a conexão e tente novamente.',
           );
       })
@@ -118,129 +117,98 @@ export function UserList() {
     };
   }, []);
 
-  const getRoleConfig = (funcao: string) =>
-    ROLES.find((r) => r.value === funcao) || ROLES[0];
+  const getRoleConfig = (role: string) =>
+    ROLES.find((r) => r.value === role) || ROLES[0];
 
-  const coordenadores = useMemo(
-    () => listaUsuarios.filter((u) => u.funcao === 'Coordenador'),
-    [listaUsuarios],
-  );
-  const professores = useMemo(
-    () => listaUsuarios.filter((u) => u.funcao === 'Professor'),
-    [listaUsuarios],
-  );
-  const cradt = useMemo(
-    () => listaUsuarios.filter((u) => u.funcao === 'CRADT'),
-    [listaUsuarios],
-  );
-
-  const mostrarSnackbar = useCallback(
-    (texto: string, cor: AlertColor) =>
-      setSnackbar({ texto, cor, visivel: true }),
-    [],
-  );
+  const showSnackbar = (message: string, severity: AlertColor) =>
+    setSnackbar({ message, severity, open: true });
 
   const handleCloseSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, visivel: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
 
-  const handleSearch = useCallback(
-    (term: string) => {
-      const termo = term.toLowerCase().trim();
-      if (!termo) {
-        setUtilizadorEncontrado(null);
-        return;
-      }
-      const encontrado = listaUsuarios.find(
-        (u) =>
-          u.nome.toLowerCase().includes(termo) || u.matricula.includes(termo),
-      );
-      if (encontrado) setUtilizadorEncontrado(encontrado);
-      else {
-        setUtilizadorEncontrado(null);
-        mostrarSnackbar('Nenhum usuário encontrado.', 'warning');
-      }
-    },
-    [listaUsuarios, mostrarSnackbar],
-  );
-
-  const abrirDialogFuncao = (usuario: IUser) => {
-    setUsuarioEditado(usuario);
-    setNovaFuncao(usuario.funcao);
-    setDialogFuncaoAberto(true);
+  const handleSearch = (term: string) => {
+    const trimmed = term.toLowerCase().trim();
+    if (!trimmed) {
+      setSearchResult(null);
+      loadUsers();
+      return;
+    }
+    loadUsers(trimmed);
   };
 
-  const salvarAlteracaoFuncao = async () => {
-    if (!usuarioEditado) return;
-    setSalvando(true);
+  const openRoleDialog = (user: IUser) => {
+    setEditedUser(user);
+    setNewRole(user.role);
+    setRoleDialogOpen(true);
+  };
+
+  const saveRoleChange = async () => {
+    if (!editedUser) return;
+    setSaving(true);
     try {
-      await updateUserRole(usuarioEditado.id, novaFuncao);
-      await carregarUsuarios();
-      if (utilizadorEncontrado?.id === usuarioEditado.id) {
-        setUtilizadorEncontrado((prev) =>
-          prev ? { ...prev, funcao: novaFuncao } : null,
-        );
+      await updateUserRole(editedUser.id, newRole);
+      await loadUsers();
+      if (searchResult?.id === editedUser.id) {
+        setSearchResult((prev) => (prev ? { ...prev, role: newRole } : null));
       }
-      mostrarSnackbar('Função atualizada com sucesso!', 'success');
-      setDialogFuncaoAberto(false);
+      showSnackbar('Função atualizada com sucesso!', 'success');
+      setRoleDialogOpen(false);
     } catch {
-      mostrarSnackbar('Erro ao atualizar função.', 'error');
+      showSnackbar('Erro ao atualizar função.', 'error');
     } finally {
-      setSalvando(false);
+      setSaving(false);
     }
   };
 
-  const abrirDialogEditar = (usuario: IUser) => {
-    setUsuarioEditado(usuario);
-    setNovoNome(usuario.nome);
-    setDialogEditarAberto(true);
+  const openEditDialog = (user: IUser) => {
+    setEditedUser(user);
+    setNewName(user.name);
+    setEditDialogOpen(true);
   };
 
-  const salvarEdicao = async () => {
-    if (!usuarioEditado || !novoNome.trim()) return;
-    setSalvando(true);
+  const saveEdit = async () => {
+    if (!editedUser || !newName.trim()) return;
+    setSaving(true);
     try {
-      await updateUserName(usuarioEditado.id, novoNome);
-      await carregarUsuarios();
-      if (utilizadorEncontrado?.id === usuarioEditado.id) {
-        setUtilizadorEncontrado((prev) =>
-          prev ? { ...prev, nome: novoNome } : null,
-        );
+      await updateUserName(editedUser.id, newName);
+      await loadUsers();
+      if (searchResult?.id === editedUser.id) {
+        setSearchResult((prev) => (prev ? { ...prev, name: newName } : null));
       }
-      mostrarSnackbar('Dados atualizados com sucesso!', 'success');
-      setDialogEditarAberto(false);
+      showSnackbar('Dados atualizados com sucesso!', 'success');
+      setEditDialogOpen(false);
     } catch {
-      mostrarSnackbar('Erro ao atualizar dados do usuário.', 'error');
+      showSnackbar('Erro ao atualizar dados do usuário.', 'error');
     } finally {
-      setSalvando(false);
+      setSaving(false);
     }
   };
 
-  const abrirDialogExclusao = (usuario: IUser) => {
-    setUsuarioEditado(usuario);
-    setDialogExclusaoAberto(true);
+  const openDeleteDialog = (user: IUser) => {
+    setEditedUser(user);
+    setDeleteDialogOpen(true);
   };
 
-  const confirmarExclusao = async () => {
-    if (!usuarioEditado) return;
-    setSalvando(true);
+  const confirmDelete = async () => {
+    if (!editedUser) return;
+    setSaving(true);
     try {
-      await deleteUser(usuarioEditado.id);
-      await carregarUsuarios();
-      if (utilizadorEncontrado?.id === usuarioEditado.id)
-        setUtilizadorEncontrado(null);
-      mostrarSnackbar('Usuário removido.', 'success');
-      setDialogExclusaoAberto(false);
+      await deleteUser(editedUser.id);
+      await loadUsers();
+      if (searchResult?.id === editedUser.id) setSearchResult(null);
+      showSnackbar('Usuário removido.', 'success');
+      setDeleteDialogOpen(false);
     } catch {
-      mostrarSnackbar('Erro ao remover usuário.', 'error');
+      showSnackbar('Erro ao remover usuário.', 'error');
     } finally {
-      setSalvando(false);
+      setSaving(false);
     }
   };
 
-  const renderUserItem = (usuario: IUser) => {
-    const roleConfig = getRoleConfig(usuario.funcao);
+  const renderUserItem = (user: IUser) => {
+    const roleConfig = getRoleConfig(user.role);
     return (
-      <Fade in timeout={500} key={usuario.id}>
+      <Fade in timeout={500} key={user.id}>
         <Box
           sx={{
             display: 'flex',
@@ -269,19 +237,19 @@ export function UserList() {
                 color: roleConfig.color,
               }}
             >
-              {usuario.nome.charAt(0)}
+              {user.name.charAt(0)}
             </Avatar>
             <Box>
               <Typography variant="subtitle1" fontWeight="700" color="#1e293b">
-                {usuario.nome}
+                {user.name}
               </Typography>
               <Typography variant="body2" color="#64748b">
-                Matrícula: {usuario.matricula}
+                Matrícula: {user.registration}
               </Typography>
             </Box>
             <Chip
               icon={roleConfig.icon}
-              label={usuario.funcao}
+              label={user.role}
               size="small"
               sx={{
                 bgcolor: roleConfig.bg,
@@ -296,7 +264,7 @@ export function UserList() {
           <Box display="flex" gap={1}>
             <Tooltip title="Alterar Função" arrow>
               <IconButton
-                onClick={() => abrirDialogFuncao(usuario)}
+                onClick={() => openRoleDialog(user)}
                 sx={{
                   color: '#03017D',
                   bgcolor: 'rgba(3,1,125,0.05)',
@@ -308,7 +276,7 @@ export function UserList() {
             </Tooltip>
             <Tooltip title="Editar Nome" arrow>
               <IconButton
-                onClick={() => abrirDialogEditar(usuario)}
+                onClick={() => openEditDialog(user)}
                 sx={{
                   color: '#64748b',
                   bgcolor: '#f8fafc',
@@ -320,7 +288,7 @@ export function UserList() {
             </Tooltip>
             <Tooltip title="Remover" arrow>
               <IconButton
-                onClick={() => abrirDialogExclusao(usuario)}
+                onClick={() => openDeleteDialog(user)}
                 sx={{
                   color: '#64748b',
                   bgcolor: '#f8fafc',
@@ -335,6 +303,10 @@ export function UserList() {
       </Fade>
     );
   };
+
+  const coordinators = userList.filter((u) => u.role === 'Coordinator');
+  const teachers = userList.filter((u) => u.role === 'Teacher');
+  const cradt = userList.filter((u) => u.role === 'CRADT');
 
   return (
     <Box
@@ -355,7 +327,7 @@ export function UserList() {
       }}
     >
       <ContentLayoutComponent title="">
-        {/* CABEÇALHO */}
+        {/* HEADER */}
         <Box
           mb={6}
           display="flex"
@@ -390,7 +362,7 @@ export function UserList() {
           </Box>
           <Button
             variant="outlined"
-            onClick={() => setDialogAdicionarAberto(true)}
+            onClick={() => setAddDialogOpen(true)}
             startIcon={<PersonAddOutlined />}
             sx={{
               borderColor: '#03017D',
@@ -414,75 +386,28 @@ export function UserList() {
           </Button>
         </Box>
 
-        {erro && (
+        {error && (
           <Alert
             severity="error"
-            onClose={() => setErro('')}
+            onClose={() => setError('')}
             sx={{ mb: 4, borderRadius: 3 }}
           >
-            {erro}
+            {error}
           </Alert>
         )}
 
-        {/* BARRA DE PESQUISA */}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            mb: 6,
-            p: 1,
-            bgcolor: '#f8fafc',
-            borderRadius: 4,
-            border: '1px solid #e2e8f0',
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            flex={1}
-            sx={{
-              '& .MuiTextField-root': { width: '100% !important', m: 0 },
-              '& .MuiInputBase-root': {
-                width: '100% !important',
-                height: '50px !important',
-                bgcolor: 'transparent !important',
-                paddingLeft: '8px !important',
-              },
-              '& fieldset': { border: 'none !important' },
-            }}
-          >
-            <SearchBarComponent
-              placeholder="Pesquisar por nome ou matrícula..."
-              delay={500}
-              onSearch={handleSearch}
-            />
-          </Box>
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: '#03017D',
-              minWidth: '140px',
-              height: '50px',
-              borderRadius: 3,
-              textTransform: 'none',
-              fontWeight: '700',
-              fontSize: '1rem',
-              boxShadow: '0 4px 14px rgba(3,1,125,0.3)',
-              mr: 1,
-              '&:hover': {
-                bgcolor: '#02005A',
-                transform: 'translateY(-1px)',
-                boxShadow: '0 6px 20px rgba(3,1,125,0.4)',
-              },
-              transition: 'all 0.2s',
-            }}
-          >
-            Pesquisar
-          </Button>
+        {/* SEARCH BAR */}
+        <Box mb={6}>
+          <SearchBarComponent
+            placeholder="Pesquisar por nome ou matrícula..."
+            delay={500}
+            onSearch={handleSearch}
+          />
         </Box>
 
-        {/* RESULTADO DA PESQUISA */}
-        <Collapse in={!!utilizadorEncontrado}>
-          {utilizadorEncontrado && (
+        {/* SEARCH RESULT */}
+        <Collapse in={!!searchResult}>
+          {searchResult && (
             <Box mb={6}>
               <Typography
                 variant="overline"
@@ -492,16 +417,16 @@ export function UserList() {
               >
                 RESULTADO DA BUSCA
               </Typography>
-              {renderUserItem(utilizadorEncontrado)}
+              {renderUserItem(searchResult)}
             </Box>
           )}
         </Collapse>
 
-        {/* ABAS E LISTAS */}
+        {/* TABS AND LISTS */}
         <Box>
           <Tabs
-            value={abaSelecionada}
-            onChange={(_, val) => setAbaSelecionada(val)}
+            value={selectedTab}
+            onChange={(_, val) => setSelectedTab(val)}
             sx={{
               minHeight: '48px',
               '& .MuiTabs-indicator': {
@@ -549,11 +474,11 @@ export function UserList() {
             </Box>
           ) : (
             <>
-              <Box role="tabpanel" hidden={abaSelecionada !== 0}>
-                {abaSelecionada === 0 && (
+              <Box role="tabpanel" hidden={selectedTab !== 0}>
+                {selectedTab === 0 && (
                   <Box>
-                    {coordenadores.length > 0 ? (
-                      coordenadores.map(renderUserItem)
+                    {coordinators.length > 0 ? (
+                      coordinators.map(renderUserItem)
                     ) : (
                       <Typography color="#94a3b8" py={4} textAlign="center">
                         Nenhum coordenador registrado.
@@ -562,11 +487,11 @@ export function UserList() {
                   </Box>
                 )}
               </Box>
-              <Box role="tabpanel" hidden={abaSelecionada !== 1}>
-                {abaSelecionada === 1 && (
+              <Box role="tabpanel" hidden={selectedTab !== 1}>
+                {selectedTab === 1 && (
                   <Box>
-                    {professores.length > 0 ? (
-                      professores.map(renderUserItem)
+                    {teachers.length > 0 ? (
+                      teachers.map(renderUserItem)
                     ) : (
                       <Typography color="#94a3b8" py={4} textAlign="center">
                         Nenhum professor registrado.
@@ -575,8 +500,8 @@ export function UserList() {
                   </Box>
                 )}
               </Box>
-              <Box role="tabpanel" hidden={abaSelecionada !== 2}>
-                {abaSelecionada === 2 && (
+              <Box role="tabpanel" hidden={selectedTab !== 2}>
+                {selectedTab === 2 && (
                   <Box>
                     {cradt.length > 0 ? (
                       cradt.map(renderUserItem)
@@ -592,10 +517,10 @@ export function UserList() {
           )}
         </Box>
 
-        {/* Dialog: Alterar Função */}
+        {/* Dialog: Change Role */}
         <Dialog
-          open={dialogFuncaoAberto}
-          onClose={() => setDialogFuncaoAberto(false)}
+          open={roleDialogOpen}
+          onClose={() => setRoleDialogOpen(false)}
           maxWidth="sm"
           fullWidth
           PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
@@ -613,21 +538,20 @@ export function UserList() {
           </DialogTitle>
           <DialogContent sx={{ pb: 1 }}>
             <Typography mb={3} color="#64748b" textAlign="center">
-              Selecione a atribuição para{' '}
-              <strong>{usuarioEditado?.nome}</strong>
+              Selecione a atribuição para <strong>{editedUser?.name}</strong>
             </Typography>
             <Grid container spacing={2}>
               {ROLES.map((role) => (
                 <Grid size={{ xs: 12, sm: 4 }} key={role.value}>
                   <Box
-                    onClick={() => setNovaFuncao(role.value)}
+                    onClick={() => setNewRole(role.value)}
                     sx={{
                       p: 2,
                       borderRadius: 3,
                       border: '2px solid',
                       borderColor:
-                        novaFuncao === role.value ? role.color : '#e2e8f0',
-                      bgcolor: novaFuncao === role.value ? role.bg : '#ffffff',
+                        newRole === role.value ? role.color : '#e2e8f0',
+                      bgcolor: newRole === role.value ? role.bg : '#ffffff',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
@@ -653,7 +577,7 @@ export function UserList() {
                     </Avatar>
                     <Typography
                       fontWeight="700"
-                      color={novaFuncao === role.value ? role.color : '#475569'}
+                      color={newRole === role.value ? role.color : '#475569'}
                     >
                       {role.value}
                     </Typography>
@@ -664,8 +588,8 @@ export function UserList() {
           </DialogContent>
           <DialogActions sx={{ p: 3, justifyContent: 'center' }}>
             <Button
-              onClick={() => setDialogFuncaoAberto(false)}
-              disabled={salvando}
+              onClick={() => setRoleDialogOpen(false)}
+              disabled={saving}
               sx={{
                 color: '#64748b',
                 textTransform: 'none',
@@ -676,9 +600,9 @@ export function UserList() {
               Cancelar
             </Button>
             <Button
-              onClick={salvarAlteracaoFuncao}
+              onClick={saveRoleChange}
               variant="contained"
-              disabled={salvando}
+              disabled={saving}
               sx={{
                 bgcolor: '#03017D',
                 textTransform: 'none',
@@ -688,7 +612,7 @@ export function UserList() {
                 '&:hover': { bgcolor: '#02005A' },
               }}
             >
-              {salvando ? (
+              {saving ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (
                 'Confirmar Alteração'
@@ -697,10 +621,10 @@ export function UserList() {
           </DialogActions>
         </Dialog>
 
-        {/* Dialog: Editar Nome */}
+        {/* Dialog: Edit Name */}
         <Dialog
-          open={dialogEditarAberto}
-          onClose={() => setDialogEditarAberto(false)}
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
           maxWidth="sm"
           fullWidth
           PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
@@ -712,22 +636,22 @@ export function UserList() {
           </DialogTitle>
           <DialogContent>
             <Typography mb={3} color="#64748b">
-              Atualize o nome de exibição de{' '}
-              <strong>{usuarioEditado?.nome}</strong>.
+              Atualize o nome de exibição de <strong>{editedUser?.name}</strong>
+              .
             </Typography>
             <TextField
               fullWidth
               label="Nome Completo"
               variant="outlined"
-              value={novoNome}
-              onChange={(e) => setNovoNome(e.target.value)}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
               sx={{ mb: 1, '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
             />
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
             <Button
-              onClick={() => setDialogEditarAberto(false)}
-              disabled={salvando}
+              onClick={() => setEditDialogOpen(false)}
+              disabled={saving}
               sx={{
                 color: '#64748b',
                 textTransform: 'none',
@@ -737,9 +661,9 @@ export function UserList() {
               Cancelar
             </Button>
             <Button
-              onClick={salvarEdicao}
+              onClick={saveEdit}
               variant="contained"
-              disabled={salvando}
+              disabled={saving}
               sx={{
                 bgcolor: '#03017D',
                 textTransform: 'none',
@@ -748,7 +672,7 @@ export function UserList() {
                 '&:hover': { bgcolor: '#02005A' },
               }}
             >
-              {salvando ? (
+              {saving ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (
                 'Salvar Dados'
@@ -757,10 +681,10 @@ export function UserList() {
           </DialogActions>
         </Dialog>
 
-        {/* Dialog: Remover Usuário */}
+        {/* Dialog: Delete User */}
         <Dialog
-          open={dialogExclusaoAberto}
-          onClose={() => setDialogExclusaoAberto(false)}
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
           maxWidth="xs"
           fullWidth
           PaperProps={{ sx: { borderRadius: 4 } }}
@@ -777,15 +701,14 @@ export function UserList() {
           </DialogTitle>
           <DialogContent sx={{ textAlign: 'center' }}>
             <Typography color="#64748b">
-              Você está prestes a remover{' '}
-              <strong>{usuarioEditado?.nome}</strong> do sistema. Esta ação não
-              poderá ser desfeita.
+              Você está prestes a remover <strong>{editedUser?.name}</strong> do
+              sistema. Esta ação não poderá ser desfeita.
             </Typography>
           </DialogContent>
           <DialogActions sx={{ p: 3, justifyContent: 'center', gap: 2 }}>
             <Button
-              onClick={() => setDialogExclusaoAberto(false)}
-              disabled={salvando}
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={saving}
               sx={{
                 color: '#64748b',
                 textTransform: 'none',
@@ -795,9 +718,9 @@ export function UserList() {
               Cancelar
             </Button>
             <Button
-              onClick={confirmarExclusao}
+              onClick={confirmDelete}
               variant="contained"
-              disabled={salvando}
+              disabled={saving}
               sx={{
                 bgcolor: '#ef4444',
                 textTransform: 'none',
@@ -806,7 +729,7 @@ export function UserList() {
                 '&:hover': { bgcolor: '#dc2626' },
               }}
             >
-              {salvando ? (
+              {saving ? (
                 <CircularProgress size={20} color="inherit" />
               ) : (
                 'Sim, remover'
@@ -816,33 +739,33 @@ export function UserList() {
         </Dialog>
 
         <Snackbar
-          open={snackbar.visivel}
+          open={snackbar.open}
           autoHideDuration={4000}
           onClose={handleCloseSnackbar}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
           <Alert
             onClose={handleCloseSnackbar}
-            severity={snackbar.cor}
+            severity={snackbar.severity}
             variant="filled"
             sx={{ borderRadius: 3, fontWeight: 'bold' }}
           >
-            {snackbar.texto}
+            {snackbar.message}
           </Alert>
         </Snackbar>
 
-        {/* Dialog: Adicionar Usuário */}
-        {dialogAdicionarAberto && (
+        {/* Dialog: Add User */}
+        {addDialogOpen && (
           <RegisterForm
-            open={dialogAdicionarAberto}
-            onClose={() => setDialogAdicionarAberto(false)}
+            open={addDialogOpen}
+            onClose={() => setAddDialogOpen(false)}
             onSubmitAction={async (data) => {
               await createUser(data);
             }}
             onSuccess={() => {
-              setDialogAdicionarAberto(false);
-              mostrarSnackbar('Usuário criado com sucesso!', 'success');
-              carregarUsuarios();
+              setAddDialogOpen(false);
+              showSnackbar('Usuário criado com sucesso!', 'success');
+              loadUsers();
             }}
           />
         )}

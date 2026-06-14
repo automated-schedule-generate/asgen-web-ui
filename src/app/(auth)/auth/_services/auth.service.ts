@@ -35,15 +35,31 @@ export async function me() {
   const api = await getApi();
   try {
     const response = await api.get('/auth/me');
-    return response.data.data;
+    const user = response.data.data;
+
+    // Map backend properties (Portuguese) to frontend context model (English)
+    let role = user.funcao || '';
+    if (role === 'Coordenador') role = 'Coordinator';
+    else if (role === 'Professor') role = 'Teacher';
+    else if (role === 'CRADT') role = 'CRADT';
+
+    return {
+      id: user.id,
+      name: user.nome || '',
+      email: user.email || '',
+      role: role,
+    };
   } catch (error) {
     console.error('Get current user error:', error);
-    // Usuário fallback temporário para testes locais offline caso o backend esteja desligado
-    return {
-      id: 1,
-      nome: 'Administrador Local',
-      email: 'admin@asgen.com',
-      funcao: 'Coordenador',
-    };
+    if (process.env.NODE_ENV === 'development') {
+      // Fallback user for local development when backend is offline
+      return {
+        id: 1,
+        name: 'Administrador Local',
+        email: 'admin@asgen.com',
+        role: 'Coordinator',
+      };
+    }
+    throw error;
   }
 }
