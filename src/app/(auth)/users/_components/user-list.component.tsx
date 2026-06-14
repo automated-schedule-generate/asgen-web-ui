@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -126,7 +126,7 @@ export function UserList() {
   const handleCloseSnackbar = () =>
     setSnackbar((prev) => ({ ...prev, open: false }));
 
-  const handleSearch = (term: string) => {
+  const handleSearch = useCallback((term: string) => {
     const trimmed = term.toLowerCase().trim();
     if (!trimmed) {
       setSearchResult(null);
@@ -134,7 +134,7 @@ export function UserList() {
       return;
     }
     loadUsers(trimmed);
-  };
+  }, []);
 
   const openRoleDialog = (user: IUser) => {
     setEditedUser(user);
