@@ -123,7 +123,14 @@ export function FormInput<T extends object>({
   }
   return (
     <>
-      <label htmlFor={id}>{label}</label>
+      <label htmlFor={id}>
+        {label}
+        {required && (
+          <Typography component="span" color="error" aria-hidden>
+            {' *Campo obrigatório'}
+          </Typography>
+        )}
+      </label>
       <Controller
         name={name as Path<T>}
         control={control}
