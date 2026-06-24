@@ -44,6 +44,7 @@ export async function getAllSubjects({
   search,
   with_course = true,
   with_pagination = true,
+  with_prerequisite = true,
   course_id,
   course_semester,
 }: {
@@ -52,6 +53,7 @@ export async function getAllSubjects({
   search?: string;
   with_course?: boolean;
   with_pagination?: boolean;
+  with_prerequisite?: boolean;
   course_id?: string;
   course_semester?: number;
 } = {}) {
@@ -65,6 +67,7 @@ export async function getAllSubjects({
         search,
         course_id,
         course_semester,
+        with_prerequisite,
       },
     });
 
@@ -88,6 +91,27 @@ export async function getSubjectById(id: string) {
 export async function deleteSubject(id: string) {
   try {
     await api.delete(`/subject/${id}`);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function addSubjectTeacher({
+  subject_id,
+  teacher_id,
+  semester_id,
+}: {
+  subject_id: string;
+  teacher_id: string;
+  semester_id: string;
+}) {
+  try {
+    const { data } = await api.post(
+      `/subject/${subject_id}/add-teacher-and-semester`,
+      { teacher_id, semester_id },
+    );
+    return data;
   } catch (error) {
     console.log(error);
     throw error;

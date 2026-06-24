@@ -6,6 +6,7 @@ export interface Subject extends SubjectType {
   prerequisite?: Subject;
   course: CourseType;
   teachers: {
+    user_id: string;
     user: {
       name: string;
     };

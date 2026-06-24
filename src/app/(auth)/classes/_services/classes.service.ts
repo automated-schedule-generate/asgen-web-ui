@@ -47,6 +47,18 @@ export async function updateClass(id: string, payload: ClassType) {
   }
 }
 
+export async function getClassById(id: string) {
+  try {
+    const { data } = await api.get('/class', { params: { limit: 1000 } });
+    const items = data?.data?.items ?? [];
+    const classe = items.find((c: { id: string }) => c.id === id) ?? null;
+    return { data: classe };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 export async function deleteClass(id: string) {
   try {
     const { data } = await api.delete(`/class/${id}`);

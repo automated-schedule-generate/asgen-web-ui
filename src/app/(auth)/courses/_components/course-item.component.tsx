@@ -16,6 +16,7 @@ import {
   TableRow,
   Paper,
   TextField,
+  MenuItem,
 } from '@mui/material';
 import {
   DeleteOutline as DeleteIcon,
@@ -182,19 +183,44 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
 
         <Collapse in={isExpanded} unmountOnExit>
           <Box sx={{ p: 2, bgcolor: '#f8fafc' }}>
-            <Box sx={{ mb: 2 }}>
-              <TextField
-                size="small"
-                type="number"
-                placeholder="Filtrar por período..."
-                value={searchSemester}
-                onChange={(e) => {
-                  setSearchSemester(e.target.value);
-                  fetchSubjectsBySemester(e.target.value);
-                }}
-                sx={{ bgcolor: '#fff', borderRadius: '4px', width: 200 }}
-              />
-            </Box>
+            {subjects.length > 0 && (
+              <Box sx={{ mb: 2 }}>
+                <TextField
+                  select
+                  size="small"
+                  value={searchSemester}
+                  onChange={(e) => {
+                    setSearchSemester(e.target.value);
+                    fetchSubjectsBySemester(e.target.value);
+                  }}
+                  sx={{ bgcolor: '#fff', borderRadius: '4px', width: 200 }}
+                  InputLabelProps={{ shrink: false }}
+                  label=""
+                  SelectProps={{
+                    displayEmpty: true,
+                    renderValue: (value) => {
+                      if (!value)
+                        return (
+                          <span style={{ color: '#0B0A7A' }}>
+                            Filtrar por período
+                          </span>
+                        );
+                      return `${value}º Período`;
+                    },
+                  }}
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  {Array.from(
+                    { length: Number(course.total_semesters) },
+                    (_, i) => (
+                      <MenuItem key={i + 1} value={String(i + 1)}>
+                        {i + 1}º Período
+                      </MenuItem>
+                    ),
+                  )}
+                </TextField>
+              </Box>
+            )}
             <TableContainer
               component={Paper}
               elevation={0}

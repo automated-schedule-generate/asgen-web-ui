@@ -26,9 +26,12 @@ export function TableCellComponent({
         width: '10rem',
         cursor: disabled ? 'default' : 'pointer',
         padding: '0.5rem',
-        '&:hover .hover-icon': {
-          opacity: disabled ? undefined : 1,
-        },
+        '&:hover .hover-icon': !disabled
+          ? {
+              opacity: 1,
+              color: preference[index] ? 'error.main' : 'success.main',
+            }
+          : {},
       }}
       className={preference[index] ? 'selected' : ''}
     >
@@ -37,7 +40,7 @@ export function TableCellComponent({
         sx={{
           color: 'secondary.main',
           opacity: preference[index] ? 1 : 0.1,
-          transition: 'opacity 0.1s ease-in-out',
+          transition: 'opacity 0.1s ease-in-out, color 0.1s ease-in-out',
         }}
       />
     </TableCell>

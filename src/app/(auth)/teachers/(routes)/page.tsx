@@ -5,13 +5,7 @@ import type { TeacherListType } from '../_types/teacher-list.type';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { SearchBarComponent } from '@/components/utilities/search-bar.component';
 import { useEffect, useState } from 'react';
-import {
-  Box,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-} from '@mui/material';
+import { Box } from '@mui/material';
 
 export default function TeachersPage() {
   const [allTeachers, setAllTeachers] = useState<TeacherListType>([]);
@@ -25,15 +19,14 @@ export default function TeachersPage() {
         const { data } = await getTeachers();
         setAllTeachers(data.items);
         setFilteredTeachers(data.items);
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
-      } finally {
         setIsLoading(false);
       }
     }
     loadData();
   }, []);
-
   const handleSearch = (term: string) => {
     const filtered = allTeachers.filter((teacher) =>
       teacher.user?.name?.toLowerCase().includes(term.toLowerCase()),
