@@ -47,7 +47,7 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
   const [confirmDeleteSubjectOpen, setConfirmDeleteSubjectOpen] =
     useState(false);
   const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
-  const [searchSemester, setSearchSemester] = useState<string>('');
+  const [searchSemester, setSearchSemester] = useState<string>('1');
 
   const fetchSubjectsBySemester = useCallback(
     async (semester: string) => {
@@ -78,6 +78,7 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
         course_id: course.id,
         with_course: false,
         with_pagination: false,
+        course_semester: 1,
       });
       setSubjects(res.data.items);
     } catch (e) {
@@ -209,7 +210,6 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
                     },
                   }}
                 >
-                  <MenuItem value="">Todos</MenuItem>
                   {Array.from(
                     { length: Number(course.total_semesters) },
                     (_, i) => (
