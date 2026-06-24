@@ -45,6 +45,7 @@ export async function getAllSubjects({
   with_course = true,
   with_pagination = true,
   course_id,
+  course_semester,
 }: {
   page?: number;
   limit?: number;
@@ -52,6 +53,7 @@ export async function getAllSubjects({
   with_course?: boolean;
   with_pagination?: boolean;
   course_id?: string;
+  course_semester?: number;
 } = {}) {
   try {
     const { data } = await api.get('/subject', {
@@ -62,6 +64,7 @@ export async function getAllSubjects({
         limit,
         search,
         course_id,
+        course_semester,
       },
     });
 

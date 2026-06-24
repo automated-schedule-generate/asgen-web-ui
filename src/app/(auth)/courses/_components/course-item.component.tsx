@@ -15,6 +15,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  TextField,
 } from '@mui/material';
 import {
   DeleteOutline as DeleteIcon,
@@ -41,11 +42,32 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [confirmDeleteCourseOpen, setConfirmDeleteCourseOpen] = useState(false);
   const [confirmDeleteSubjectOpen, setConfirmDeleteSubjectOpen] =
     useState(false);
   const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
+  const [searchSemester, setSearchSemester] = useState<string>('');
+
+  const fetchSubjectsBySemester = useCallback(
+    async (semester: string) => {
+      if (!course.id) return;
+      setLoading(true);
+      try {
+        const res = await getAllSubjects({
+          course_id: course.id,
+          with_course: false,
+          with_pagination: false,
+          course_semester: semester ? Number(semester) : undefined,
+        });
+        setSubjects(res.data.items);
+      } catch (e) {
+        console.error('Erro ao carregar disciplinas:', e);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [course.id],
+  );
 
   const fetchSubjects = useCallback(async () => {
     if (!course.id) return;
@@ -160,6 +182,19 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
 
         <Collapse in={isExpanded} unmountOnExit>
           <Box sx={{ p: 2, bgcolor: '#f8fafc' }}>
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                size="small"
+                type="number"
+                placeholder="Filtrar por período..."
+                value={searchSemester}
+                onChange={(e) => {
+                  setSearchSemester(e.target.value);
+                  fetchSubjectsBySemester(e.target.value);
+                }}
+                sx={{ bgcolor: '#fff', borderRadius: '4px', width: 200 }}
+              />
+            </Box>
             <TableContainer
               component={Paper}
               elevation={0}
