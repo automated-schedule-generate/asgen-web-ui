@@ -16,12 +16,12 @@ const adapterConfig = {
 };
 
 export async function getApi() {
-  const apiUrl = (await getEnv()).api_url;
-  const isHttps = apiUrl.startsWith('https://');
-
   const api = axios.create({
-    baseURL: apiUrl,
-    ...(isHttps ? { adapter: createHTTP2Adapter(adapterConfig) } : {}),
+    baseURL: (await getEnv()).api_url,
+    // headers: {
+    //   'Content-Type': 'application/json',
+    // },
+    adapter: createHTTP2Adapter(adapterConfig),
   });
 
   api.interceptors.request.use(async (config) => {

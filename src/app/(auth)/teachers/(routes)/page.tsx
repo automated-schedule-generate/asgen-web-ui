@@ -16,9 +16,10 @@ export default function TeachersPage() {
     async function loadData() {
       setIsLoading(true);
       try {
-        const { data } = await getTeachers();
-        setAllTeachers(data.items);
-        setFilteredTeachers(data.items);
+        const response = await getTeachers();
+        const items = response?.items || response || [];
+        setAllTeachers(items);
+        setFilteredTeachers(items);
         setIsLoading(false);
       } catch (error) {
         console.error(error);
