@@ -53,7 +53,7 @@ export function UserOptions() {
         // }
         endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         variant="text"
-        color="white"
+        color="inherit"
         size="small"
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
