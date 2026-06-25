@@ -229,7 +229,13 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
               <Table size="small">
                 <TableHead sx={{ bgcolor: '#e2e8f0' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, color: '#0B0A7A' }}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 800,
+                        color: '#0B0A7A',
+                        textAlign: 'left !important',
+                      }}
+                    >
                       Disciplina
                     </TableCell>
                     <TableCell
@@ -251,7 +257,12 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
                     subjects.map((sub, idx) => (
                       <TableRow key={idx} hover>
                         <TableCell
-                          sx={{ py: 1, fontWeight: 500, color: '#334155' }}
+                          sx={{
+                            py: 1,
+                            fontWeight: 500,
+                            color: '#334155',
+                            textAlign: 'left !important',
+                          }}
                         >
                           {sub.name}
                         </TableCell>
