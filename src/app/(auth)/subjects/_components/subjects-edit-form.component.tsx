@@ -16,11 +16,12 @@ import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { SubjectType, subjectSchema } from '../_schemas/subject.schema';
 import { FormInput } from '@/components/utilities/form-input.component';
 import { CourseData } from '@/app/(auth)/courses/_types/course.types';
-import { Cancel, Send } from '@mui/icons-material';
+import { Cancel, Save } from '@mui/icons-material';
 import { updateSubject } from '../_services/subjects.service';
 import { Subject } from '../_interfaces/subject.interface';
-import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 import { useState } from 'react';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+import { toast } from 'react-toastify';
 
 export default function SubjectsEditFormComponent({
   subject,
@@ -36,7 +37,6 @@ export default function SubjectsEditFormComponent({
     control,
     watch,
     handleSubmit,
-    reset,
     formState: { isValid },
   } = useFormWithZod(subjectSchema, {
     mode: 'onChange',
@@ -50,14 +50,32 @@ export default function SubjectsEditFormComponent({
   });
 
   const [confirmEditOpen, setConfirmEditOpen] = useState(false);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+
+  const handleCancel = () => {
+    setCancelConfirmOpen(false);
+    router.push('/subjects');
+  };
 
   async function submit(id: string, data: SubjectType) {
+    const toastId = toast.loading('Atualizando disciplina...');
     try {
       await updateSubject(id, data);
-      reset();
+      toast.update(toastId, {
+        type: 'success',
+        isLoading: false,
+        autoClose: 1500,
+        render: 'Disciplina atualizada com sucesso!',
+      });
+      setConfirmEditOpen(false);
       router.push('/subjects');
-    } catch (error) {
-      console.error(error);
+    } catch {
+      toast.update(toastId, {
+        type: 'error',
+        isLoading: false,
+        autoClose: 1500,
+        render: 'Erro ao atualizar disciplina!',
+      });
     }
   }
 
@@ -185,11 +203,11 @@ export default function SubjectsEditFormComponent({
         <Box className="flex justify-end gap-2">
           <Button
             type="button"
-            variant="outlined"
+            variant="contained"
             color="error"
             className="self-end"
             startIcon={<Cancel />}
-            onClick={() => router.push('/subjects')}
+            onClick={() => setCancelConfirmOpen(true)}
           >
             Cancelar
           </Button>
@@ -199,12 +217,12 @@ export default function SubjectsEditFormComponent({
             variant="contained"
             color="secondary"
             className="self-end"
-            endIcon={<Send />}
+            endIcon={<Save />}
             onClick={() => setConfirmEditOpen(true)}
           >
-            Enviar
+            Salvar
           </Button>
-          <ConfirmDialog
+          <ConfirmDialogBlue
             open={confirmEditOpen}
             content="Tem certeza que deseja editar a disciplina?"
             title="Editar Disciplina"
@@ -212,6 +230,15 @@ export default function SubjectsEditFormComponent({
               submit(subject.id, watch());
             }}
             onCancel={() => setConfirmEditOpen(false)}
+          />
+          <ConfirmDialogBlue
+            open={cancelConfirmOpen}
+            title="Cancelar Edição"
+            content="As alterações não salvas serão perdidas. Deseja continuar?"
+            onConfirm={handleCancel}
+            onCancel={() => {
+              setCancelConfirmOpen(false);
+            }}
           />
         </Box>
       </form>

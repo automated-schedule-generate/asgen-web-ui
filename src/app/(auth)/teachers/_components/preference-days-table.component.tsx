@@ -83,7 +83,7 @@ export function PreferenceDaysTable({
             },
           }}
         >
-          <TableHead sx={{ backgroundColor: 'secondary.main' }}>
+          <TableHead sx={{ backgroundColor: 'secondary.light' }}>
             <TableRow>
               <TableCell />
               {weekDays.map((day) => (
@@ -93,7 +93,7 @@ export function PreferenceDaysTable({
                     textAlign: 'center',
                     width: '10rem',
                     padding: '0.5rem',
-                    color: 'primary.contrastText',
+                    color: '#1F1F3D',
                   }}
                 >
                   {day}
@@ -105,8 +105,8 @@ export function PreferenceDaysTable({
             <TableRow>
               <TableCell
                 sx={{
-                  backgroundColor: 'secondary.main',
-                  color: 'primary.contrastText',
+                  backgroundColor: 'secondary.light',
+                  color: '#1F1F3D',
                   width: '10rem',
                 }}
               >
@@ -125,8 +125,8 @@ export function PreferenceDaysTable({
             <TableRow>
               <TableCell
                 sx={{
-                  backgroundColor: 'secondary.main',
-                  color: 'primary.contrastText',
+                  backgroundColor: 'secondary.light',
+                  color: '#1F1F3D',
                 }}
               >
                 Tarde
