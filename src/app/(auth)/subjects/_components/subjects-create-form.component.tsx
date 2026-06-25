@@ -46,7 +46,7 @@ export default function SubjectsCreateFormComponent({
 
   const selectedCourseId = watch('course_id');
   const filteredSubjects = selectedCourseId
-    ? subjects.filter((s) => (s.course?.id ?? s.course_id) === selectedCourseId)
+    ? subjects.filter((s) => s.course_id === selectedCourseId)
     : [];
 
   const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
