@@ -46,11 +46,7 @@ export default function ClassesCreateFormComponent({
     handleSubmit,
     reset,
     formState: { isValid },
-  } = useFormWithZod(classSchema, {
-    defaultValues: {
-      shift: '',
-    },
-  });
+  } = useFormWithZod(classSchema);
 
   const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
 
