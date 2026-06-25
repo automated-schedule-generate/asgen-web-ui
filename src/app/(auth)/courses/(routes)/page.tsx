@@ -80,7 +80,7 @@ export default function CoursesPage() {
             <CircularProgress size={40} sx={{ color: '#0B0A7A' }} />
           </Box>
         ) : courses.length > 0 ? (
-          <Stack gap={2} sx={{ width: '100%' }}>
+          <Stack gap={1} sx={{ width: '100%' }}>
             {courses.map((course, index) => (
               <CourseItem
                 key={course.id || index}

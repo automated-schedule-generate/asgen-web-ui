@@ -9,10 +9,8 @@ import ClassesCreateFormComponent from '../../_components/classes-create-form';
 export default function CreatePage() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     async function fetchCourses() {
-      setIsLoading(true);
       try {
         const { data: coursesData } = await getAllCourses();
         setCourses(coursesData.items);
@@ -20,8 +18,6 @@ export default function CreatePage() {
         setSemesters(semestersData.items);
       } catch (error) {
         console.error(error);
-      } finally {
-        setIsLoading(false);
       }
     }
     fetchCourses();
@@ -31,7 +27,13 @@ export default function CreatePage() {
       title="Adicionar turma"
       description="Adicione uma nova turma no sistema."
     >
-      <ClassesCreateFormComponent courses={courses} semesters={semesters} />
+      <ClassesCreateFormComponent
+        courses={courses}
+        semesters={semesters}
+        open={true}
+        onClose={() => {}}
+        onSuccess={() => {}}
+      />
     </ContentLayoutComponent>
   );
 }

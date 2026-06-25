@@ -26,21 +26,21 @@ export function ConfirmDialogBlue({
 }: ConfirmDialogBlueProps) {
   return (
     <Dialog open={open} onClose={onCancel} fullWidth maxWidth="xs">
-      <DialogTitle sx={{ fontWeight: 700, color: '#0B0A7A' }}>
+      <DialogTitle sx={{ fontWeight: 700, color: 'secondary.main' }}>
         {title}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>{content}</DialogContentText>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button variant="outlined" color="error" onClick={onCancel}>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button variant="contained" color="error" onClick={onCancel}>
           Cancelar
         </Button>
         <Button
           variant="contained"
           onClick={onConfirm}
           sx={{
-            bgcolor: '#0B0A7A',
+            bgcolor: 'secondary.main',
             '&:hover': { bgcolor: '#060554' },
           }}
         >

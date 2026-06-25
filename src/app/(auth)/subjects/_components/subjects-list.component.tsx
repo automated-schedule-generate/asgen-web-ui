@@ -7,12 +7,14 @@ import type { Subject } from '../_interfaces/subject.interface';
 export default function SubjectsList({
   subjects,
   isLoading,
+  onRefresh,
 }: {
   subjects: Subject[];
   isLoading: boolean;
+  onRefresh: () => void;
 }) {
   return (
-    <Box className="flex flex-col gap-0">
+    <Box className="flex flex-col gap-2">
       {isLoading && <Skeleton variant="rectangular" width={210} height={118} />}
       {subjects.map((subject) => (
         <SubjectsItems
@@ -24,6 +26,7 @@ export default function SubjectsList({
           prerequisite={subject.prerequisite?.name || 'Não possui'}
           course={subject.course?.name || ''}
           teacher={subject.teachers?.at(0)?.user?.name || 'Não alocado'}
+          onRefresh={onRefresh}
         />
       ))}
     </Box>

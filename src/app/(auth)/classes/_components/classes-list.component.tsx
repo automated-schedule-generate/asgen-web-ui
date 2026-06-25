@@ -15,7 +15,7 @@ export default function ClassesList({
   onDelete: () => void;
 }) {
   return (
-    <Box className="flex flex-col gap-0">
+    <Box className="flex flex-col gap-2">
       {isLoading && <Skeleton variant="rectangular" width={210} height={118} />}
       {classes.map((classe) => (
         <ClassesItems

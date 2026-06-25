@@ -11,6 +11,7 @@ import {
   School,
   Groups,
   Visibility,
+  Tune,
 } from '@mui/icons-material';
 import { MenuItem } from './menu-item.component';
 import { usePathname } from 'next/navigation';
@@ -27,16 +28,17 @@ export function DrawerMenu() {
   const drawerWidth = open ? 240 : 60;
   const pathname = usePathname();
   const menuItems = [
-    { text: 'Dashboard', icon: <Home />, path: '/dashboard' },
-    { text: 'Professores', icon: <Attribution />, path: '/teachers' },
-    { text: 'Turmas', icon: <Groups />, path: '/classes' },
+    { text: 'Início', icon: <Home />, path: '/dashboard' },
     { text: 'Cursos', icon: <School />, path: '/courses' },
     { text: 'Disciplinas', icon: <SquareFoot />, path: '/subjects' },
+    { text: 'Turmas', icon: <Groups />, path: '/classes' },
+    { text: 'Professores', icon: <Attribution />, path: '/teachers' },
     {
       text: 'Gestão de funções',
       icon: <AdminPanelSettings />,
       path: '/functions',
     },
+    { text: 'Preferências', icon: <Tune />, path: '/teachers/preferences' },
     { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
     { text: 'Visualizar grades', icon: <Visibility />, path: '#' },
   ];

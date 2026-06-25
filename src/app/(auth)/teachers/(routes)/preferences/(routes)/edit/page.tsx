@@ -7,7 +7,7 @@ export default function EditPreferencesPage() {
       title="Editar preferências"
       description="Atualize suas preferências de horários"
     >
-      <PreferencesForm defaultEditing />
+      <PreferencesForm />
     </ContentLayoutComponent>
   );
 }

@@ -600,6 +600,7 @@ export function FunctionsManager() {
           <Button
             onClick={() => setDialogFuncaoAberto(false)}
             disabled={salvando}
+            variant="contained"
             sx={{
               color: '#64748b',
               textTransform: 'none',
@@ -660,6 +661,7 @@ export function FunctionsManager() {
           <Button
             onClick={() => setDialogEditarAberto(false)}
             disabled={salvando}
+            variant="contained"
             sx={{ color: '#64748b', textTransform: 'none', fontWeight: 'bold' }}
           >
             Cancelar
@@ -713,6 +715,7 @@ export function FunctionsManager() {
           <Button
             onClick={() => setDialogExclusaoAberto(false)}
             disabled={salvando}
+            variant="contained"
             sx={{ color: '#64748b', textTransform: 'none', fontWeight: 'bold' }}
           >
             Cancelar

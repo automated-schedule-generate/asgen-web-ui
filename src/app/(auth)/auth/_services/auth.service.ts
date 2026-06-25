@@ -1,4 +1,5 @@
 'use server';
+import axios from 'axios';
 import { getApi } from '@/plugin/api.plugin';
 import { AuthType } from '../_schemas/auth-schema.schema';
 import { cookies } from 'next/headers';
@@ -16,9 +17,11 @@ export async function login(payload: AuthType) {
     cookieStore.set('token', response.data.data.session.token);
 
     return response.data;
-  } catch (error) {
-    console.log('Login error:', error);
-    throw error;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message ?? 'Falha ao fazer login');
+    }
+    throw new Error('Falha ao fazer login');
   }
 }
 

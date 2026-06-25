@@ -1,15 +1,24 @@
 'use client';
-import { DeleteOutline, Edit, ExpandMore } from '@mui/icons-material';
+
+import {
+  DeleteOutline,
+  Edit,
+  ExpandMore,
+  SquareFoot,
+} from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
+  Typography,
 } from '@mui/material';
 import { deleteSubject } from '../_services/subjects.service';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+import { toast } from 'react-toastify';
+
 interface SubjectsItemsComponentProps {
   id: string;
   name: string;
@@ -18,7 +27,9 @@ interface SubjectsItemsComponentProps {
   prerequisite?: string;
   teacher?: string;
   course: string;
+  onRefresh: () => void;
 }
+
 export default function SubjectsItems({
   course,
   id,
@@ -27,28 +38,80 @@ export default function SubjectsItems({
   is_optional,
   prerequisite,
   teacher,
+  onRefresh,
 }: SubjectsItemsComponentProps) {
-  async function handleDelete(id: string) {
-    console.log('id:', id);
-    await deleteSubject(id);
-    window.location.reload();
-  }
   const router = useRouter();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+  async function handleDelete(id: string) {
+    const toastId = toast.loading('Excluindo disciplina...');
+    try {
+      await deleteSubject(id);
+      toast.update(toastId, {
+        render: 'Disciplina excluída com sucesso!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 2000,
+      });
+      setConfirmDeleteOpen(false);
+      onRefresh();
+    } catch {
+      setConfirmDeleteOpen(false);
+      toast.update(toastId, {
+        render: 'Erro ao excluir disciplina!',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000,
+      });
+    }
+  }
+
   return (
     <>
-      <Accordion>
+      <Accordion
+        sx={{
+          borderRadius: '0.8rem',
+          border: '1px solid #cbd5e1',
+          '&:before': { display: 'none' },
+        }}
+        square={true}
+        elevation={0}
+      >
         <AccordionSummary
           expandIcon={<ExpandMore />}
-          className="flex flex-row content-center"
+          sx={{
+            minHeight: '4rem !important',
+            '&.Mui-expanded': {
+              height: '1rem',
+              backgroundColor: 'secondary.main',
+              borderRadius: '8px 8px 0 0',
+              '& .MuiSvgIcon-root': { color: 'white' },
+              '& .MuiTypography-root': { color: 'white !important' },
+            },
+          }}
         >
           <Box
-            className="flex items-center w-full"
-            sx={{ color: 'secondary.main', fontWeight: 600 }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              width: '100%',
+              gap: 2,
+              color: 'secondary.main',
+              fontWeight: 600,
+            }}
           >
-            {name}
+            <SquareFoot />
+            <Typography>{name}</Typography>
           </Box>
-          <Box className="flex flex-row gap-2 cursor-pointer m-2">
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 1,
+              cursor: 'pointer',
+              m: 1,
+            }}
+          >
             <Box
               aria-label="Editar disciplina"
               onClick={(event) => {
@@ -69,17 +132,29 @@ export default function SubjectsItems({
             </Box>
           </Box>
         </AccordionSummary>
+
         <AccordionDetails>
-          <Box className="flex flex-col gap-2">
-            <p>Curso: {course}</p>
-            <p>Carga horária: {workload}</p>
-            <p>Obrigatória: {is_optional}</p>
-            <p>Pré-requisito: {prerequisite}</p>
-            <p>Docente responsável: {teacher}</p>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography variant="body2">
+              <strong>Curso:</strong> {course}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Carga horária:</strong> {workload}h
+            </Typography>
+            <Typography variant="body2">
+              <strong>Obrigatória:</strong> {is_optional}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Pré-requisito:</strong> {prerequisite}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Docente responsável:</strong> {teacher}
+            </Typography>
           </Box>
         </AccordionDetails>
       </Accordion>
-      <ConfirmDialog
+
+      <ConfirmDialogBlue
         open={confirmDeleteOpen}
         content={`Tem certeza que deseja excluir a disciplina ${name}?`}
         title="Excluir Disciplina"
