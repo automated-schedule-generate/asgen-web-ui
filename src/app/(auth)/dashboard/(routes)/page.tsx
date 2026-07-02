@@ -84,7 +84,7 @@ export default function DashboardPage() {
         maxWidth={false}
         sx={{
           bgcolor: '#fff',
-          borderRadius: 8,
+          borderRadius: 2,
           p: { xs: 3, md: 5 },
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
         }}
@@ -113,8 +113,9 @@ export default function DashboardPage() {
               key={title}
               onClick={() => router.push(path)}
               sx={{
-                borderRadius: 5,
-                border: '1px solid #eceef2',
+                borderRadius: 2,
+                bgcolor: '#fff',
+                border: '1px solid secondary.light',
                 boxShadow: '0 3px 12px rgba(3,1,125,0.3)',
                 width: '100%',
                 maxWidth: '180px',
