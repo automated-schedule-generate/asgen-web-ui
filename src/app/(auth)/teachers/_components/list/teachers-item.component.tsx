@@ -46,14 +46,14 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
           with_pagination: false,
           with_prerequisite: false,
         });
-        const subjectsItems = subjectsData?.items || subjectsData || [];
-        const teacherSubjects = (subjectsItems as Subject[]).filter((subject) =>
+        const teacherSubjects = (
+          subjectsData?.data?.items as Subject[]
+        )?.filter((subject) =>
           subject.teachers?.some((t) => t.user_id === teacher_id),
         );
-        const teacherObj = teacherData?.data || teacherData;
-        const teacher = teacherObj
+        const teacher = teacherData?.data
           ? {
-              ...teacherObj,
+              ...teacherData.data,
               subjects: teacherSubjects,
             }
           : null;
@@ -186,19 +186,21 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
                 ) : (
                   <Table size="small">
                     <TableHead>
-                      {tableHeaders.map((header) => (
-                        <TableCell
-                          key={header}
-                          sx={{
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            color: '#1F1F3D',
-                            backgroundColor: 'secondary.light',
-                          }}
-                        >
-                          {header}
-                        </TableCell>
-                      ))}
+                      <TableRow>
+                        {tableHeaders.map((header) => (
+                          <TableCell
+                            key={header}
+                            sx={{
+                              textAlign: 'center',
+                              fontWeight: 'bold',
+                              color: '#1F1F3D',
+                              backgroundColor: 'secondary.light',
+                            }}
+                          >
+                            {header}
+                          </TableCell>
+                        ))}
+                      </TableRow>
                     </TableHead>
                     <TableBody>
                       {teacher?.subjects
