@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Drawer, Divider, List } from '@mui/material';
+import { Drawer, List } from '@mui/material';
 import {
   Home,
   Attribution,
   AutoMode,
-  AdminPanelSettings,
   SquareFoot,
   School,
   Groups,
   Visibility,
+  People,
   Tune,
 } from '@mui/icons-material';
 import { MenuItem } from './menu-item.component';
@@ -34,9 +34,9 @@ export function DrawerMenu() {
     { text: 'Turmas', icon: <Groups />, path: '/classes' },
     { text: 'Professores', icon: <Attribution />, path: '/teachers' },
     {
-      text: 'Gestão de funções',
-      icon: <AdminPanelSettings />,
-      path: '/functions',
+      text: 'Gestão de Usuários',
+      icon: <People />,
+      path: '/users',
     },
     { text: 'Preferências', icon: <Tune />, path: '/teachers/preferences' },
     { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
@@ -77,7 +77,6 @@ export function DrawerMenu() {
               selected={isActive}
             />
           );
-          <Divider />;
         })}
       </List>
     </Drawer>

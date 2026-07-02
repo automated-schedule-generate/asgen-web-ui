@@ -34,6 +34,8 @@ export function UserOptions() {
     handleClose();
     await logout();
   }
+
+  console.log(user);
   return (
     <>
       <Button

@@ -13,6 +13,8 @@ import {
   IconButton,
   Button,
   Box,
+  Alert,
+  CircularProgress,
   Typography,
   FormHelperText,
 } from '@mui/material';
@@ -38,6 +40,8 @@ export function AuthForm({
   } = useFormWithZod(authSchema);
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [erro, setErro] = React.useState('');
   const [wrongCredentials, setWrongCredentials] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);

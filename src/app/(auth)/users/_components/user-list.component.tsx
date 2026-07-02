@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Container,
   Box,
   Typography,
   TextField,
@@ -19,7 +18,6 @@ import {
   Alert,
   Collapse,
   AlertColor,
-  InputAdornment,
   Tooltip,
   Chip,
   Fade,
@@ -28,7 +26,6 @@ import {
 } from '@mui/material';
 import {
   DeleteOutline,
-  Search,
   EditOutlined,
   ManageAccountsOutlined,
   AdminPanelSettings,
@@ -36,18 +33,21 @@ import {
   SupportAgent,
 } from '@mui/icons-material';
 
+import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
+import { SearchBarComponent } from '@/components/utilities/search-bar.component';
+
 import type { IUser } from '@/interfaces/user.interface';
 import {
   getAllUsers,
   updateUserRole,
   updateUserName,
   deleteUser,
-} from '../_services/functions-manager.service';
+} from '../_services/user.service';
 
 const ROLES = [
-  { value: 'Professor', icon: <School />, color: '#10b981', bg: '#ecfdf5' },
+  { value: 'Teacher', icon: <School />, color: '#10b981', bg: '#ecfdf5' },
   {
-    value: 'Coordenador',
+    value: 'Coordinator',
     icon: <AdminPanelSettings />,
     color: '#3b82f6',
     bg: '#eff6ff',
@@ -55,171 +55,156 @@ const ROLES = [
   { value: 'CRADT', icon: <SupportAgent />, color: '#f59e0b', bg: '#fffbeb' },
 ];
 
-export function FunctionsManager() {
-  const [pesquisa, setPesquisa] = useState('');
-  const [listaUsuarios, setListaUsuarios] = useState<IUser[]>([]);
+export function UserList() {
+  const [userList, setUserList] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
-  const [utilizadorEncontrado, setUtilizadorEncontrado] =
-    useState<IUser | null>(null);
+  const [error, setError] = useState('');
+  const [searchResult, setSearchResult] = useState<IUser | null>(null);
 
-  const [abaSelecionada, setAbaSelecionada] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(0);
 
-  const [dialogFuncaoAberto, setDialogFuncaoAberto] = useState(false);
-  const [dialogExclusaoAberto, setDialogExclusaoAberto] = useState(false);
-  const [dialogEditarAberto, setDialogEditarAberto] = useState(false);
-  const [salvando, setSalvando] = useState(false);
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [usuarioEditado, setUsuarioEditado] = useState<IUser | null>(null);
-  const [novaFuncao, setNovaFuncao] = useState('');
-  const [novoNome, setNovoNome] = useState('');
+  const [editedUser, setEditedUser] = useState<IUser | null>(null);
+  const [newRole, setNewRole] = useState('');
+  const [newName, setNewName] = useState('');
 
   const [snackbar, setSnackbar] = useState({
-    visivel: false,
-    texto: '',
-    cor: 'info' as AlertColor,
+    open: false,
+    message: '',
+    severity: 'info' as AlertColor,
   });
 
-  const carregarUsuarios = useCallback(async () => {
+  const loadUsers = async (search = '') => {
     setLoading(true);
-    setErro('');
+    setError('');
     try {
-      const usuarios = await getAllUsers();
-      setListaUsuarios(usuarios);
+      const users = await getAllUsers({ search });
+      setUserList(users);
     } catch {
-      setErro(
+      setError(
         'Erro ao carregar usuários. Verifique a conexão e tente novamente.',
       );
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    void carregarUsuarios();
-  }, [carregarUsuarios]);
+    let cancelled = false;
+    getAllUsers()
+      .then((users) => {
+        if (!cancelled) setUserList(users);
+      })
+      .catch(() => {
+        if (!cancelled)
+          setError(
+            'Erro ao carregar usuários. Verifique a conexão e tente novamente.',
+          );
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const getRoleConfig = (funcao: string) => {
-    return ROLES.find((r) => r.value === funcao) || ROLES[0];
-  };
+  const getRoleConfig = (role: string) =>
+    ROLES.find((r) => r.value === role) || ROLES[0];
 
-  const coordenadores = useMemo(
-    () => listaUsuarios.filter((u) => u.funcao === 'Coordenador'),
-    [listaUsuarios],
-  );
-  const professores = useMemo(
-    () => listaUsuarios.filter((u) => u.funcao === 'Professor'),
-    [listaUsuarios],
-  );
-  const cradt = useMemo(
-    () => listaUsuarios.filter((u) => u.funcao === 'CRADT'),
-    [listaUsuarios],
-  );
+  const showSnackbar = (message: string, severity: AlertColor) =>
+    setSnackbar({ message, severity, open: true });
 
-  const mostrarSnackbar = (texto: string, cor: AlertColor) =>
-    setSnackbar({ texto, cor, visivel: true });
   const handleCloseSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, visivel: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
 
-  const buscarUtilizador = () => {
-    const termo = pesquisa.toLowerCase().trim();
-    if (!termo) {
-      mostrarSnackbar('Digite um nome ou matrícula para pesquisar.', 'warning');
+  const handleSearch = useCallback((term: string) => {
+    const trimmed = term.toLowerCase().trim();
+    if (!trimmed) {
+      setSearchResult(null);
+      loadUsers();
       return;
     }
-    const encontrado = listaUsuarios.find(
-      (u) =>
-        u.nome.toLowerCase().includes(termo) || u.matricula.includes(termo),
-    );
-    if (encontrado) setUtilizadorEncontrado(encontrado);
-    else {
-      setUtilizadorEncontrado(null);
-      mostrarSnackbar('Nenhum utilizador encontrado.', 'warning');
-    }
+    loadUsers(trimmed);
+  }, []);
+
+  const openRoleDialog = (user: IUser) => {
+    setEditedUser(user);
+    setNewRole(user.role);
+    setRoleDialogOpen(true);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') buscarUtilizador();
-  };
-
-  const abrirDialogFuncao = (usuario: IUser) => {
-    setUsuarioEditado(usuario);
-    setNovaFuncao(usuario.funcao);
-    setDialogFuncaoAberto(true);
-  };
-
-  const salvarAlteracaoFuncao = async () => {
-    if (!usuarioEditado) return;
-    setSalvando(true);
+  const saveRoleChange = async () => {
+    if (!editedUser) return;
+    setSaving(true);
     try {
-      await updateUserRole(usuarioEditado.id, novaFuncao);
-      await carregarUsuarios();
-      if (utilizadorEncontrado?.id === usuarioEditado.id) {
-        setUtilizadorEncontrado((prev) =>
-          prev ? { ...prev, funcao: novaFuncao } : null,
-        );
+      await updateUserRole(editedUser.id, newRole);
+      await loadUsers();
+      if (searchResult?.id === editedUser.id) {
+        setSearchResult((prev) => (prev ? { ...prev, role: newRole } : null));
       }
-      mostrarSnackbar('Função atualizada com sucesso!', 'success');
-      setDialogFuncaoAberto(false);
+      showSnackbar('Função atualizada com sucesso!', 'success');
+      setRoleDialogOpen(false);
     } catch {
-      mostrarSnackbar('Erro ao atualizar função.', 'error');
+      showSnackbar('Erro ao atualizar função.', 'error');
     } finally {
-      setSalvando(false);
+      setSaving(false);
     }
   };
 
-  const abrirDialogEditar = (usuario: IUser) => {
-    setUsuarioEditado(usuario);
-    setNovoNome(usuario.nome);
-    setDialogEditarAberto(true);
+  const openEditDialog = (user: IUser) => {
+    setEditedUser(user);
+    setNewName(user.name);
+    setEditDialogOpen(true);
   };
 
-  const salvarEdicao = async () => {
-    if (!usuarioEditado || !novoNome.trim()) return;
-    setSalvando(true);
+  const saveEdit = async () => {
+    if (!editedUser || !newName.trim()) return;
+    setSaving(true);
     try {
-      await updateUserName(usuarioEditado.id, novoNome);
-      await carregarUsuarios();
-      if (utilizadorEncontrado?.id === usuarioEditado.id) {
-        setUtilizadorEncontrado((prev) =>
-          prev ? { ...prev, nome: novoNome } : null,
-        );
+      await updateUserName(editedUser.id, newName);
+      await loadUsers();
+      if (searchResult?.id === editedUser.id) {
+        setSearchResult((prev) => (prev ? { ...prev, name: newName } : null));
       }
-      mostrarSnackbar('Dados atualizados com sucesso!', 'success');
-      setDialogEditarAberto(false);
+      showSnackbar('Dados atualizados com sucesso!', 'success');
+      setEditDialogOpen(false);
     } catch {
-      mostrarSnackbar('Erro ao atualizar dados do usuário.', 'error');
+      showSnackbar('Erro ao atualizar dados do usuário.', 'error');
     } finally {
-      setSalvando(false);
+      setSaving(false);
     }
   };
 
-  const abrirDialogExclusao = (usuario: IUser) => {
-    setUsuarioEditado(usuario);
-    setDialogExclusaoAberto(true);
+  const openDeleteDialog = (user: IUser) => {
+    setEditedUser(user);
+    setDeleteDialogOpen(true);
   };
 
-  const confirmarExclusao = async () => {
-    if (!usuarioEditado) return;
-    setSalvando(true);
+  const confirmDelete = async () => {
+    if (!editedUser) return;
+    setSaving(true);
     try {
-      await deleteUser(usuarioEditado.id);
-      await carregarUsuarios();
-      if (utilizadorEncontrado?.id === usuarioEditado.id)
-        setUtilizadorEncontrado(null);
-      mostrarSnackbar('Utilizador apagado.', 'error');
-      setDialogExclusaoAberto(false);
+      await deleteUser(editedUser.id);
+      await loadUsers();
+      if (searchResult?.id === editedUser.id) setSearchResult(null);
+      showSnackbar('Usuário removido.', 'success');
+      setDeleteDialogOpen(false);
     } catch {
-      mostrarSnackbar('Erro ao apagar utilizador.', 'error');
+      showSnackbar('Erro ao remover usuário.', 'error');
     } finally {
-      setSalvando(false);
+      setSaving(false);
     }
   };
 
-  const renderUserItem = (usuario: IUser) => {
-    const roleConfig = getRoleConfig(usuario.funcao);
+  const renderUserItem = (user: IUser) => {
+    const roleConfig = getRoleConfig(user.role);
     return (
-      <Fade in timeout={500} key={usuario.id}>
+      <Fade in timeout={500} key={user.id}>
         <Box
           sx={{
             display: 'flex',
@@ -248,19 +233,19 @@ export function FunctionsManager() {
                 color: roleConfig.color,
               }}
             >
-              {usuario.nome.charAt(0)}
+              {user.name.charAt(0)}
             </Avatar>
             <Box>
               <Typography variant="subtitle1" fontWeight="700" color="#1e293b">
-                {usuario.nome}
+                {user.name}
               </Typography>
               <Typography variant="body2" color="#64748b">
-                Matrícula: {usuario.matricula}
+                Matrícula: {user.registration}
               </Typography>
             </Box>
             <Chip
               icon={roleConfig.icon}
-              label={usuario.funcao}
+              label={user.role}
               size="small"
               sx={{
                 bgcolor: roleConfig.bg,
@@ -275,7 +260,7 @@ export function FunctionsManager() {
           <Box display="flex" gap={1}>
             <Tooltip title="Alterar Função" arrow>
               <IconButton
-                onClick={() => abrirDialogFuncao(usuario)}
+                onClick={() => openRoleDialog(user)}
                 sx={{
                   color: '#03017D',
                   bgcolor: 'rgba(3,1,125,0.05)',
@@ -287,7 +272,7 @@ export function FunctionsManager() {
             </Tooltip>
             <Tooltip title="Editar Nome" arrow>
               <IconButton
-                onClick={() => abrirDialogEditar(usuario)}
+                onClick={() => openEditDialog(user)}
                 sx={{
                   color: '#64748b',
                   bgcolor: '#f8fafc',
@@ -297,9 +282,9 @@ export function FunctionsManager() {
                 <EditOutlined />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Apagar" arrow>
+            <Tooltip title="Remover" arrow>
               <IconButton
-                onClick={() => abrirDialogExclusao(usuario)}
+                onClick={() => openDeleteDialog(user)}
                 sx={{
                   color: '#64748b',
                   bgcolor: '#f8fafc',
@@ -315,109 +300,37 @@ export function FunctionsManager() {
     );
   };
 
-  return (
-    <Container
-      maxWidth={false}
-      sx={{
-        bgcolor: '#ffffff',
-        borderRadius: 6,
-        p: { xs: 4, md: 6 },
-        boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
-      }}
-    >
-      <Box mb={6} display="flex" alignItems="center" gap={2}>
-        <Avatar
-          sx={{
-            bgcolor: '#03017D',
-            width: 56,
-            height: 56,
-            boxShadow: '0 8px 16px rgba(3,1,125,0.2)',
-          }}
-        >
-          <AdminPanelSettings fontSize="large" />
-        </Avatar>
-        <Box>
-          <Typography
-            variant="h4"
-            fontWeight="800"
-            sx={{ color: '#03017D', letterSpacing: '-0.02em' }}
-          >
-            Gestão de Delegação de Funções
-          </Typography>
-          <Typography variant="body1" color="#64748b" mt={0.5}>
-            Encontre usuários e gerencie seus cargos e permissões no sistema.
-          </Typography>
-        </Box>
-      </Box>
+  const coordinators = userList.filter((u) => u.role === 'Coordinator');
+  const teachers = userList.filter((u) => u.role === 'Teacher');
+  const cradt = userList.filter((u) => u.role === 'CRADT');
 
-      {erro && (
+  return (
+    <ContentLayoutComponent
+      title="Gestão de Usuários"
+      description="Encontre usuários e gerencie seus cargos e permissões no sistema."
+    >
+      {error && (
         <Alert
           severity="error"
-          onClose={() => setErro('')}
+          onClose={() => setError('')}
           sx={{ mb: 4, borderRadius: 3 }}
         >
-          {erro}
+          {error}
         </Alert>
       )}
 
-      {/* Search Box */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 2,
-          mb: 6,
-          p: 1,
-          bgcolor: '#f8fafc',
-          borderRadius: 4,
-          border: '1px solid #e2e8f0',
-          alignItems: 'center',
-        }}
-      >
-        <TextField
-          fullWidth
-          variant="standard"
+      {/* SEARCH BAR */}
+      <Box mb={6}>
+        <SearchBarComponent
           placeholder="Pesquisar por nome ou matrícula..."
-          value={pesquisa}
-          onChange={(e) => setPesquisa(e.target.value)}
-          onKeyDown={handleKeyDown}
-          InputProps={{
-            disableUnderline: true,
-            startAdornment: (
-              <InputAdornment position="start" sx={{ pl: 2, pr: 1 }}>
-                <Search sx={{ color: '#94a3b8' }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ '& input': { p: 2, fontSize: '1.05rem', color: '#334155' } }}
+          delay={500}
+          onSearch={handleSearch}
         />
-        <Button
-          variant="contained"
-          onClick={buscarUtilizador}
-          sx={{
-            bgcolor: '#03017D',
-            minWidth: '140px',
-            height: '50px',
-            borderRadius: 3,
-            textTransform: 'none',
-            fontWeight: '700',
-            fontSize: '1rem',
-            boxShadow: '0 4px 14px rgba(3,1,125,0.3)',
-            mr: 1,
-            '&:hover': {
-              bgcolor: '#02005A',
-              transform: 'translateY(-1px)',
-              boxShadow: '0 6px 20px rgba(3,1,125,0.4)',
-            },
-            transition: 'all 0.2s',
-          }}
-        >
-          Pesquisar
-        </Button>
       </Box>
 
-      {/* Search Result */}
-      <Collapse in={!!utilizadorEncontrado}>
-        {utilizadorEncontrado && (
+      {/* SEARCH RESULT */}
+      <Collapse in={!!searchResult}>
+        {searchResult && (
           <Box mb={6}>
             <Typography
               variant="overline"
@@ -427,16 +340,16 @@ export function FunctionsManager() {
             >
               RESULTADO DA BUSCA
             </Typography>
-            {renderUserItem(utilizadorEncontrado)}
+            {renderUserItem(searchResult)}
           </Box>
         )}
       </Collapse>
 
-      {/* Lists Section */}
+      {/* TABS AND LISTS */}
       <Box>
         <Tabs
-          value={abaSelecionada}
-          onChange={(_, val) => setAbaSelecionada(val)}
+          value={selectedTab}
+          onChange={(_, val) => setSelectedTab(val)}
           sx={{
             minHeight: '48px',
             '& .MuiTabs-indicator': {
@@ -484,11 +397,11 @@ export function FunctionsManager() {
           </Box>
         ) : (
           <>
-            <Box role="tabpanel" hidden={abaSelecionada !== 0}>
-              {abaSelecionada === 0 && (
+            <Box role="tabpanel" hidden={selectedTab !== 0}>
+              {selectedTab === 0 && (
                 <Box>
-                  {coordenadores.length > 0 ? (
-                    coordenadores.map(renderUserItem)
+                  {coordinators.length > 0 ? (
+                    coordinators.map(renderUserItem)
                   ) : (
                     <Typography color="#94a3b8" py={4} textAlign="center">
                       Nenhum coordenador registrado.
@@ -497,11 +410,11 @@ export function FunctionsManager() {
                 </Box>
               )}
             </Box>
-            <Box role="tabpanel" hidden={abaSelecionada !== 1}>
-              {abaSelecionada === 1 && (
+            <Box role="tabpanel" hidden={selectedTab !== 1}>
+              {selectedTab === 1 && (
                 <Box>
-                  {professores.length > 0 ? (
-                    professores.map(renderUserItem)
+                  {teachers.length > 0 ? (
+                    teachers.map(renderUserItem)
                   ) : (
                     <Typography color="#94a3b8" py={4} textAlign="center">
                       Nenhum professor registrado.
@@ -510,8 +423,8 @@ export function FunctionsManager() {
                 </Box>
               )}
             </Box>
-            <Box role="tabpanel" hidden={abaSelecionada !== 2}>
-              {abaSelecionada === 2 && (
+            <Box role="tabpanel" hidden={selectedTab !== 2}>
+              {selectedTab === 2 && (
                 <Box>
                   {cradt.length > 0 ? (
                     cradt.map(renderUserItem)
@@ -527,10 +440,10 @@ export function FunctionsManager() {
         )}
       </Box>
 
-      {/* Change Role Dialog */}
+      {/* Dialog: Change Role */}
       <Dialog
-        open={dialogFuncaoAberto}
-        onClose={() => setDialogFuncaoAberto(false)}
+        open={roleDialogOpen}
+        onClose={() => setRoleDialogOpen(false)}
         maxWidth="sm"
         fullWidth
         PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
@@ -548,20 +461,20 @@ export function FunctionsManager() {
         </DialogTitle>
         <DialogContent sx={{ pb: 1 }}>
           <Typography mb={3} color="#64748b" textAlign="center">
-            Selecione a atribuição para <strong>{usuarioEditado?.nome}</strong>
+            Selecione a atribuição para <strong>{editedUser?.name}</strong>
           </Typography>
           <Grid container spacing={2}>
             {ROLES.map((role) => (
               <Grid size={{ xs: 12, sm: 4 }} key={role.value}>
                 <Box
-                  onClick={() => setNovaFuncao(role.value)}
+                  onClick={() => setNewRole(role.value)}
                   sx={{
                     p: 2,
                     borderRadius: 3,
                     border: '2px solid',
                     borderColor:
-                      novaFuncao === role.value ? role.color : '#e2e8f0',
-                    bgcolor: novaFuncao === role.value ? role.bg : '#ffffff',
+                      newRole === role.value ? role.color : '#e2e8f0',
+                    bgcolor: newRole === role.value ? role.bg : '#ffffff',
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
@@ -587,7 +500,7 @@ export function FunctionsManager() {
                   </Avatar>
                   <Typography
                     fontWeight="700"
-                    color={novaFuncao === role.value ? role.color : '#475569'}
+                    color={newRole === role.value ? role.color : '#475569'}
                   >
                     {role.value}
                   </Typography>
@@ -598,9 +511,8 @@ export function FunctionsManager() {
         </DialogContent>
         <DialogActions sx={{ p: 3, justifyContent: 'center' }}>
           <Button
-            onClick={() => setDialogFuncaoAberto(false)}
-            disabled={salvando}
-            variant="contained"
+            onClick={() => setRoleDialogOpen(false)}
+            disabled={saving}
             sx={{
               color: '#64748b',
               textTransform: 'none',
@@ -611,9 +523,9 @@ export function FunctionsManager() {
             Cancelar
           </Button>
           <Button
-            onClick={salvarAlteracaoFuncao}
+            onClick={saveRoleChange}
             variant="contained"
-            disabled={salvando}
+            disabled={saving}
             sx={{
               bgcolor: '#03017D',
               textTransform: 'none',
@@ -623,7 +535,7 @@ export function FunctionsManager() {
               '&:hover': { bgcolor: '#02005A' },
             }}
           >
-            {salvando ? (
+            {saving ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
               'Confirmar Alteração'
@@ -632,10 +544,10 @@ export function FunctionsManager() {
         </DialogActions>
       </Dialog>
 
-      {/* Edit User Dialog */}
+      {/* Dialog: Edit Name */}
       <Dialog
-        open={dialogEditarAberto}
-        onClose={() => setDialogEditarAberto(false)}
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
         maxWidth="sm"
         fullWidth
         PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
@@ -645,31 +557,33 @@ export function FunctionsManager() {
         </DialogTitle>
         <DialogContent>
           <Typography mb={3} color="#64748b">
-            Atualize o nome de exibição de{' '}
-            <strong>{usuarioEditado?.nome}</strong>.
+            Atualize o nome de exibição de <strong>{editedUser?.name}</strong>.
           </Typography>
           <TextField
             fullWidth
             label="Nome Completo"
             variant="outlined"
-            value={novoNome}
-            onChange={(e) => setNovoNome(e.target.value)}
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
             sx={{ mb: 1, '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
           />
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           <Button
-            onClick={() => setDialogEditarAberto(false)}
-            disabled={salvando}
-            variant="contained"
-            sx={{ color: '#64748b', textTransform: 'none', fontWeight: 'bold' }}
+            onClick={() => setEditDialogOpen(false)}
+            disabled={saving}
+            sx={{
+              color: '#64748b',
+              textTransform: 'none',
+              fontWeight: 'bold',
+            }}
           >
             Cancelar
           </Button>
           <Button
-            onClick={salvarEdicao}
+            onClick={saveEdit}
             variant="contained"
-            disabled={salvando}
+            disabled={saving}
             sx={{
               bgcolor: '#03017D',
               textTransform: 'none',
@@ -678,7 +592,7 @@ export function FunctionsManager() {
               '&:hover': { bgcolor: '#02005A' },
             }}
           >
-            {salvando ? (
+            {saving ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
               'Salvar Dados'
@@ -687,10 +601,10 @@ export function FunctionsManager() {
         </DialogActions>
       </Dialog>
 
-      {/* Delete User Dialog */}
+      {/* Dialog: Delete User */}
       <Dialog
-        open={dialogExclusaoAberto}
-        onClose={() => setDialogExclusaoAberto(false)}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
         maxWidth="xs"
         fullWidth
         PaperProps={{ sx: { borderRadius: 4 } }}
@@ -707,23 +621,26 @@ export function FunctionsManager() {
         </DialogTitle>
         <DialogContent sx={{ textAlign: 'center' }}>
           <Typography color="#64748b">
-            Você está prestes a apagar <strong>{usuarioEditado?.nome}</strong>{' '}
-            do sistema. Esta ação não poderá ser desfeita.
+            Você está prestes a remover <strong>{editedUser?.name}</strong> do
+            sistema. Esta ação não poderá ser desfeita.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 3, justifyContent: 'center', gap: 2 }}>
           <Button
-            onClick={() => setDialogExclusaoAberto(false)}
-            disabled={salvando}
-            variant="contained"
-            sx={{ color: '#64748b', textTransform: 'none', fontWeight: 'bold' }}
+            onClick={() => setDeleteDialogOpen(false)}
+            disabled={saving}
+            sx={{
+              color: '#64748b',
+              textTransform: 'none',
+              fontWeight: 'bold',
+            }}
           >
             Cancelar
           </Button>
           <Button
-            onClick={confirmarExclusao}
+            onClick={confirmDelete}
             variant="contained"
-            disabled={salvando}
+            disabled={saving}
             sx={{
               bgcolor: '#ef4444',
               textTransform: 'none',
@@ -732,30 +649,30 @@ export function FunctionsManager() {
               '&:hover': { bgcolor: '#dc2626' },
             }}
           >
-            {salvando ? (
+            {saving ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
-              'Sim, apagar'
+              'Sim, remover'
             )}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Snackbar
-        open={snackbar.visivel}
+        open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           onClose={handleCloseSnackbar}
-          severity={snackbar.cor}
+          severity={snackbar.severity}
           variant="filled"
           sx={{ borderRadius: 3, fontWeight: 'bold' }}
         >
-          {snackbar.texto}
+          {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </ContentLayoutComponent>
   );
 }

@@ -1,3 +1,5 @@
+'use server';
+
 import { Card, CardContent, Typography } from '@mui/material';
 import { TeacherDetailsComponent } from '../../../_components/teacher/teacher-details.component';
 import { getTeacherById } from '../../../_services/teacher.service';

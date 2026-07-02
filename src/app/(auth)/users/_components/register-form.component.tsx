@@ -16,6 +16,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  Alert,
   FormHelperText,
 } from '@mui/material';
 import {
@@ -27,7 +28,10 @@ import {
 } from '@mui/icons-material';
 import { Logo } from '@/components/layout/logo.component';
 import { UserType, userSchema } from '../_schemas/user.schema';
-import { register } from '../_services/user.service';
+import {
+  register as defaultRegister,
+  register,
+} from '../_services/user.service';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { TextMaskCustom } from '@/components/utilities/mask-input.component';
 import { toast } from 'react-toastify';
@@ -36,10 +40,14 @@ export function RegisterForm({
   open,
   onClose,
   openAuthDialog,
+  onSuccess,
+  onSubmitAction,
 }: {
   open: boolean;
   onClose: () => void;
-  openAuthDialog: () => void;
+  openAuthDialog?: () => void;
+  onSuccess?: () => void;
+  onSubmitAction?: (data: UserType) => Promise<void>;
 }) {
   const {
     control,
@@ -52,6 +60,8 @@ export function RegisterForm({
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
   const [wrongCredentials, setWrongCredentials] = React.useState(false);
 
   function handleClose() {
@@ -161,6 +171,13 @@ export function RegisterForm({
             </Step>
           ))}
         </Stepper>
+        {errorMsg && (
+          <Box sx={{ mt: 2 }}>
+            <Alert severity="error" sx={{ borderRadius: 2 }}>
+              {errorMsg}
+            </Alert>
+          </Box>
+        )}
         <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-4">
           <Box sx={{ mt: 2, minHeight: '200px' }}>
             {activeStep === 0 && (
@@ -467,14 +484,16 @@ export function RegisterForm({
           </Button>
         </Box>
       </DialogActions>
-      <Box sx={{ px: 3, py: 2, textAlign: 'center' }}>
-        <a
-          onClick={() => openAuthDialog()}
-          className="text-sm text-blue-500 text-center"
-        >
-          Já tem uma conta? Faça login.
-        </a>
-      </Box>
+      {openAuthDialog && (
+        <Box sx={{ px: 3, py: 2, textAlign: 'center' }}>
+          <a
+            onClick={() => openAuthDialog()}
+            className="text-sm text-blue-500 text-center cursor-pointer"
+          >
+            Já tem uma conta? Faça login.
+          </a>
+        </Box>
+      )}
     </Dialog>
   );
 }

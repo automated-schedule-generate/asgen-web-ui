@@ -19,6 +19,7 @@ import {
   AutoMode as AutoModeIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
   Tune,
+  People,
 } from '@mui/icons-material';
 
 const dashboardCards = [
@@ -43,9 +44,9 @@ const dashboardCards = [
     path: '/teachers',
   },
   {
-    title: 'Gestão de funções',
-    icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />,
-    path: '/functions',
+    title: 'Gestão de Usuários',
+    icon: <People />,
+    path: '/users',
   },
   {
     title: 'Preferencias',

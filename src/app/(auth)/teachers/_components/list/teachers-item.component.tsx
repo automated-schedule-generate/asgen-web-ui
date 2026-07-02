@@ -46,14 +46,14 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
           with_pagination: false,
           with_prerequisite: false,
         });
-        const teacherSubjects = (
-          subjectsData?.data?.items as Subject[]
-        )?.filter((subject) =>
+        const subjectsItems = subjectsData?.items || subjectsData || [];
+        const teacherSubjects = (subjectsItems as Subject[]).filter((subject) =>
           subject.teachers?.some((t) => t.user_id === teacher_id),
         );
-        const teacher = teacherData?.data
+        const teacherObj = teacherData?.data || teacherData;
+        const teacher = teacherObj
           ? {
-              ...teacherData.data,
+              ...teacherObj,
               subjects: teacherSubjects,
             }
           : null;
