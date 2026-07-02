@@ -10,8 +10,8 @@ const theme = createTheme({
       contrastText: '#ffffff',
     },
     secondary: {
-      main: 'rgba(3, 1, 125, 1)',
-      light: 'rgb(96, 165, 250)',
+      main: '#191970',
+      light: '#B9BAD6',
     },
     background: {
       default: '#e8edf5',
@@ -20,6 +20,9 @@ const theme = createTheme({
     text: {
       primary: 'rgba(3, 1, 125, 1)',
       secondary: '#64748b',
+    },
+    error: {
+      main: '#D64561',
     },
   },
   shape: {

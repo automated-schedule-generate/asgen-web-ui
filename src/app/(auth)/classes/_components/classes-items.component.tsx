@@ -1,15 +1,17 @@
 'use client';
-import { DeleteOutline, Edit, ExpandMore } from '@mui/icons-material';
+import { DeleteOutline, Edit, ExpandMore, Groups } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
+  Typography,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
 import { deleteClass } from '../_services/classes.service';
+import { toast } from 'react-toastify';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
 interface ClassesItemsComponentProps {
   id: string;
   identify: string;
@@ -31,22 +33,61 @@ export default function ClassesItems({
   const router = useRouter();
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   async function handleDelete(id: string) {
-    await deleteClass(id);
-    setConfirmDeleteOpen(false);
-    onDelete();
+    const toastId = toast.loading('Excluindo turma...');
+    try {
+      await deleteClass(id);
+      toast.update(toastId, {
+        type: 'success',
+        render: 'Turma excluída com sucesso!',
+        isLoading: false,
+        autoClose: 1500,
+      });
+      setConfirmDeleteOpen(false);
+      onDelete();
+    } catch {
+      toast.update(toastId, {
+        type: 'error',
+        render: 'Erro ao excluir turma!',
+        isLoading: false,
+        autoClose: 1000,
+      });
+    }
   }
   return (
     <>
-      <Accordion>
+      <Accordion
+        sx={{
+          borderRadius: '0.8rem',
+          border: '1px solid #cbd5e1',
+          '&:before': { display: 'none' },
+        }}
+        square={true}
+        elevation={0}
+      >
         <AccordionSummary
           expandIcon={<ExpandMore />}
           className="flex flex-row content-center"
+          sx={{
+            minHeight: '4rem !important',
+            '&.Mui-expanded': {
+              height: '1rem',
+              backgroundColor: 'secondary.main',
+              borderRadius: '8px 8px 0 0',
+              '& .MuiSvgIcon-root': {
+                color: 'white',
+              },
+              '& .MuiTypography-root': {
+                color: 'white !important',
+              },
+            },
+          }}
         >
           <Box
-            className="flex items-center w-full"
+            className="flex items-center w-full gap-4"
             sx={{ color: 'secondary.main', fontWeight: 600 }}
           >
-            {identify}
+            <Groups />
+            <Typography>{identify}</Typography>
           </Box>
           <Box className="flex flex-row gap-2 cursor-pointer m-2">
             <Box
@@ -71,14 +112,14 @@ export default function ClassesItems({
         </AccordionSummary>
         <AccordionDetails>
           <Box className="flex flex-col gap-2">
-            <p>Curso: {course}</p>
-            <p>Período: {course_semester}</p>
-            <p>Turno: {shift}</p>
-            <p>Semestre: {semester}</p>
+            <Typography variant="body1">Curso: {course}</Typography>
+            <Typography variant="body1">Período: {course_semester}</Typography>
+            <Typography variant="body1">Turno: {shift}</Typography>
+            <Typography variant="body1">Semestre: {semester}</Typography>
           </Box>
         </AccordionDetails>
       </Accordion>
-      <ConfirmDialog
+      <ConfirmDialogBlue
         open={confirmDeleteOpen}
         content={`Tem certeza que deseja excluir a turma ${identify}?`}
         title="Excluir Turma"

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Box, Button, CircularProgress, DialogActions } from '@mui/material';
-import { Cancel, Send } from '@mui/icons-material';
+import { Cancel, Save } from '@mui/icons-material';
 
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
@@ -17,6 +17,7 @@ import {
 } from '@/app/(auth)/courses/_services/courses.service';
 import { CourseForm } from '@/app/(auth)/courses/_components/course-form.component';
 import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+import { toast } from 'react-toastify';
 
 export default function EditCoursePage() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function EditCoursePage() {
   const [loadingData, setLoadingData] = useState(true);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingData, setPendingData] = useState<CourseType | null>(null);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
 
   const formMethods = useFormWithZod(courseSchema, {
     defaultValues: {
@@ -58,7 +60,7 @@ export default function EditCoursePage() {
     } finally {
       setLoadingData(false);
     }
-  }, [id, reset, router]);
+  }, [id, reset, router, trigger]);
 
   useEffect(() => {
     loadCourseData();
@@ -72,15 +74,32 @@ export default function EditCoursePage() {
 
   const handleConfirm = async () => {
     if (!id || !pendingData) return;
+    const toastId = toast.loading('Editando curso...');
     try {
       await updateCourse(id as string, pendingData);
+      toast.update(toastId, {
+        type: 'success',
+        render: 'Curso atualizado com sucesso!',
+        isLoading: false,
+        autoClose: 1500,
+      });
       router.push('/courses');
     } catch (error) {
       console.error('Erro ao processar atualização:', error);
+      toast.update(toastId, {
+        type: 'error',
+        render: 'Erro ao atualizar curso!',
+        isLoading: false,
+        autoClose: 1000,
+      });
     } finally {
       setConfirmOpen(false);
       setPendingData(null);
     }
+  };
+  const handleCancel = () => {
+    setCancelConfirmOpen(false);
+    router.push('/courses');
   };
 
   if (loadingData) {
@@ -105,18 +124,13 @@ export default function EditCoursePage() {
               console.log('errors:', errors),
             )}
           >
-            <DialogActions sx={{ px: 0, mt: 1, justifyContent: 'end', gap: 2 }}>
+            <DialogActions>
               <Button
                 type="button"
-                variant="outlined"
+                variant="contained"
                 color="error"
                 startIcon={<Cancel />}
-                onClick={() => router.push('/courses')}
-                sx={{
-                  borderRadius: '4px',
-                  textTransform: 'none',
-                  fontWeight: 700,
-                }}
+                onClick={() => setCancelConfirmOpen(true)}
               >
                 Cancelar
               </Button>
@@ -124,14 +138,9 @@ export default function EditCoursePage() {
                 type="submit"
                 variant="contained"
                 color="secondary"
-                endIcon={<Send />}
-                sx={{
-                  borderRadius: '4px',
-                  textTransform: 'none',
-                  fontWeight: 700,
-                }}
+                endIcon={<Save />}
               >
-                Enviar
+                Salvar
               </Button>
             </DialogActions>
           </CourseForm>
@@ -146,6 +155,15 @@ export default function EditCoursePage() {
         onCancel={() => {
           setConfirmOpen(false);
           setPendingData(null);
+        }}
+      />
+      <ConfirmDialogBlue
+        open={cancelConfirmOpen}
+        title="Cancelar Edição"
+        content="As alterações não salvas serão perdidas. Deseja continuar?"
+        onConfirm={handleCancel}
+        onCancel={() => {
+          setCancelConfirmOpen(false);
         }}
       />
     </>

@@ -9,7 +9,7 @@ import {
   Typography,
   Button,
 } from '@mui/material';
-import { Cancel, Edit, Save } from '@mui/icons-material';
+import { Cancel, Save } from '@mui/icons-material';
 import { FormInput } from '@/components/utilities/form-input.component';
 import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { PreferenceDaysTable } from './preference-days-table.component';
@@ -27,12 +27,9 @@ import {
 } from '../(routes)/preferences/_services/preferences.service';
 import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
-export function PreferencesForm({
-  defaultEditing = false,
-}: {
-  defaultEditing?: boolean;
-}) {
+export function PreferencesForm() {
   const router = useRouter();
   const {
     control,
@@ -49,7 +46,6 @@ export function PreferencesForm({
     control,
   });
   const { user, setUser } = useUser();
-  const [isEditing, setIsEditing] = React.useState(defaultEditing);
 
   React.useEffect(() => {
     if (user?.teacher) {
@@ -120,6 +116,7 @@ export function PreferencesForm({
         },
       ],
     };
+    const toastId = toast.loading('Atualizando preferências...');
     try {
       await updateTeacher(data);
       await createTeacherPreferences(preferencesPayload);
@@ -132,37 +129,31 @@ export function PreferencesForm({
           observation: data.observation ?? '',
         },
       });
-      if (defaultEditing) {
-        router.push('/teachers/preferences');
-      } else {
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error(error);
+      toast.update(toastId, {
+        render: 'Preferências atualizadas com sucesso!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 1500,
+      });
+      router.push('/teachers/preferences');
+    } catch {
+      toast.update(toastId, {
+        render: 'Erro ao atualizar preferências.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000,
+      });
     }
   }
 
   return (
     <>
       <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
-        {!defaultEditing && (
-          <Button
-            startIcon={<Edit />}
-            onClick={() => setIsEditing(true)}
-            disabled={isEditing}
-            variant="outlined"
-            color="secondary"
-            className="flex self-end"
-          >
-            Editar preferências
-          </Button>
-        )}
         <Box>
           <Typography variant="body1">
             Marque na tabela abaixo seus dias e turnos de preferência:
           </Typography>
           <PreferenceDaysTable
-            disabled={!isEditing}
             initialMorning={initialMorning}
             initialAfternoon={initialAfternoon}
             onChangeMorning={(preferenceMorning) =>
@@ -195,12 +186,12 @@ export function PreferencesForm({
                 >
                   <FormControlLabel
                     value={true}
-                    control={<Radio disabled={!isEditing} />}
+                    control={<Radio />}
                     label="Sim"
                   />
                   <FormControlLabel
                     value={false}
-                    control={<Radio disabled={!isEditing} />}
+                    control={<Radio />}
                     label="Não"
                   />
                 </RadioGroup>
@@ -220,59 +211,51 @@ export function PreferencesForm({
               control={control}
               minRows={3}
               maxRows={3}
-              disabled={!isEditing}
               required
             />
           </Box>
         )}
-        {isEditing && (
-          <Box className="flex justify-end gap-2">
-            <Button
-              variant="outlined"
-              type="button"
-              color="error"
-              onClick={() => {
-                if (defaultEditing) {
-                  router.push('/teachers/preferences');
-                } else {
-                  setIsEditing(false);
-                  reset({
-                    ...preferencesFormDefaultValues,
-                    special_need: user?.teacher?.special_need ?? false,
-                    description_special_need:
-                      user?.teacher?.description_special_need ?? '',
-                    observation: user?.teacher?.observation ?? '',
-                  });
-                }
-              }}
-              startIcon={<Cancel />}
-            >
-              Cancelar
-            </Button>
-            <Button
-              disabled={!isValid && hasSpecialNeed}
-              variant="contained"
-              type="button"
-              onClick={() => setConfirmDialogOpen(true)}
-              className="self-end"
-              color="secondary"
-              endIcon={<Save />}
-            >
-              Salvar
-            </Button>
-          </Box>
-        )}
+
+        <Box className="flex justify-end gap-2">
+          <Button
+            variant="contained"
+            type="button"
+            color="error"
+            onClick={() => {
+              reset({
+                ...preferencesFormDefaultValues,
+                special_need: user?.teacher?.special_need ?? false,
+                description_special_need:
+                  user?.teacher?.description_special_need ?? '',
+                observation: user?.teacher?.observation ?? '',
+              });
+            }}
+            startIcon={<Cancel />}
+          >
+            Cancelar
+          </Button>
+          <Button
+            disabled={!isValid && hasSpecialNeed}
+            variant="contained"
+            type="button"
+            onClick={() => setConfirmDialogOpen(true)}
+            className="self-end"
+            color="secondary"
+            endIcon={<Save />}
+          >
+            Salvar
+          </Button>
+        </Box>
         <ConfirmDialogBlue
           open={confirmDialogOpen}
           title="Atenção"
-          content={`As preferências selecionadas só serão consideradas em uma nova geração de horário. Deseja continuar?`}
+          content={`As preferências selecionadas não afetarão a grade de horário atual. Deseja continuar?`}
           onConfirm={() => {
             setConfirmDialogOpen(false);
             handleSubmit(submit)();
           }}
           onCancel={() => {
             setConfirmDialogOpen(false);
-            setIsEditing(false);
           }}
         />
       </form>

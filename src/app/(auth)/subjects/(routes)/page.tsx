@@ -79,7 +79,11 @@ export default function SubjectsPage() {
         </Button>
       </Box>
 
-      <SubjectsList subjects={subjects} isLoading={isLoading} />
+      <SubjectsList
+        subjects={subjects}
+        isLoading={isLoading}
+        onRefresh={() => loadSubjects(page)}
+      />
     </ContentLayoutComponent>
   );
 }

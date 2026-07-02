@@ -1,8 +1,10 @@
 'use server';
+import axios from 'axios';
 import { getApi } from '@/plugin/api.plugin';
 import { AuthType } from '../_schemas/auth-schema.schema';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { setCookie } from '@/plugin/cookie.plugin';
 
 export async function login(payload: AuthType) {
   const api = await getApi();
@@ -12,13 +14,13 @@ export async function login(payload: AuthType) {
       login: payload.email,
       login_type: 'email',
     });
-    const cookieStore = await cookies();
-    cookieStore.set('token', response.data.data.session.token);
-
+    setCookie('token', response.data.data.session.token);
     return response.data;
-  } catch (error) {
-    console.log('Login error:', error);
-    throw error;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message ?? 'Falha ao fazer login');
+    }
+    throw new Error('Falha ao fazer login');
   }
 }
 
@@ -44,22 +46,11 @@ export async function me() {
     else if (role === 'CRADT') role = 'CRADT';
 
     return {
-      id: user.id,
-      name: user.nome || '',
-      email: user.email || '',
+      ...user,
       role: role,
     };
   } catch (error) {
     console.error('Get current user error:', error);
-    if (process.env.NODE_ENV === 'development') {
-      // Fallback user for local development when backend is offline
-      return {
-        id: 1,
-        name: 'Administrador Local',
-        email: 'admin@asgen.com',
-        role: 'Coordinator',
-      };
-    }
     throw error;
   }
 }

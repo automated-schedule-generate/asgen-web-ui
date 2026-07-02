@@ -4,6 +4,7 @@ import type { IUser } from '@/interfaces/user.interface';
 import { UserType } from '../_schemas/user.schema';
 import { firstLetterUpperCase } from '@/utils/first-letter-uppercase.util';
 import { login } from '../../auth/_services/auth.service';
+import axios from 'axios';
 
 // In-memory local mock database for robust offline testing in development mode
 const MOCK_USERS = [
@@ -84,9 +85,11 @@ export async function register(payload: UserType) {
     });
     await login({ email: payload.email, password: payload.password });
     return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message ?? 'Falha ao cadastrar!');
+    }
+    throw new Error('Falha ao cadastrar!');
   }
 }
 

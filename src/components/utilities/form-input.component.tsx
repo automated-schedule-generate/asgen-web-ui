@@ -35,7 +35,14 @@ export function FormInput<T extends object>({
   if (type === 'number') {
     return (
       <>
-        <label htmlFor={id}>{label}</label>
+        <label htmlFor={id}>
+          {label}
+          {required && (
+            <Typography component="span" color="error" aria-hidden>
+              {' *'}
+            </Typography>
+          )}
+        </label>
         <Controller
           name={name as Path<T>}
           control={control}
@@ -43,9 +50,14 @@ export function FormInput<T extends object>({
             <>
               <OutlinedInput
                 {...field}
+                value={field.value || ''}
                 onChange={(e) => {
+                  if (e.target.value === '') {
+                    onChange(undefined);
+                    return;
+                  }
                   const val = Number(e.target.value);
-                  onChange(val < 0 ? '0' : val);
+                  onChange(val < 0 ? 0 : val);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === '-' || e.key === 'e' || e.key === 'E') {
@@ -89,7 +101,7 @@ export function FormInput<T extends object>({
                 {label}
                 {required && (
                   <Typography component="span" color="error" aria-hidden>
-                    {' *Campo obrigatório'}
+                    {' *'}
                   </Typography>
                 )}
               </Typography>
@@ -123,7 +135,14 @@ export function FormInput<T extends object>({
   }
   return (
     <>
-      <label htmlFor={id}>{label}</label>
+      <label htmlFor={id}>
+        {label}
+        {required && (
+          <Typography component="span" color="error" aria-hidden>
+            {' *'}
+          </Typography>
+        )}
+      </label>
       <Controller
         name={name as Path<T>}
         control={control}

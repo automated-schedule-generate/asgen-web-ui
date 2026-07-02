@@ -40,7 +40,6 @@ export function SearchBarComponent({
           height: '2.5rem',
           width: '20rem',
           backgroundColor: 'background.default',
-          borderRadius: '1rem',
           paddingY: '0rem',
         },
         startAdornment: (
