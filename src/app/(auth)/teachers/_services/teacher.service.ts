@@ -3,10 +3,20 @@ import { getApi } from '@/plugin/api.plugin';
 import { TeacherType } from '../_schemas/teacher.schema';
 import { PreferencesFormType } from '../_schemas/preferences-form.schema';
 
-export async function getTeachers() {
+export async function getTeachers({
+  page = 1,
+  limit = 10,
+  search,
+}: {
+  page?: number;
+  limit?: number;
+  search?: string;
+} = {}) {
   try {
     const api = await getApi();
-    const { data } = await api.get('/teacher');
+    const { data } = await api.get('/teacher', {
+      params: { page, limit, search },
+    });
     return data;
   } catch (error) {
     console.log(error);

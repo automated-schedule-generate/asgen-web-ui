@@ -64,7 +64,7 @@ export function TeacherDetailsComponent({
               variant="contained"
               onClick={() => setAddSubject((prev) => !prev)}
             >
-              Atribuir disciplinas{' '}
+              Atribuir disciplinas
             </Button>
           )}
         </Box>

@@ -14,24 +14,15 @@ import {
   School as SchoolIcon,
   Groups as GroupsIcon,
   Visibility as VisibilityIcon,
-  AutoFixHigh as AutoFixHighIcon,
   SquareFoot as SquareFootIcon,
   Attribution as AttributionIcon,
   AutoMode as AutoModeIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
+  Tune,
+  People,
 } from '@mui/icons-material';
 
 const dashboardCards = [
-  {
-    title: 'Professores',
-    icon: <AttributionIcon sx={{ fontSize: 30 }} />,
-    path: '/teachers',
-  },
-  {
-    title: 'Turmas',
-    icon: <GroupsIcon sx={{ fontSize: 30 }} />,
-    path: '/classes',
-  },
   {
     title: 'Cursos',
     icon: <SchoolIcon sx={{ fontSize: 30 }} />,
@@ -43,9 +34,24 @@ const dashboardCards = [
     path: '/subjects',
   },
   {
-    title: 'Gestão de funções',
-    icon: <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />,
-    path: '/functions',
+    title: 'Turmas',
+    icon: <GroupsIcon sx={{ fontSize: 30 }} />,
+    path: '/classes',
+  },
+  {
+    title: 'Professores',
+    icon: <AttributionIcon sx={{ fontSize: 30 }} />,
+    path: '/teachers',
+  },
+  {
+    title: 'Gestão de Usuários',
+    icon: <People />,
+    path: '/users',
+  },
+  {
+    title: 'Preferencias',
+    icon: <Tune sx={{ fontSize: 30 }} />,
+    path: '/teachers/preferences',
   },
   {
     title: 'Gerar grades',
@@ -56,11 +62,6 @@ const dashboardCards = [
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
     path: '#',
-  },
-  {
-    title: 'Preferencias',
-    icon: <AutoFixHighIcon sx={{ fontSize: 30 }} />,
-    path: '/teachers/preferences',
   },
 ];
 
@@ -114,7 +115,7 @@ export default function DashboardPage() {
               sx={{
                 borderRadius: 5,
                 border: '1px solid #eceef2',
-                boxShadow: '0 4px 12px rgba(3,1,125,0.3)',
+                boxShadow: '0 3px 12px rgba(3,1,125,0.3)',
                 width: '100%',
                 maxWidth: '180px',
                 aspectRatio: '1 / 1',
