@@ -3,8 +3,6 @@
 import { getApi } from '@/plugin/api.plugin';
 import type { CourseType } from '../_schemas/course.schema';
 
-const api = await getApi();
-
 export async function getAllCourses({
   page = 1,
   limit = 10,
@@ -14,6 +12,7 @@ export async function getAllCourses({
   limit?: number;
   search?: string;
 } = {}) {
+  const api = await getApi();
   try {
     const { data } = await api.get('/course', {
       params: {
@@ -31,6 +30,7 @@ export async function getAllCourses({
 }
 
 export async function getCourseById(id: string) {
+  const api = await getApi();
   try {
     const { data } = await api.get(`/course/${id}`);
     return data;
@@ -41,6 +41,7 @@ export async function getCourseById(id: string) {
 }
 
 export async function createCourse(payload: CourseType) {
+  const api = await getApi();
   try {
     const { data } = await api.post('/course', payload);
     return data;
@@ -51,6 +52,7 @@ export async function createCourse(payload: CourseType) {
 }
 
 export async function updateCourse(id: string, payload: CourseType) {
+  const api = await getApi();
   try {
     const { data } = await api.put(`/course/${id}`, payload);
     return data;
@@ -61,6 +63,7 @@ export async function updateCourse(id: string, payload: CourseType) {
 }
 
 export async function deleteCourse(id: string) {
+  const api = await getApi();
   try {
     const { data } = await api.delete(`/course/${id}`);
     return data;
