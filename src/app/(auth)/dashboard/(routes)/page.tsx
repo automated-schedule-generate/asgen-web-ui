@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import {
   Container,
   Typography,
@@ -16,8 +15,6 @@ import {
   Visibility as VisibilityIcon,
   SquareFoot as SquareFootIcon,
   Attribution as AttributionIcon,
-  AutoMode as AutoModeIcon,
-  AdminPanelSettings as AdminPanelSettingsIcon,
   Tune,
   People,
 } from '@mui/icons-material';

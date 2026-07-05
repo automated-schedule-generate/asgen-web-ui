@@ -5,7 +5,6 @@ import { Drawer, List } from '@mui/material';
 import {
   Home,
   Attribution,
-  AutoMode,
   SquareFoot,
   School,
   Groups,
