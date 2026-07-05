@@ -61,7 +61,7 @@ const dashboardCards = [
   {
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
-    path: '#',
+    path: '/timetable',
   },
 ];
 

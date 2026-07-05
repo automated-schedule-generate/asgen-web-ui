@@ -2,6 +2,8 @@
 
 import { getApi } from '@/plugin/api.plugin';
 import type { CourseType } from '../_schemas/course.schema';
+import { IResponseRequestPaginated } from '@/interfaces/response-request.interface';
+import { CourseData } from '../_types/course.types';
 
 export async function getAllCourses({
   page = 1,
@@ -67,6 +69,29 @@ export async function deleteCourse(id: string) {
   try {
     const { data } = await api.delete(`/course/${id}`);
     return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function getCourseWithTimetable(
+  filter_data: { semester_id?: string; course_id?: string } = {},
+): Promise<CourseData[]> {
+  const api = await getApi();
+  try {
+    const {
+      data: { data },
+    } = await api.get<IResponseRequestPaginated<CourseData>>(
+      '/course/find-timetable',
+      {
+        params: {
+          ...filter_data,
+        },
+      },
+    );
+
+    return data.items;
   } catch (error) {
     console.log(error);
     throw error;

@@ -1,6 +1,6 @@
 'use server';
 
-const api_url = process.env.API_URL ?? 'https://localhost:8000';
+const api_url = process.env.API_URL ?? 'http://localhost:8000';
 
 export async function getEnv() {
   return {

@@ -40,7 +40,7 @@ export function DrawerMenu() {
     },
     { text: 'Preferências', icon: <Tune />, path: '/teachers/preferences' },
     { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
-    { text: 'Visualizar grades', icon: <Visibility />, path: '#' },
+    { text: 'Visualizar grades', icon: <Visibility />, path: '/timetable' },
   ];
 
   return (
