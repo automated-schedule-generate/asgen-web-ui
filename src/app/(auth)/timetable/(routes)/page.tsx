@@ -3,6 +3,7 @@
 import { Box, Chip, Paper, Stack } from '@mui/material';
 import { getCourseWithTimetable } from '../../courses/_services/courses.service';
 import { RenderCourseWithTimetable } from '../_components/render-course-with-timetable';
+import { GenerateTimetable } from '../_components/generate-timetable';
 
 export default async function TimetablePage() {
   const courses = await getCourseWithTimetable();
@@ -10,6 +11,7 @@ export default async function TimetablePage() {
   return (
     <Box>
       <Paper variant="outlined" sx={{ p: 2, mb: 4, borderRadius: 3 }}>
+        <GenerateTimetable />
         <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
           {courses.map((course) => (
             <Chip

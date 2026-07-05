@@ -38,12 +38,10 @@ export function RenderCourseWithTimetable({
           Disciplinas que não foram alocadas
         </Typography>
         {course.unassigned?.map((entry, index) => (
-          <>
-            <Typography key={`unassigned-${entry.id}-${index}`}>
-              {entry.subject_name}
-            </Typography>
-            <Divider key={`divider-${entry.id}-${index}`} sx={{ mt: 1 }} />
-          </>
+          <div key={`unassigned-${entry.id}-${index}`}>
+            <Typography>{entry.subject_name}</Typography>
+            <Divider sx={{ mt: 1 }} />
+          </div>
         ))}
       </Box>
       {course.timetable_entries?.map((entry, index) => (

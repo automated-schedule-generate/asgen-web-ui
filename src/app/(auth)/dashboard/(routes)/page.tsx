@@ -54,11 +54,6 @@ const dashboardCards = [
     path: '/teachers/preferences',
   },
   {
-    title: 'Gerar grades',
-    icon: <AutoModeIcon sx={{ fontSize: 30 }} />,
-    path: '#',
-  },
-  {
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
     path: '/timetable',

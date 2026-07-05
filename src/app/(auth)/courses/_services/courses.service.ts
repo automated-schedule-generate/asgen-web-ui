@@ -2,7 +2,10 @@
 
 import { getApi } from '@/plugin/api.plugin';
 import type { CourseType } from '../_schemas/course.schema';
-import { IResponseRequestPaginated } from '@/interfaces/response-request.interface';
+import {
+  IResponseRequest,
+  IResponseRequestPaginated,
+} from '@/interfaces/response-request.interface';
 import { CourseData } from '../_types/course.types';
 
 export async function getAllCourses({
@@ -92,6 +95,21 @@ export async function getCourseWithTimetable(
     );
 
     return data.items;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function generateTimetableAllCourses() {
+  const api = await getApi();
+
+  try {
+    const { data } = await api.post<
+      IResponseRequest<{ courses_amount: number }>
+    >('/course/generate-timetable');
+
+    return data;
   } catch (error) {
     console.log(error);
     throw error;
