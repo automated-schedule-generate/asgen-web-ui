@@ -2,9 +2,8 @@
 import axios from 'axios';
 import { getApi } from '@/plugin/api.plugin';
 import { AuthType } from '../_schemas/auth-schema.schema';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { setCookie } from '@/plugin/cookie.plugin';
+import { deleteCookie, setCookie } from '@/plugin/cookie.plugin';
 
 export async function login(payload: AuthType) {
   const api = await getApi();
@@ -14,9 +13,10 @@ export async function login(payload: AuthType) {
       login: payload.email,
       login_type: 'email',
     });
-    setCookie('token', response.data.data.session.token);
+    await setCookie('token', response.data.data.session.token);
     return response.data;
   } catch (error: unknown) {
+    console.log(error);
     if (axios.isAxiosError(error)) {
       throw new Error(error.response?.data?.message ?? 'Falha ao fazer login');
     }
@@ -25,8 +25,7 @@ export async function login(payload: AuthType) {
 }
 
 export async function logout() {
-  const cookieStore = await cookies();
-  cookieStore.delete('token');
+  await deleteCookie('token');
 
   redirect('/', 'replace');
 

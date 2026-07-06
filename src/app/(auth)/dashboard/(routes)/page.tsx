@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import {
   Container,
   Typography,
@@ -16,8 +15,6 @@ import {
   Visibility as VisibilityIcon,
   SquareFoot as SquareFootIcon,
   Attribution as AttributionIcon,
-  AutoMode as AutoModeIcon,
-  AdminPanelSettings as AdminPanelSettingsIcon,
   Tune,
   People,
 } from '@mui/icons-material';
@@ -54,14 +51,9 @@ const dashboardCards = [
     path: '/teachers/preferences',
   },
   {
-    title: 'Gerar grades',
-    icon: <AutoModeIcon sx={{ fontSize: 30 }} />,
-    path: '#',
-  },
-  {
     title: 'Visualização das grades',
     icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
-    path: '#',
+    path: '/timetable',
   },
 ];
 

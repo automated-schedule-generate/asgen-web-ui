@@ -6,6 +6,7 @@ import './globals.css';
 import MuiProvider from '@/components/providers/mui-provider.component';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import { VLibrasComponent } from '@/components/lib/vlibras.component';
+import { BackToTop } from '@/components/layout/back-to-top.component';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,6 +38,7 @@ export default async function RootLayout({
           <MuiProvider>{children}</MuiProvider>
           <ToastContainer theme="colored" />
           <VLibrasComponent />
+          <BackToTop />
         </body>
       </AppRouterCacheProvider>
     </html>

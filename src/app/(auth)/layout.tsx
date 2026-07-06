@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { DefaultAppBar } from './_components/app-bar.component';

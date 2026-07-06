@@ -1,6 +1,5 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
-const api = await getApi();
 
 export async function getAllSemesters({
   page = 1,
@@ -9,6 +8,7 @@ export async function getAllSemesters({
   page?: number;
   limit?: number;
 } = {}) {
+  const api = await getApi();
   try {
     const { data } = await api.get('/semester', {
       params: {
