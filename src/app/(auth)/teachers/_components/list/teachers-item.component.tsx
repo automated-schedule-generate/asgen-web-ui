@@ -5,8 +5,8 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  CircularProgress,
   Paper,
-  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -25,11 +25,14 @@ import { getTeacherById } from '../../_services/teacher.service';
 import { getAllSubjects } from '@/app/(auth)/subjects/_services/subjects.service';
 import { Subject } from '@/app/(auth)/subjects/_interfaces/subject.interface';
 import { PreferenceDaysTable } from '../preference-days-table.component';
-export function TeachersItem({ teacher_id }: { teacher_id: string }) {
+export function TeachersItem({ teacher }: { teacher: Teacher }) {
   const router = useRouter();
-  const [teacher, setTeacher] = useState<
+  const teacher_id = teacher.user_id;
+  const [details, setDetails] = useState<
     (Teacher & { subjects?: Subject[] }) | null
   >(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [morningPreferences, setMorningPreferences] = useState<boolean[]>(
     new Array(5).fill(false),
   );
@@ -38,7 +41,10 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
   );
 
   useEffect(() => {
+    if (!expanded || details) return;
+
     async function loadData() {
+      setIsLoadingDetails(true);
       try {
         const teacherData = await getTeacherById(teacher_id);
         const subjectsData = await getAllSubjects({
@@ -51,15 +57,15 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
         )?.filter((subject) =>
           subject.teachers?.some((t) => t.user_id === teacher_id),
         );
-        const teacher = teacherData?.data
+        const teacherDetails = teacherData?.data
           ? {
               ...teacherData.data,
               subjects: teacherSubjects,
             }
           : null;
-        setTeacher(teacher);
+        setDetails(teacherDetails);
 
-        const preferences = teacher.preferences ?? [];
+        const preferences = teacherDetails?.preferences ?? [];
         const morningValues = new Array(5).fill(false);
         const afternoonValues = new Array(5).fill(false);
         for (const item of preferences) {
@@ -76,10 +82,12 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
         setAfternoonPreferences(afternoonValues);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoadingDetails(false);
       }
     }
     loadData();
-  }, [teacher_id]);
+  }, [expanded, details, teacher_id]);
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -99,19 +107,11 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
     setPage(0);
   };
 
-  if (!teacher) {
-    return (
-      <Skeleton
-        variant="rounded"
-        height={64}
-        sx={{ borderRadius: '0.8rem', border: '1px solid #cbd5e1' }}
-      />
-    );
-  }
-
   return (
     <>
       <Accordion
+        expanded={expanded}
+        onChange={(_event, isExpanded) => setExpanded(isExpanded)}
         sx={{
           borderRadius: '0.8rem',
           border: '1px solid #cbd5e1',
@@ -143,7 +143,7 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
             sx={{ color: 'secondary.main', fontWeight: 600 }}
           >
             <Attribution />
-            <Typography>{teacher?.user?.name}</Typography>
+            <Typography>{teacher.user?.name}</Typography>
           </Box>
           <Box className="flex flex-row gap-2 cursor-pointer m-2">
             <Box
@@ -158,104 +158,110 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          <Box>
-            <Typography variant="body1">
-              Carga horária: {teacher?.workload}
-            </Typography>
-            <Box mt={2}>
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                Disciplinas Atribuídas
+          {isLoadingDetails || !details ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress size={32} sx={{ color: '#0B0A7A' }} />
+            </Box>
+          ) : (
+            <Box>
+              <Typography variant="body1">
+                Carga horária: {details?.workload}
               </Typography>
+              <Box mt={2}>
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  Disciplinas Atribuídas
+                </Typography>
 
-              <TableContainer component={Paper} elevation={1}>
-                {teacher?.subjects?.length === 0 ? (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      py: 8,
-                      border: '1px dashed #cbd5e1',
-                      borderRadius: '4px',
-                      bgcolor: '#f8fafc',
-                    }}
-                  >
-                    <Typography sx={{ color: '#64748b', fontWeight: 500 }}>
-                      Nenhuma disciplina atribuída
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        {tableHeaders.map((header) => (
-                          <TableCell
-                            key={header}
-                            sx={{
-                              textAlign: 'center',
-                              fontWeight: 'bold',
-                              color: '#1F1F3D',
-                              backgroundColor: 'secondary.light',
+                <TableContainer component={Paper} elevation={1}>
+                  {details?.subjects?.length === 0 ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        py: 8,
+                        border: '1px dashed #cbd5e1',
+                        borderRadius: '4px',
+                        bgcolor: '#f8fafc',
+                      }}
+                    >
+                      <Typography sx={{ color: '#64748b', fontWeight: 500 }}>
+                        Nenhuma disciplina atribuída
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          {tableHeaders.map((header) => (
+                            <TableCell
+                              key={header}
+                              sx={{
+                                textAlign: 'center',
+                                fontWeight: 'bold',
+                                color: '#1F1F3D',
+                                backgroundColor: 'secondary.light',
+                              }}
+                            >
+                              {header}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {details?.subjects
+                          ?.slice(
+                            page * rowsPerPage,
+                            page * rowsPerPage + rowsPerPage,
+                          )
+                          .map((subject: Subject) => (
+                            <TableRow key={subject.id}>
+                              <TableCell>{subject.name}</TableCell>
+                              <TableCell>{subject.workload}</TableCell>
+                              <TableCell>{subject.course.name}</TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TablePagination
+                            rowsPerPageOptions={[
+                              5,
+                              10,
+                              25,
+                              { label: 'Todos', value: -1 },
+                            ]}
+                            colSpan={4}
+                            count={details?.subjects?.length || 0}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            slotProps={{
+                              select: {
+                                native: true,
+                              },
                             }}
-                          >
-                            {header}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {teacher?.subjects
-                        ?.slice(
-                          page * rowsPerPage,
-                          page * rowsPerPage + rowsPerPage,
-                        )
-                        .map((subject: Subject) => (
-                          <TableRow key={subject.id}>
-                            <TableCell>{subject.name}</TableCell>
-                            <TableCell>{subject.workload}</TableCell>
-                            <TableCell>{subject.course.name}</TableCell>
-                          </TableRow>
-                        ))}
-                    </TableBody>
-                    <TableFooter>
-                      <TableRow>
-                        <TablePagination
-                          rowsPerPageOptions={[
-                            5,
-                            10,
-                            25,
-                            { label: 'Todos', value: -1 },
-                          ]}
-                          colSpan={4}
-                          count={teacher?.subjects?.length || 0}
-                          rowsPerPage={rowsPerPage}
-                          page={page}
-                          slotProps={{
-                            select: {
-                              native: true,
-                            },
-                          }}
-                          labelRowsPerPage="Disciplinas por página:"
-                          onPageChange={handleChangePage}
-                          onRowsPerPageChange={handleChangeRowsPerPage}
-                          ActionsComponent={TablePaginationActions}
-                        />
-                      </TableRow>
-                    </TableFooter>
-                  </Table>
-                )}
-              </TableContainer>
+                            labelRowsPerPage="Disciplinas por página:"
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            ActionsComponent={TablePaginationActions}
+                          />
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  )}
+                </TableContainer>
+              </Box>
+              <Box mt={2}>
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  Dias de preferência
+                </Typography>
+                <PreferenceDaysTable
+                  disabled={true}
+                  initialMorning={morningPreferences}
+                  initialAfternoon={afternoonPreferences}
+                />
+              </Box>
             </Box>
-            <Box mt={2}>
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                Dias de preferência
-              </Typography>
-              <PreferenceDaysTable
-                disabled={true}
-                initialMorning={morningPreferences}
-                initialAfternoon={afternoonPreferences}
-              />
-            </Box>
-          </Box>
+          )}
         </AccordionDetails>
       </Accordion>
     </>

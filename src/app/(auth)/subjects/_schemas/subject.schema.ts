@@ -8,7 +8,9 @@ export const subjectSchema = z.object({
     .number('Este campo é obrigatório')
     .min(1, 'A carga horária deve ser maior que 0'),
   is_optional: z.boolean(),
-  course_id: z.string().min(1, 'Você deve selecionar um curso'),
+  course_id: z
+    .string({ error: 'Você deve selecionar um curso' })
+    .min(1, 'Você deve selecionar um curso'),
   prerequisite_id: z.string().optional().nullable(),
 });
 

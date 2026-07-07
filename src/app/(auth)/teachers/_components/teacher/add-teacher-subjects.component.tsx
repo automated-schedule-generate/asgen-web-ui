@@ -19,6 +19,9 @@ import { useFormWithZod } from '@/hooks/use-form-with-zod.hook';
 import { Controller } from 'react-hook-form';
 import { addSubjectTeacher } from '@/app/(auth)/subjects/_services/subjects.service';
 import { useRouter } from 'next/navigation';
+import { Add, Attribution, Cancel, Close } from '@mui/icons-material';
+import { Plus } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export function AddTeacherSubjectsComponent({
   availableSubjects,
@@ -42,6 +45,7 @@ export function AddTeacherSubjectsComponent({
   });
 
   async function onSubmit(data: TeacherSubjectsType) {
+    const toastId = toast.loading('Atribuindo disciplina...');
     try {
       await addSubjectTeacher({
         subject_id: data.subject_id,
@@ -50,9 +54,20 @@ export function AddTeacherSubjectsComponent({
       });
       reset();
       onClose?.();
+      toast.update(toastId, {
+        render: 'Disciplina atribuída com sucesso!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 1500,
+      });
       router.refresh();
-    } catch (error) {
-      console.log(error);
+    } catch {
+      toast.update(toastId, {
+        render: 'Erro ao atribuir disciplina.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000,
+      });
     }
   }
 
@@ -64,14 +79,18 @@ export function AddTeacherSubjectsComponent({
         p: 1,
         display: 'flex',
         flexDirection: 'column',
+        border: '1px solid',
+        borderColor: 'secondary.light',
         gap: 2,
       }}
       component={Paper}
       elevation={2}
     >
-      <Typography variant="h6">Atribuir Disciplina</Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box className="flex flex-col gap-2  mt-1 mb-2">
+        <Box className="flex flex-col gap-2  mt-1 mb-2 p-2">
+          <Typography sx={{ fontSize: '1.2rem', fontWeight: 500 }}>
+            Atribuir Disciplina
+          </Typography>
           <Controller
             control={control}
             name="subject_id"
@@ -99,7 +118,12 @@ export function AddTeacherSubjectsComponent({
                         {option.label}
                       </li>
                     )}
-                    renderInput={(params) => <TextField {...params} />}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Selecione uma disciplina"
+                      />
+                    )}
                   />
                 </>
               );
@@ -132,7 +156,12 @@ export function AddTeacherSubjectsComponent({
                         {option.label}
                       </li>
                     )}
-                    renderInput={(params) => <TextField {...params} />}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Selecione um semestre"
+                      />
+                    )}
                   />
                 </>
               );
@@ -140,6 +169,7 @@ export function AddTeacherSubjectsComponent({
           />
           <Box className="flex gap-2 self-end mt-1">
             <Button
+              startIcon={<Cancel />}
               variant="contained"
               color="error"
               onClick={() => onClose?.()}
@@ -148,6 +178,7 @@ export function AddTeacherSubjectsComponent({
             </Button>
             <Button
               type="submit"
+              startIcon={<Add />}
               variant="contained"
               color="secondary"
               disabled={!isValid}
