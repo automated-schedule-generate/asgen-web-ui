@@ -1,6 +1,7 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
 import type { SubjectType } from '../_schemas/subject.schema';
+import axios from 'axios';
 
 export async function createSubject(payload: SubjectType) {
   const api = await getApi();
@@ -123,6 +124,7 @@ export async function unlinkSubject(
   subject_id: string,
   payload: { teacher_id: string; semester_id: string },
 ) {
+  const api = await getApi();
   try {
     // O adapter HTTP/2 (http2-wrapper) proíbe body em DELETE por padrão do Node;
     // essa rota exige body, então forçamos o adapter HTTP/1.1 só nesta chamada.
