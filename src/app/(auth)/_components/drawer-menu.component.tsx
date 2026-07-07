@@ -5,7 +5,6 @@ import { Drawer, List } from '@mui/material';
 import {
   Home,
   Attribution,
-  AutoMode,
   SquareFoot,
   School,
   Groups,
@@ -39,8 +38,7 @@ export function DrawerMenu() {
       path: '/users',
     },
     { text: 'Preferências', icon: <Tune />, path: '/teachers/preferences' },
-    { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
-    { text: 'Visualizar grades', icon: <Visibility />, path: '#' },
+    { text: 'Visualizar grades', icon: <Visibility />, path: '/timetable' },
   ];
 
   return (

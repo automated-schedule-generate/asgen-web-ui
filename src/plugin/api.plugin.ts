@@ -6,22 +6,17 @@ import { getEnv } from './env.plugin';
 import http2 from 'http2-wrapper';
 import { createHTTP2Adapter } from 'axios-http2-adapter';
 
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
-const adapterConfig = {
-  agent: new http2.Agent({
-    /* options */
-  }),
-  force: true,
-};
+const adapterConfig = createHTTP2Adapter({
+  agent: new http2.Agent({/* options */}),
+  force: false,
+});
 
 export async function getApi() {
+  const { api_url } = await getEnv();
+
   const api = axios.create({
-    baseURL: (await getEnv()).api_url,
-    // headers: {
-    //   'Content-Type': 'application/json',
-    // },
-    adapter: createHTTP2Adapter(adapterConfig),
+    baseURL: api_url,
+    adapter: adapterConfig,
   });
 
   api.interceptors.request.use(async (config) => {
