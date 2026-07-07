@@ -1,15 +1,78 @@
 'use client';
 
 import React from 'react';
-import { UseFormReturn, FieldValues, Path, Controller } from 'react-hook-form';
-import { Box, FormLabel, Autocomplete, TextField } from '@mui/material';
+import {
+  UseFormReturn,
+  FieldValues,
+  Path,
+  Controller,
+  ControllerRenderProps,
+  ControllerFieldState,
+} from 'react-hook-form';
+import {
+  Box,
+  FormLabel,
+  Autocomplete,
+  TextField,
+  Typography,
+  OutlinedInput,
+} from '@mui/material';
 import { ClassTimeEnum } from '../_enums/course.enum';
 import { FormInput } from '@/components/utilities/form-input.component';
+import { CourseType } from '../_schemas/course.schema';
+
+function TotalSemestersInput({
+  field,
+  fieldState,
+}: {
+  field: ControllerRenderProps<CourseType, 'total_semesters'>;
+  fieldState: ControllerFieldState;
+}) {
+  return (
+    <>
+      <FormLabel htmlFor="total_semesters">
+        Total de semestres
+        <Typography component="span" color="error" aria-hidden>
+          {' *'}
+        </Typography>
+      </FormLabel>
+      <OutlinedInput
+        value={field.value != null ? String(field.value) : ''}
+        name={field.name}
+        onBlur={field.onBlur}
+        inputRef={field.ref}
+        id="total_semesters"
+        type="number"
+        inputProps={{ min: 1 }}
+        placeholder="Digite o total de semestres"
+        error={!!fieldState.error}
+        onChange={(e) => {
+          const raw = e.target.value;
+          if (raw === '') {
+            field.onChange(undefined);
+          } else {
+            const val = Number(raw);
+            field.onChange(val < 0 ? 0 : val);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (['-', 'e', 'E', '.'].includes(e.key)) e.preventDefault();
+        }}
+      />
+      {fieldState.error && (
+        <Typography color="error" variant="caption">
+          {fieldState.error.message}
+        </Typography>
+      )}
+    </>
+  );
+}
 
 interface CourseFormProps<T extends FieldValues> {
   formMethods: UseFormReturn<T>;
   onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   children?: React.ReactNode;
+  asDiv?: boolean;
 }
 
 const classTimeOptions = Object.values(ClassTimeEnum).map((val) => ({
@@ -21,6 +84,7 @@ export function CourseForm<T extends FieldValues>({
   formMethods,
   onSubmit,
   children,
+  asDiv = false,
 }: CourseFormProps<T>) {
   const {
     control,
@@ -29,9 +93,9 @@ export function CourseForm<T extends FieldValues>({
 
   return (
     <Box
-      component="form"
-      onSubmit={onSubmit}
-      noValidate
+      component={asDiv ? 'div' : 'form'}
+      onSubmit={asDiv ? undefined : onSubmit}
+      noValidate={!asDiv}
       sx={{
         width: '100%',
         display: 'flex',
@@ -54,20 +118,26 @@ export function CourseForm<T extends FieldValues>({
           type="text"
           label="Nome do Curso:"
           placeholder="Digite o nome do curso"
+          required
         />
       </Box>
 
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column' },
+          flexDirection: 'row',
           gap: 3,
           width: '100%',
           mt: 0.75,
         }}
       >
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <FormLabel htmlFor="class_time">Carga Horária:</FormLabel>
+          <FormLabel htmlFor="class_time">
+            Duração da Hora-Aula
+            <Typography component="span" color="error" aria-hidden>
+              {' *'}
+            </Typography>
+          </FormLabel>
           <Controller
             name={'class_time' as Path<T>}
             control={control}
@@ -88,12 +158,11 @@ export function CourseForm<T extends FieldValues>({
                 }}
                 onBlur={onBlur}
                 fullWidth
-                sx={{ width: 300 }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     inputRef={ref}
-                    placeholder="Selecione 45 ou 60"
+                    placeholder="Selecione um valor"
                     error={!!errors.class_time}
                     helperText={
                       errors.class_time ? String(errors.class_time.message) : ''
@@ -105,20 +174,24 @@ export function CourseForm<T extends FieldValues>({
           />
         </Box>
 
-        <Box
-          sx={{ flex: 1, width: 300, display: 'flex', flexDirection: 'column' }}
-        >
-          <FormInput<T>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Controller
+            name={'total_semesters' as Path<T>}
             control={control}
-            id="total_semesters"
-            name="total_semesters"
-            type="number"
-            label="Total de Semestres:"
-            placeholder="Digite o total de semestres"
+            render={({ field, fieldState }) => (
+              <TotalSemestersInput
+                field={
+                  field as unknown as ControllerRenderProps<
+                    CourseType,
+                    'total_semesters'
+                  >
+                }
+                fieldState={fieldState}
+              />
+            )}
           />
         </Box>
       </Box>
-
       <Box sx={{ width: '100%' }}>{children}</Box>
     </Box>
   );

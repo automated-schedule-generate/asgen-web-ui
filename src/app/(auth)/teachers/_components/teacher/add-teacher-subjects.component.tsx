@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   FormLabel,
+  Paper,
   TextField,
   Typography,
 } from '@mui/material';
@@ -64,13 +65,11 @@ export function AddTeacherSubjectsComponent({
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        border: '1px solid #e0e0e0',
-        borderRadius: 2,
       }}
+      component={Paper}
+      elevation={2}
     >
-      <Typography variant="h6" sx={{ textAlign: 'center' }}>
-        Atribuir Disciplina
-      </Typography>
+      <Typography variant="h6">Atribuir Disciplina</Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box className="flex flex-col gap-2  mt-1 mb-2">
           <Controller
@@ -83,7 +82,12 @@ export function AddTeacherSubjectsComponent({
               }));
               return (
                 <>
-                  <FormLabel>Disciplina:</FormLabel>
+                  <FormLabel>
+                    Disciplina
+                    <Typography component="span" color="error" aria-hidden>
+                      {' *'}
+                    </Typography>
+                  </FormLabel>
                   <Autocomplete
                     options={options}
                     value={options.find((o) => o.value === field.value) ?? null}
@@ -111,7 +115,12 @@ export function AddTeacherSubjectsComponent({
               }));
               return (
                 <>
-                  <FormLabel>Semestre:</FormLabel>
+                  <FormLabel>
+                    Semestre
+                    <Typography component="span" color="error" aria-hidden>
+                      {' *'}
+                    </Typography>
+                  </FormLabel>
                   <Autocomplete
                     options={options}
                     value={options.find((o) => o.value === field.value) ?? null}
@@ -131,8 +140,8 @@ export function AddTeacherSubjectsComponent({
           />
           <Box className="flex gap-2 self-end mt-1">
             <Button
-              variant="outlined"
-              color="inherit"
+              variant="contained"
+              color="error"
               onClick={() => onClose?.()}
             >
               Cancelar
@@ -143,7 +152,7 @@ export function AddTeacherSubjectsComponent({
               color="secondary"
               disabled={!isValid}
             >
-              Adicionar
+              Atribuir
             </Button>
           </Box>
         </Box>

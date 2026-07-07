@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
 
 const routeTranslations: Record<string, string> = {
   home: 'Início',
@@ -24,7 +24,9 @@ export default function AutoBreadcrumbs() {
   const router = useRouter();
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
-  const isEditPage = pathname.endsWith('/edit') || pathname.endsWith('/create');
+  const isEditPage = pathname.endsWith('/edit');
+  const isCreatePage = pathname.endsWith('/create');
+  const isFormPage = isEditPage || isCreatePage;
 
   const pathnames = pathname.split('/').filter((x) => x);
 
@@ -55,7 +57,7 @@ export default function AutoBreadcrumbs() {
   };
 
   const handleNavigate = (route: string) => {
-    if (isEditPage) {
+    if (isFormPage) {
       setPendingRoute(route);
     } else {
       router.push(route);
@@ -117,10 +119,18 @@ export default function AutoBreadcrumbs() {
         })}
       </Breadcrumbs>
 
-      <ConfirmDialog
+      <ConfirmDialogBlue
         open={!!pendingRoute}
-        title="Sair sem salvar?"
-        content="As alterações não salvas serão perdidas. Deseja continuar?"
+        title={
+          isCreatePage
+            ? 'Sair da página de criação'
+            : 'Sair da página de edição'
+        }
+        content={
+          isCreatePage
+            ? 'Tem certeza de que deseja cancelar? Se confirmar, seu progresso não será salvo.'
+            : 'As alterações não salvas serão perdidas. Deseja continuar?'
+        }
         onConfirm={() => {
           if (pendingRoute) router.push(pendingRoute);
           setPendingRoute(null);

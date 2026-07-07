@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Drawer, Divider, List } from '@mui/material';
+import { Drawer, List } from '@mui/material';
 import {
   Home,
   Attribution,
-  AutoMode,
-  AdminPanelSettings,
   SquareFoot,
   School,
   Groups,
   Visibility,
+  People,
+  Tune,
 } from '@mui/icons-material';
 import { MenuItem } from './menu-item.component';
 import { usePathname } from 'next/navigation';
@@ -27,18 +27,18 @@ export function DrawerMenu() {
   const drawerWidth = open ? 240 : 60;
   const pathname = usePathname();
   const menuItems = [
-    { text: 'Dashboard', icon: <Home />, path: '/dashboard' },
-    { text: 'Professores', icon: <Attribution />, path: '/teachers' },
-    { text: 'Turmas', icon: <Groups />, path: '/classes' },
+    { text: 'Início', icon: <Home />, path: '/dashboard' },
     { text: 'Cursos', icon: <School />, path: '/courses' },
     { text: 'Disciplinas', icon: <SquareFoot />, path: '/subjects' },
+    { text: 'Turmas', icon: <Groups />, path: '/classes' },
+    { text: 'Professores', icon: <Attribution />, path: '/teachers' },
     {
-      text: 'Gestão de funções',
-      icon: <AdminPanelSettings />,
-      path: '/functions',
+      text: 'Gestão de Usuários',
+      icon: <People />,
+      path: '/users',
     },
-    { text: 'Gerador de grades', icon: <AutoMode />, path: '#' },
-    { text: 'Visualizar grades', icon: <Visibility />, path: '#' },
+    { text: 'Preferências', icon: <Tune />, path: '/teachers/preferences' },
+    { text: 'Visualizar grades', icon: <Visibility />, path: '/timetable' },
   ];
 
   return (
@@ -75,7 +75,6 @@ export function DrawerMenu() {
               selected={isActive}
             />
           );
-          <Divider />;
         })}
       </List>
     </Drawer>

@@ -46,20 +46,20 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
           with_pagination: false,
           with_prerequisite: false,
         });
-        const teacherSubjects = (
-          subjectsData?.data?.items as Subject[]
-        )?.filter((subject) =>
+        const subjectsItems = subjectsData?.items || subjectsData || [];
+        const teacherSubjects = (subjectsItems as Subject[]).filter((subject) =>
           subject.teachers?.some((t) => t.user_id === teacher_id),
         );
-        const teacher = teacherData?.data
+        const teacherObj = teacherData?.data || teacherData;
+        const teacher = teacherObj
           ? {
-              ...teacherData.data,
+              ...teacherObj,
               subjects: teacherSubjects,
             }
           : null;
         setTeacher(teacher);
 
-        const preferences = teacher.preferences;
+        const preferences = teacher.preferences ?? [];
         const morningValues = new Array(5).fill(false);
         const afternoonValues = new Array(5).fill(false);
         for (const item of preferences) {
@@ -139,7 +139,7 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
           }}
         >
           <Box
-            className="flex items-center w-full gap-2"
+            className="flex items-center w-full gap-4"
             sx={{ color: 'secondary.main', fontWeight: 600 }}
           >
             <Attribution />
@@ -192,8 +192,8 @@ export function TeachersItem({ teacher_id }: { teacher_id: string }) {
                           sx={{
                             textAlign: 'center',
                             fontWeight: 'bold',
-                            color: 'white',
-                            backgroundColor: 'secondary.main',
+                            color: '#1F1F3D',
+                            backgroundColor: 'secondary.light',
                           }}
                         >
                           {header}

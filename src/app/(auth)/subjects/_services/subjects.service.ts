@@ -1,9 +1,9 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
 import type { SubjectType } from '../_schemas/subject.schema';
-const api = await getApi();
 
 export async function createSubject(payload: SubjectType) {
+  const api = await getApi();
   try {
     if (!payload.prerequisite_id) {
       delete payload.prerequisite_id;
@@ -17,6 +17,7 @@ export async function createSubject(payload: SubjectType) {
 }
 
 export async function updateSubject(id: string, payload: SubjectType) {
+  const api = await getApi();
   try {
     if (!payload.prerequisite_id) {
       payload.prerequisite_id = null;
@@ -57,6 +58,7 @@ export async function getAllSubjects({
   course_id?: string;
   course_semester?: number;
 } = {}) {
+  const api = await getApi();
   try {
     const { data } = await api.get('/subject', {
       params: {
@@ -79,6 +81,7 @@ export async function getAllSubjects({
 }
 
 export async function getSubjectById(id: string) {
+  const api = await getApi();
   try {
     const { data } = await api.get(`/subject/${id}`);
     return data;
@@ -89,6 +92,7 @@ export async function getSubjectById(id: string) {
 }
 
 export async function deleteSubject(id: string) {
+  const api = await getApi();
   try {
     await api.delete(`/subject/${id}`);
   } catch (error) {
@@ -106,6 +110,7 @@ export async function addSubjectTeacher({
   teacher_id: string;
   semester_id: string;
 }) {
+  const api = await getApi();
   try {
     const { data } = await api.post(
       `/subject/${subject_id}/add-teacher-and-semester`,

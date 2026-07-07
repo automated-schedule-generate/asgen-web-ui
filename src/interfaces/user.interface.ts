@@ -1,7 +1,7 @@
 export interface IUser {
   id: number;
-  nome: string;
+  name: string;
   email: string;
-  funcao: string;
-  matricula: string;
+  role: string;
+  registration: string;
 }

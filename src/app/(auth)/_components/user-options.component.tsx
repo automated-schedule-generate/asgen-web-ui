@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Avatar, Menu, MenuItem, Box } from '@mui/material';
+import { Button, Menu, MenuItem } from '@mui/material';
 import { useUser } from '@/contexts/user.context';
 import {
   KeyboardArrowDown,
@@ -8,7 +8,7 @@ import {
   Logout,
 } from '@mui/icons-material';
 import { logout } from '../auth/_services/auth.service';
-import { ConfirmDialog } from '@/components/utilities/confirm-dialog.component';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
 
 export function UserOptions() {
   const { user, loading } = useUser();
@@ -21,16 +21,6 @@ export function UserOptions() {
     return <span>Carregando...</span>;
   }
 
-  function stringAvatar(name: string) {
-    const nameParts = name.trim().split(' ');
-
-    const firstInitial = nameParts[0]?.[0] || '';
-    const secondInitial = nameParts.length > 1 ? nameParts[1][0] : '';
-
-    return {
-      children: `${firstInitial}${secondInitial}`.toUpperCase(),
-    };
-  }
   const open = Boolean(anchorEl);
   const handleClick = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -44,26 +34,27 @@ export function UserOptions() {
     handleClose();
     await logout();
   }
+
+  console.log(user);
   return (
     <>
       <Button
-        className="!rounded-full"
-        startIcon={
-          <Box className="py-1">
-            <Avatar
-              className="!bg-cyan-400"
-              {...stringAvatar(user?.name || 'User')}
-              sx={{
-                width: 5,
-                height: 5,
-                fontSize: '0.8rem',
-                p: 2,
-              }}
-            />
-          </Box>
-        }
+        // startIcon={
+        //   <Box className="py-1">
+        //     {/* <Avatar
+        //       className="!bg-cyan-400"
+        //       {...stringAvatar(user?.name || 'User')}
+        //       sx={{
+        //         width: 5,
+        //         height: 5,
+        //         fontSize: '0.8rem',
+        //         p: 2,
+        //       }}
+        //     /> */}
+        //   </Box>
+        // }
         endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-        variant="outlined"
+        variant="text"
         color="inherit"
         size="small"
         aria-controls={open ? 'basic-menu' : undefined}
@@ -92,7 +83,7 @@ export function UserOptions() {
           Sair da conta
         </MenuItem>
       </Menu>
-      <ConfirmDialog
+      <ConfirmDialogBlue
         open={confirmOpen}
         title="Sair da conta"
         content="Tem certeza que deseja sair da conta?"
