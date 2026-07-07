@@ -70,28 +70,31 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
     [course.id],
   );
 
-  const fetchSubjects = useCallback(async () => {
-    if (!course.id) return;
-    setLoading(true);
-    try {
-      const res = await getAllSubjects({
-        course_id: course.id,
-        with_course: false,
-        with_pagination: false,
-        course_semester: 1,
-      });
-      setSubjects(res.data.items);
-    } catch (e) {
-      console.error('Erro ao carregar disciplinas:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [course.id]);
+  const fetchSubjects = useCallback(
+    async (semester: string = '1') => {
+      if (!course.id) return;
+      setLoading(true);
+      try {
+        const res = await getAllSubjects({
+          course_id: course.id,
+          with_course: false,
+          with_pagination: false,
+          course_semester: Number(semester),
+        });
+        setSubjects(res.data.items);
+      } catch (e) {
+        console.error('Erro ao carregar disciplinas:', e);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [course.id],
+  );
 
   const handleToggleClick = () => {
     const nextState = !isExpanded;
     setIsExpanded(nextState);
-    if (nextState) fetchSubjects();
+    if (nextState) fetchSubjects(searchSemester);
   };
 
   const handleDeleteCourseClick = (e: React.MouseEvent) => {
@@ -192,7 +195,7 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
                   value={searchSemester}
                   onChange={(e) => {
                     setSearchSemester(e.target.value);
-                    fetchSubjectsBySemester(e.target.value);
+                    fetchSubjects(e.target.value);
                   }}
                   sx={{ bgcolor: '#fff', borderRadius: '4px', width: 200 }}
                   InputLabelProps={{ shrink: false }}
@@ -257,12 +260,8 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
                     subjects.map((sub, idx) => (
                       <TableRow key={idx} hover>
                         <TableCell
-                          sx={{
-                            py: 1,
-                            fontWeight: 500,
-                            color: '#334155',
-                            textAlign: 'left !important',
-                          }}
+                          align="left"
+                          sx={{ py: 1, fontWeight: 500, color: '#334155' }}
                         >
                           {sub.name}
                         </TableCell>
