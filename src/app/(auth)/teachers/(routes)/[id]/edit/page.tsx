@@ -6,6 +6,7 @@ import { getTeacherById } from '../../../_services/teacher.service';
 import { getAllSubjects } from '@/app/(auth)/subjects/_services/subjects.service';
 import { Subject } from '@/app/(auth)/subjects/_interfaces/subject.interface';
 import { getAllSemesters } from '@/app/(auth)/semesters/_services/semesters.service';
+import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 
 export default async function EditTeacherPage({
   params,
@@ -13,13 +14,15 @@ export default async function EditTeacherPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const teacherData = await getTeacherById(id);
-  const subjects = await getAllSubjects({
-    with_course: true,
-    with_pagination: false,
-    with_prerequisite: false,
-  });
-  const semesters = await getAllSemesters();
+  const [teacherData, subjects, semesters] = await Promise.all([
+    getTeacherById(id),
+    getAllSubjects({
+      with_course: true,
+      with_pagination: false,
+      with_prerequisite: false,
+    }),
+    getAllSemesters(),
+  ]);
   const allSubjects = (subjects?.data?.items as Subject[]) ?? [];
   const teacherSubjects = allSubjects.filter((subject) =>
     subject.teachers?.some((t) => t.user_id === id),
@@ -27,20 +30,21 @@ export default async function EditTeacherPage({
   const teacher = teacherData?.data
     ? {
         ...teacherData.data,
-        subjects: teacherSubjects,
+        subjects: teacherSubjects.map((subject) => ({
+          ...subject,
+          course_name: subject.course?.name ?? '',
+          semester_id: subject.semesters?.[0]?.id ?? '',
+        })),
       }
     : null;
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6">Dados do Professor</Typography>
-        <TeacherDetailsComponent
-          teacher={teacher}
-          availableSubjects={allSubjects}
-          semesters={semesters.data.items}
-        />
-      </CardContent>
-    </Card>
+    <ContentLayoutComponent title={`${teacher?.user?.name}`}>
+      <TeacherDetailsComponent
+        teacher={teacher}
+        availableSubjects={allSubjects}
+        semesters={semesters.data.items}
+      />
+    </ContentLayoutComponent>
   );
 }

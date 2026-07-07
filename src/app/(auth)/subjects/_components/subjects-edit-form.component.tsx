@@ -49,6 +49,11 @@ export default function SubjectsEditFormComponent({
     },
   });
 
+  const selectedCourseId = watch('course_id');
+  const filteredSubjects = selectedCourseId
+    ? subjects.filter((s) => s.course_id === selectedCourseId)
+    : [];
+
   const [confirmEditOpen, setConfirmEditOpen] = useState(false);
   const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
 
@@ -138,7 +143,7 @@ export default function SubjectsEditFormComponent({
           name="prerequisite_id"
           control={control}
           render={({ field, fieldState: { error } }) => {
-            const options = subjects.map((s) => ({
+            const options = filteredSubjects.map((s) => ({
               label: s.name,
               value: s.id,
             }));
@@ -148,6 +153,8 @@ export default function SubjectsEditFormComponent({
                 <FormLabel>Pré-requisito:</FormLabel>
                 <Autocomplete
                   {...field}
+                  key={selectedCourseId || 'no-course'}
+                  disabled={!selectedCourseId}
                   options={options}
                   value={
                     options.find((opt) => opt.value === field.value) || null
@@ -158,6 +165,11 @@ export default function SubjectsEditFormComponent({
                       {...params}
                       error={!!error}
                       helperText={error?.message}
+                      placeholder={
+                        !selectedCourseId
+                          ? 'Selecione um curso primeiro'
+                          : 'Selecione uma opção'
+                      }
                     />
                   )}
                   onChange={(_event, newValue) =>

@@ -21,19 +21,33 @@ import { Add } from '@mui/icons-material';
 import { Subject } from '@/app/(auth)/subjects/_interfaces/subject.interface';
 import { Semester } from '@/app/(auth)/semesters/_interfaces/semester.interface';
 import { AddTeacherSubjectsComponent } from './add-teacher-subjects.component';
+import { unlinkSubject } from '@/app/(auth)/subjects/_services/subjects.service';
+import { useRouter } from 'next/navigation';
+import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+import { toast } from 'react-toastify';
+
+type TeacherSubjectRow = Subject & {
+  course_name: string;
+  semester_id: string;
+};
 
 export function TeacherDetailsComponent({
   teacher,
   availableSubjects,
   semesters,
 }: {
-  teacher: (Teacher & { subjects?: Subject[] }) | null;
+  teacher: (Teacher & { subjects?: TeacherSubjectRow[] }) | null;
   availableSubjects: Subject[];
   semesters: Semester[];
 }) {
+  const router = useRouter();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [addSubject, setAddSubject] = React.useState(false);
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const [subjectId, setSubjectId] = React.useState('');
+  const [semesterId, setSemesterId] = React.useState('');
+  const [subjectName, setSubjectName] = React.useState('');
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -48,11 +62,34 @@ export function TeacherDetailsComponent({
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  async function removeTeacherSubject(subject_id: string, semester_id: string) {
+    const toastId = toast.loading('Desvinculando disciplina...');
+    const payload = {
+      teacher_id: teacher?.user_id ?? '',
+      semester_id,
+    };
+    try {
+      await unlinkSubject(subject_id, payload);
+      toast.update(toastId, {
+        render: 'Disciplina desvinculada com sucesso!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 1500,
+      });
+      router.refresh();
+    } catch {
+      toast.update(toastId, {
+        render: 'Erro ao desvincular disciplina.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 2000,
+      });
+    }
+  }
   return (
     <Box>
-      <Typography variant="body1">Nome: {teacher?.user?.name}</Typography>
       <Typography variant="body1">
-        Carga horária: {teacher?.workload}
+        Carga horária: {teacher?.workload} horas
       </Typography>
       <Box mt={2}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -101,10 +138,9 @@ export function TeacherDetailsComponent({
                     <TableCell
                       key={header}
                       sx={{
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        color: 'white',
-                        backgroundColor: 'secondary.main',
+                        textAlign: 'start',
+                        color: 'black',
+                        backgroundColor: 'secondary.light',
                       }}
                     >
                       {header}
@@ -117,12 +153,28 @@ export function TeacherDetailsComponent({
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((subject) => (
                     <TableRow key={subject.id}>
-                      <TableCell>{subject.name}</TableCell>
-                      <TableCell>{subject.workload}</TableCell>
-                      <TableCell>{subject.course.name}</TableCell>
-                      <TableCell>
-                        <Button color="error" variant="contained" size="small">
-                          Remover
+                      <TableCell sx={{ textAlign: 'start' }}>
+                        {subject.name}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'start' }}>
+                        {subject.workload}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'start' }}>
+                        {subject.course_name}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'start' }}>
+                        <Button
+                          color="error"
+                          variant="contained"
+                          size="small"
+                          onClick={() => {
+                            setSubjectId(subject.id);
+                            setSemesterId(subject.semester_id);
+                            setSubjectName(subject.name);
+                            setOpenDialog(true);
+                          }}
+                        >
+                          Desvincular
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -154,6 +206,16 @@ export function TeacherDetailsComponent({
             </Table>
           )}
         </TableContainer>
+        <ConfirmDialogBlue
+          open={openDialog}
+          title="Desvincular disciplina"
+          content={`Tem certeza que deseja desvincular a disciplina ${subjectName} do professor ${teacher?.user?.name}?`}
+          onCancel={() => setOpenDialog(false)}
+          onConfirm={() => {
+            removeTeacherSubject(subjectId, semesterId);
+            setOpenDialog(false);
+          }}
+        />
       </Box>
     </Box>
   );

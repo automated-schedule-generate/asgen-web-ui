@@ -1,5 +1,6 @@
 import { CourseType } from '../../courses/_schemas/course.schema';
 import { SubjectType } from '../_schemas/subject.schema';
+import { Semester } from '../../semesters/_interfaces/semester.interface';
 
 export interface Subject extends SubjectType {
   id: string;
@@ -11,4 +12,5 @@ export interface Subject extends SubjectType {
       name: string;
     };
   }[];
+  semesters?: Semester[];
 }

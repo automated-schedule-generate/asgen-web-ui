@@ -24,7 +24,8 @@ export default function AutoBreadcrumbs() {
   const router = useRouter();
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
-  const isEditPage = pathname.endsWith('/edit');
+  const isEditPage =
+    pathname.endsWith('/edit') && !pathname.includes('teachers');
   const isCreatePage = pathname.endsWith('/create');
   const isFormPage = isEditPage || isCreatePage;
 

@@ -7,9 +7,7 @@ import http2 from 'http2-wrapper';
 import { createHTTP2Adapter } from 'axios-http2-adapter';
 
 const adapterConfig = createHTTP2Adapter({
-  agent: new http2.Agent({
-    /* options */
-  }),
+  agent: new http2.Agent({/* options */}),
   force: false,
 });
 

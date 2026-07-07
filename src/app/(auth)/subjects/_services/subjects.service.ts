@@ -1,6 +1,7 @@
 'use server';
 import { getApi } from '@/plugin/api.plugin';
 import type { SubjectType } from '../_schemas/subject.schema';
+import axios from 'axios';
 
 export async function createSubject(payload: SubjectType) {
   const api = await getApi();
@@ -116,6 +117,27 @@ export async function addSubjectTeacher({
     return data;
   } catch (error) {
     console.log(error);
+    throw error;
+  }
+}
+export async function unlinkSubject(
+  subject_id: string,
+  payload: { teacher_id: string; semester_id: string },
+) {
+  const api = await getApi();
+  try {
+    // O adapter HTTP/2 (http2-wrapper) proíbe body em DELETE por padrão do Node;
+    // essa rota exige body, então forçamos o adapter HTTP/1.1 só nesta chamada.
+    const { data } = await api.delete(
+      `/subject/${subject_id}/delete-teacher-and-semester`,
+      { data: payload, adapter: 'http' },
+    );
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.log(error.response?.data);
+      throw new Error('Não foi possível remover o professor da disciplina');
+    }
     throw error;
   }
 }
