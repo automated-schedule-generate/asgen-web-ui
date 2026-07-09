@@ -12,7 +12,7 @@ import ClassesList from '../_components/classes-list.component';
 import { Class } from '../_interfaces/class.interface';
 import { CourseData } from '@/app/(auth)/courses/_types/course.types';
 import { Semester } from '@/app/(auth)/semesters/_interfaces/semester.interface';
-import ClassesCreateFormComponent from '../_components/classes-create-form';
+import { ClassesCreateFormComponent } from '../_components/classes-create-form.component';
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([]);
