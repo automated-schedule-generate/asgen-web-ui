@@ -17,6 +17,8 @@ import {
   TableHead,
   TableRow,
   Paper,
+  TextField,
+  MenuItem,
 } from '@mui/material';
 import {
   DeleteOutline as DeleteIcon,
@@ -44,35 +46,41 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [confirmDeleteCourseOpen, setConfirmDeleteCourseOpen] = useState(false);
   const [confirmDeleteSubjectOpen, setConfirmDeleteSubjectOpen] =
     useState(false);
   const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
+  const [searchSemester, setSearchSemester] = useState<string>('1');
 
-  const fetchSubjects = useCallback(async () => {
-    if (!course.id) return;
-    setLoading(true);
-    try {
-      const res = await getAllSubjects({
-        course_id: course.id,
-        with_course: false,
-        with_pagination: false,
-      });
-      setSubjects(res.data.items);
-    } catch (e) {
-      console.error('Erro ao carregar disciplinas:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [course.id]);
+  const fetchSubjects = useCallback(
+    async (semester: string = '1') => {
+      if (!course.id) return;
+      setLoading(true);
+      try {
+        const res = await getAllSubjects({
+          course_id: course.id,
+          with_course: false,
+          with_pagination: false,
+          course_semester: Number(semester),
+        });
+        setSubjects(res.data.items);
+      } catch (e) {
+        console.error('Erro ao carregar disciplinas:', e);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [course.id],
+  );
 
   const handleAccordionChange = (
     _: React.SyntheticEvent,
     expanded: boolean,
   ) => {
     setIsExpanded(expanded);
-    if (expanded) fetchSubjects();
+    if (expanded) {
+      fetchSubjects(searchSemester);
+    }
   };
 
   const handleDeleteSubjectClick = (subjectId: string) => {
@@ -136,7 +144,43 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
           </Box>
         </AccordionSummary>
 
-        <AccordionDetails>
+        <AccordionDetails sx={{ p: 2, bgcolor: '#f8fafc' }}>
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              select
+              size="small"
+              value={searchSemester}
+              onChange={(e) => {
+                setSearchSemester(e.target.value);
+                fetchSubjects(e.target.value);
+              }}
+              sx={{ bgcolor: '#fff', borderRadius: '4px', width: 200 }}
+              InputLabelProps={{ shrink: false }}
+              label=""
+              SelectProps={{
+                displayEmpty: true,
+                renderValue: (value) => {
+                  if (!value)
+                    return (
+                      <span style={{ color: '#0B0A7A' }}>
+                        Filtrar por período
+                      </span>
+                    );
+                  return `${value}º Período`;
+                },
+              }}
+            >
+              {Array.from(
+                { length: Number(course.total_semesters || 0) },
+                (_, i) => (
+                  <MenuItem key={i + 1} value={String(i + 1)}>
+                    {i + 1}º Período
+                  </MenuItem>
+                ),
+              )}
+            </TextField>
+          </Box>
+
           <TableContainer
             component={Paper}
             elevation={0}
@@ -145,7 +189,13 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
             <Table size="small">
               <TableHead sx={{ bgcolor: '#e2e8f0' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, color: '#0B0A7A' }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: 800,
+                      color: '#0B0A7A',
+                      textAlign: 'left !important',
+                    }}
+                  >
                     Disciplina
                   </TableCell>
                   <TableCell
@@ -167,6 +217,7 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
                   subjects.map((sub, idx) => (
                     <TableRow key={idx} hover>
                       <TableCell
+                        align="left"
                         sx={{ py: 1, fontWeight: 500, color: '#334155' }}
                       >
                         {sub.name}
@@ -238,7 +289,7 @@ export function CourseItem({ course, onRefresh }: CourseItemProps) {
           try {
             if (subjectToDelete) {
               await deleteSubject(subjectToDelete);
-              await fetchSubjects();
+              await fetchSubjects(searchSemester);
             }
             toast.update(toastId, {
               render: 'Disciplina deletada com sucesso!',

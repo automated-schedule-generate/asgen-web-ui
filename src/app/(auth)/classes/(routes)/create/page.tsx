@@ -5,7 +5,8 @@ import { CourseData } from '@/app/(auth)/courses/_types/course.types';
 import { ContentLayoutComponent } from '@/components/utilities/content-layout.component';
 import { getAllSemesters } from '@/app/(auth)/semesters/_services/semesters.service';
 import { Semester } from '@/app/(auth)/semesters/_interfaces/semester.interface';
-import ClassesCreateFormComponent from '../../_components/classes-create-form';
+import { ClassesCreateFormComponent } from '../../_components/classes-create-form.component';
+
 export default function CreatePage() {
   const [courses, setCourses] = useState<CourseData[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);

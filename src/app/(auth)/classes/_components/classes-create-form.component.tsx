@@ -28,7 +28,7 @@ import { toast } from 'react-toastify';
 import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
 import { useState } from 'react';
 
-export default function ClassesCreateFormComponent({
+export function ClassesCreateFormComponent({
   courses,
   semesters,
   open,
