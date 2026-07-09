@@ -34,7 +34,7 @@ export function TeachersListComponent({
         </Box>
       )}
       {teachers.map((teacher) => (
-        <TeachersItem key={teacher.user_id} teacher_id={teacher.user_id} />
+        <TeachersItem key={teacher.user_id} teacher={teacher} />
       ))}
     </Box>
   );
