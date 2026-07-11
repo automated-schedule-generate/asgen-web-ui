@@ -25,7 +25,7 @@ export default function ClassesList({
           shift={classe.shift}
           course={classe.course?.name}
           course_semester={classe.course_semester}
-          semester={`${classe.semester?.year} "." ${classe.semester?.semester}`}
+          semester={`${classe.semester?.year}.${classe.semester?.semester}`}
           onDelete={onDelete}
         />
       ))}

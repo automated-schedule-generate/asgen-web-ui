@@ -127,174 +127,168 @@ export default function ClassesEditFormComponent({
   }
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit((data) => submit(classe.id, data))}
-        className="flex flex-col gap-2"
-      >
-        <FormInput
-          name="identify"
-          label="Nome"
-          id="identify"
-          placeholder="Digite o nome da turma"
-          type="text"
-          control={control}
-          required
-        />
+    <form
+      onSubmit={handleSubmit((data) => submit(classe.id, data))}
+      className="flex flex-col gap-2"
+    >
+      <FormInput
+        name="identify"
+        label="Nome"
+        id="identify"
+        placeholder="Digite o nome da turma"
+        type="text"
+        control={control}
+        required
+      />
 
-        <Controller
-          name="course_id"
-          control={control}
-          render={({ field, fieldState: { error } }) => {
-            const options = courses.map((c) => ({
-              label: c.name,
-              value: c.id,
-            }));
-            return (
-              <>
-                <FormLabel>
-                  Curso
-                  <Typography component="span" color="error" aria-hidden>
-                    {' *'}
-                  </Typography>
-                </FormLabel>
-                <Autocomplete
-                  {...field}
-                  options={options}
-                  value={
-                    options.find((opt) => opt.value === field.value) || null
-                  }
-                  sx={{ width: 300 }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={!!error}
-                      helperText={error?.message}
-                    />
-                  )}
-                  onChange={(_event, newValue) =>
-                    field.onChange(newValue?.value || null)
-                  }
-                />
-              </>
-            );
-          }}
-        />
-
-        <Controller
-          name="course_semester"
-          control={control}
-          render={({ field, fieldState }) => (
-            <CourseSemesterInput field={field} fieldState={fieldState} />
-          )}
-        />
-
-        <Controller
-          name="shift"
-          control={control}
-          render={({ field, fieldState: { error } }) => (
+      <Controller
+        name="course_id"
+        control={control}
+        render={({ field, fieldState: { error } }) => {
+          const options = courses.map((c) => ({
+            label: c.name,
+            value: c.id,
+          }));
+          return (
             <>
-              <FormLabel htmlFor="shift-select">
-                Turno
+              <FormLabel>
+                Curso
                 <Typography component="span" color="error" aria-hidden>
                   {' *'}
                 </Typography>
               </FormLabel>
-              <FormControl>
-                <Select
-                  id="shift-select"
-                  value={field.value ?? ''}
-                  onChange={(event) => field.onChange(event.target.value)}
-                  error={!!error}
-                >
-                  <MenuItem value="MATUTINO">Matutino</MenuItem>
-                  <MenuItem value="VESPERTINO">Vespertino</MenuItem>
-                  <MenuItem value="NOTURNO">Noturno</MenuItem>
-                </Select>
-              </FormControl>
+              <Autocomplete
+                {...field}
+                options={options}
+                value={options.find((opt) => opt.value === field.value) || null}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!!error}
+                    helperText={error?.message}
+                  />
+                )}
+                onChange={(_event, newValue) =>
+                  field.onChange(newValue?.value || null)
+                }
+              />
             </>
-          )}
-        />
+          );
+        }}
+      />
 
-        <Controller
-          name="semester_id"
-          control={control}
-          render={({ field, fieldState: { error } }) => {
-            const options = semesters.map((s) => ({
-              label: `${s.year}.${s.semester}`,
-              value: s.id,
-            }));
-            return (
-              <>
-                <FormLabel>
-                  Semestre letivo
-                  <Typography component="span" color="error" aria-hidden>
-                    {' *'}
-                  </Typography>
-                </FormLabel>
-                <Autocomplete
-                  {...field}
-                  options={options}
-                  value={
-                    options.find((opt) => opt.value === field.value) || null
-                  }
-                  sx={{ width: 300 }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={!!error}
-                      helperText={error?.message}
-                    />
-                  )}
-                  onChange={(_event, newValue) =>
-                    field.onChange(newValue?.value || null)
-                  }
-                />
-              </>
-            );
+      <Controller
+        name="course_semester"
+        control={control}
+        render={({ field, fieldState }) => (
+          <CourseSemesterInput field={field} fieldState={fieldState} />
+        )}
+      />
+
+      <Controller
+        name="shift"
+        control={control}
+        render={({ field, fieldState: { error } }) => (
+          <>
+            <FormLabel htmlFor="shift-select">
+              Turno
+              <Typography component="span" color="error" aria-hidden>
+                {' *'}
+              </Typography>
+            </FormLabel>
+            <FormControl>
+              <Select
+                id="shift-select"
+                value={field.value ?? ''}
+                onChange={(event) => field.onChange(event.target.value)}
+                error={!!error}
+              >
+                <MenuItem value="MATUTINO">Matutino</MenuItem>
+                <MenuItem value="VESPERTINO">Vespertino</MenuItem>
+                <MenuItem value="NOTURNO">Noturno</MenuItem>
+              </Select>
+            </FormControl>
+          </>
+        )}
+      />
+
+      <Controller
+        name="semester_id"
+        control={control}
+        render={({ field, fieldState: { error } }) => {
+          const options = semesters.map((s) => ({
+            label: `${s.year}.${s.semester}`,
+            value: s.id,
+          }));
+          return (
+            <>
+              <FormLabel>
+                Semestre letivo
+                <Typography component="span" color="error" aria-hidden>
+                  {' *'}
+                </Typography>
+              </FormLabel>
+              <Autocomplete
+                {...field}
+                options={options}
+                value={options.find((opt) => opt.value === field.value) || null}
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!!error}
+                    helperText={error?.message}
+                  />
+                )}
+                onChange={(_event, newValue) =>
+                  field.onChange(newValue?.value || null)
+                }
+              />
+            </>
+          );
+        }}
+      />
+
+      <Box className="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="contained"
+          color="error"
+          className="self-end"
+          startIcon={<Cancel />}
+          onClick={() => setCancelConfirmOpen(true)}
+        >
+          Cancelar
+        </Button>
+        <Button
+          type="button"
+          disabled={!isValid}
+          variant="contained"
+          color="secondary"
+          className="self-end"
+          endIcon={<Save />}
+          onClick={() => setConfirmEditOpen(true)}
+        >
+          Salvar
+        </Button>
+        <ConfirmDialogBlue
+          open={confirmEditOpen}
+          content="Tem certeza que deseja editar a turma?"
+          title="Editar Turma"
+          onConfirm={() => submit(classe.id, watch())}
+          onCancel={() => setConfirmEditOpen(false)}
+        />
+        <ConfirmDialogBlue
+          open={cancelConfirmOpen}
+          title="Cancelar Edição"
+          content="As alterações não salvas serão perdidas. Deseja continuar?"
+          onConfirm={() => router.push('/classes')}
+          onCancel={() => {
+            setCancelConfirmOpen(false);
           }}
         />
-
-        <Box className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="contained"
-            color="error"
-            className="self-end"
-            startIcon={<Cancel />}
-            onClick={() => setCancelConfirmOpen(true)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="button"
-            disabled={!isValid}
-            variant="contained"
-            color="secondary"
-            className="self-end"
-            endIcon={<Save />}
-            onClick={() => setConfirmEditOpen(true)}
-          >
-            Salvar
-          </Button>
-          <ConfirmDialogBlue
-            open={confirmEditOpen}
-            content="Tem certeza que deseja editar a turma?"
-            title="Editar Turma"
-            onConfirm={() => submit(classe.id, watch())}
-            onCancel={() => setConfirmEditOpen(false)}
-          />
-          <ConfirmDialogBlue
-            open={cancelConfirmOpen}
-            title="Cancelar Edição"
-            content="As alterações não salvas serão perdidas. Deseja continuar?"
-            onConfirm={() => router.push('/classes')}
-            onCancel={() => {
-              setCancelConfirmOpen(false);
-            }}
-          />
-        </Box>
-      </form>
-    </>
+      </Box>
+    </form>
   );
 }

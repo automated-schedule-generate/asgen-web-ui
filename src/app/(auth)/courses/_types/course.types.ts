@@ -7,7 +7,7 @@ export interface CourseData extends CourseType {
   subjects?: Subject[];
 
   //timetable generated info
-  readonly timetable_entries?: TimetableEntry[][][];
+  readonly timetable_entries?: (TimetableEntry | null)[][][];
   readonly unassigned?: TimetableEntry[];
   readonly timetable_generated_at?: Date;
 }

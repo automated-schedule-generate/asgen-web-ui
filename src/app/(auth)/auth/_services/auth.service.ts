@@ -49,7 +49,7 @@ export async function me() {
       role: role,
     };
   } catch (error) {
-    console.error('Get current user error:', error);
+    console.warn('Get current user error:', error);
     throw error;
   }
 }
