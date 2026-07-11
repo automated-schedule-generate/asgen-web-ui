@@ -102,8 +102,13 @@ export async function getCourseWithTimetable(params?: {
 
     return data.items;
   } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const returnError = error?.response?.data || error?.message;
+      console.log(returnError);
+      throw returnError;
+    }
     console.log(error);
-    throw error;
+    throw new Error('Erro ao buscar turma');
   }
 }
 

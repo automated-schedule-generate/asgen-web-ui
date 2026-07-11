@@ -5,7 +5,9 @@ import {
   Box,
   Button,
   FormLabel,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   Typography,
 } from '@mui/material';
@@ -13,7 +15,7 @@ import { GenerateTimetable } from './generate-timetable';
 import { RenderCourseWithTimetable } from './render-course-with-timetable';
 import { CourseData } from '../../courses/_types/course.types';
 import { useCallback, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import {
   TimetableFilterSchema,
   TimetableFilterType,
@@ -30,30 +32,50 @@ export function RenderPageTimetable({ courses }: RenderPageProps) {
   const [coursesWithTimetable, setCoursesWithTimetable] = useState<
     CourseData[]
   >([]);
-  const { control, handleSubmit } = useFormWithZod(TimetableFilterSchema);
+  const [showInfo, setShowInfo] = useState(true);
+  const { control, handleSubmit, setValue } = useFormWithZod(
+    TimetableFilterSchema,
+  );
 
-  const fetchTimetable = useCallback(async (course_id: string) => {
-    const data = await getCourseWithTimetable({
-      course_id: course_id === '0' ? undefined : course_id,
-    });
+  const courseId = useWatch({ control, name: 'course_id' });
+  const selectedCourse = courses.find((course) => course.id === courseId);
+  const isSemesterDisabled = !courseId || courseId === '0';
+  const totalSemesters = isSemesterDisabled
+    ? 0
+    : Number(selectedCourse?.total_semesters ?? 0);
 
-    setCoursesWithTimetable(data);
-  }, []);
+  const fetchTimetable = useCallback(
+    async ({ course_id, course_semester }: TimetableFilterType) => {
+      try {
+        const data = await getCourseWithTimetable({
+          course_id: course_id === '0' ? undefined : course_id,
+          course_semester: course_semester || undefined,
+        });
+
+        setCoursesWithTimetable(data);
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    },
+    [],
+  );
 
   async function fetchSubmit(data: TimetableFilterType) {
     const toastLoading = toast.loading('Buscando...');
     try {
-      await fetchTimetable(data.course_id);
+      await fetchTimetable(data);
+      setShowInfo(data?.course_semester?.trim() === '');
       toast.update(toastLoading, {
         type: 'success',
-        render: 'Turma encontrada com sucesso!',
+        render: 'Grade encontrada com sucesso!',
         isLoading: false,
         autoClose: 1500,
       });
     } catch {
       toast.update(toastLoading, {
         type: 'error',
-        render: 'Erro ao buscar turma!',
+        render: 'Erro ao buscar Grade!',
         isLoading: false,
         autoClose: 1000,
       });
@@ -104,8 +126,33 @@ export function RenderPageTimetable({ courses }: RenderPageProps) {
                         helperText={error?.message}
                       />
                     )}
-                    onChange={(_event, value) => field.onChange(value?.value)}
+                    onChange={(_event, value) => {
+                      field.onChange(value?.value);
+                      setValue('course_semester', '');
+                    }}
                   />
+                </>
+              )}
+            />
+            <Controller
+              name="course_semester"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <FormLabel>Selecione um período</FormLabel>
+                  <Select
+                    {...field}
+                    value={field.value ?? ''}
+                    displayEmpty
+                    disabled={isSemesterDisabled}
+                  >
+                    <MenuItem value="">Todos os períodos</MenuItem>
+                    {Array.from({ length: totalSemesters }, (_, index) => (
+                      <MenuItem key={index + 1} value={String(index + 1)}>
+                        {index + 1}º período
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </>
               )}
             />
@@ -121,6 +168,7 @@ export function RenderPageTimetable({ courses }: RenderPageProps) {
         <RenderCourseWithTimetable
           key={'course-timetable-render-' + course.id}
           course={course}
+          show_info={showInfo}
         />
       ))}
     </Box>
