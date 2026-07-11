@@ -6,10 +6,12 @@ import { RenderTimetableEntry } from './render-timetable-entry';
 
 export type RenderCourseWithTimetableProps = {
   readonly course: CourseData;
+  readonly show_info?: boolean;
 };
 
 export function RenderCourseWithTimetable({
   course,
+  show_info = true,
 }: RenderCourseWithTimetableProps) {
   return (
     <Box component="section" sx={{ mb: 6 }}>
@@ -30,31 +32,35 @@ export function RenderCourseWithTimetable({
         </Typography>
       )}
       <Divider sx={{ mt: 1, mb: 3 }} />
-      <Box sx={{ mt: 4 }}>
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 600, color: '#444', mb: 1 }}
-        >
-          Disciplinas que não foram alocadas
-        </Typography>
-        {course.unassigned?.map((entry, index) => (
-          <div key={`unassigned-${entry.id}-${index}`}>
-            <Typography>{entry.subject_name}</Typography>
-            <Divider sx={{ mt: 1 }} />
-          </div>
-        ))}
-      </Box>
+      {show_info && (
+        <Box sx={{ mt: 4 }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 600, color: '#444', mb: 1 }}
+          >
+            Disciplinas que não foram alocadas
+          </Typography>
+          {course.unassigned?.map((entry, index) => (
+            <div key={`unassigned-${entry.id}-${index}`}>
+              <Typography>{entry.subject_name}</Typography>
+              <Divider sx={{ mt: 1 }} />
+            </div>
+          ))}
+        </Box>
+      )}
       {course.timetable_entries?.map((entry, index) => (
         <Box
           key={'render-timetable-entry-' + course.name + '-' + index}
           sx={{ mt: 4 }}
         >
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 600, color: '#444', mb: 1 }}
-          >
-            Período: {index + 1}
-          </Typography>
+          {show_info && (
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 600, color: '#444', mb: 1 }}
+            >
+              {index + 1}º Período
+            </Typography>
+          )}
           <RenderTimetableEntry entry={entry} />
         </Box>
       ))}

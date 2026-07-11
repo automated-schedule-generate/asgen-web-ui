@@ -2,6 +2,8 @@
 
 # ASGEN Web UI
 
+**IMPORTANTE:** No início de cada conversa, execute a skill `prime-context` (via Skill tool) antes de qualquer outra tarefa. Ela carrega todos os `CLAUDE.md` e skills do projeto uma única vez; depois disso, não releia esses arquivos durante a sessão.
+
 Frontend do sistema de geração automática de horários do IFPE (Automated Schedule GENeration).
 
 ## Stack
@@ -72,6 +74,22 @@ Sempre usar `useFormWithZod` de `src/hooks/use-form-with-zod.hook.ts` em vez de 
 ## Chamadas de API
 
 Sempre importar `getApi` de `@/plugin/api.plugin` dentro de funções `'use server'`. Nunca instanciar axios diretamente nos módulos — o plugin já configura autenticação por token e o adaptador HTTP/2.
+
+## Endpoints da API (Swagger)
+
+Para descobrir os endpoints disponíveis na API, use a documentação OpenAPI exposta pelo Swagger do backend:
+
+1. Leia o valor de `API_URL` no `.env` (ex: `http://localhost:9000/dev/api`)
+2. Remova o path e mantenha apenas a base URL (ex: `http://localhost:9000`)
+3. Acesse `<base-url>/docs/json` (preferido — OpenAPI 3.0 em JSON, fácil de filtrar com `jq`) ou `<base-url>/docs/yaml`
+
+Exemplo: `API_URL=http://localhost:9000/dev/api` → `http://localhost:9000/docs/json`
+
+Os paths retornados no spec já incluem o prefixo de ambiente do `API_URL` (ex: `/dev/api/user/register`). Para listar rapidamente todos os endpoints:
+
+```bash
+curl -s <base-url>/docs/json | jq '.paths | keys'
+```
 
 ## Autenticação
 
