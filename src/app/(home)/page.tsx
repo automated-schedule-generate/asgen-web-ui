@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { AuthForm } from '@/app/(auth)/auth/_components/auth-form.component';
+import { SessionErrorToast } from './_components/session-error-toast.component';
 import { RegisterForm } from '@/app/(auth)/users/_components/register-form.component';
 import { Zap } from 'lucide-react';
 import { About } from './_components/about.component';
@@ -41,6 +42,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-cyan-200">
+      <Suspense>
+        <SessionErrorToast />
+      </Suspense>
+
       <Toast
         message="🚀 A redirecionar..."
         visible={showToast}

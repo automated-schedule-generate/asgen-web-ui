@@ -7,6 +7,8 @@ import {
   IResponseRequestPaginated,
 } from '@/interfaces/response-request.interface';
 import { CourseData } from '../_types/course.types';
+import { TimetableEntry } from '../../timetable/types/timetable-entry.type';
+import axios from 'axios';
 
 export async function getAllCourses({
   page = 1,
@@ -19,14 +21,17 @@ export async function getAllCourses({
 } = {}) {
   const api = await getApi();
   try {
-    const { data } = await api.get('/course', {
-      params: {
-        with_pagination: true,
-        page,
-        limit,
-        search,
+    const { data } = await api.get<IResponseRequestPaginated<CourseData>>(
+      '/course',
+      {
+        params: {
+          with_pagination: true,
+          page,
+          limit,
+          search,
+        },
       },
-    });
+    );
     return data;
   } catch (error) {
     console.log(error);
@@ -78,9 +83,12 @@ export async function deleteCourse(id: string) {
   }
 }
 
-export async function getCourseWithTimetable(
-  filter_data: { semester_id?: string; course_id?: string } = {},
-): Promise<CourseData[]> {
+export async function getCourseWithTimetable(params?: {
+  semester_id?: string;
+  course_id?: string;
+  course_semester?: string;
+  teacher_id?: string;
+}): Promise<CourseData[]> {
   const api = await getApi();
   try {
     const {
@@ -88,9 +96,7 @@ export async function getCourseWithTimetable(
     } = await api.get<IResponseRequestPaginated<CourseData>>(
       '/course/find-timetable',
       {
-        params: {
-          ...filter_data,
-        },
+        params,
       },
     );
 
@@ -113,5 +119,31 @@ export async function generateTimetableAllCourses() {
   } catch (error) {
     console.log(error);
     throw error;
+  }
+}
+
+export async function updateTimetableEntry(
+  id: string,
+  updated: {
+    day: string;
+    slot_index: number;
+    teacher_id: string;
+  },
+) {
+  const api = await getApi();
+
+  try {
+    const { data } = await api.put<IResponseRequest<TimetableEntry | null>>(
+      '/course/update-timetable-entry/' + id,
+      updated,
+    );
+
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw error?.response?.data || error?.message;
+    }
+    console.log(error);
+    throw new Error('Não foi possivel atualizar a grade horaria');
   }
 }

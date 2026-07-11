@@ -6,6 +6,13 @@ export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === '/' && token) {
+    // Sessão inválida detectada pelo layout autenticado (falha no me()):
+    // remove o token para não voltar ao /dashboard em loop.
+    if (request.nextUrl.searchParams.get('error') === 'user-fetch') {
+      const response = NextResponse.next();
+      response.cookies.delete('token');
+      return response;
+    }
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
   if (pathname !== '/' && !token) {

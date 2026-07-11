@@ -59,7 +59,7 @@ export function GenerateTimetable() {
         sx={{ display: 'block', mt: 1, color: 'text.secondary' }}
       >
         Obs.: A nova grade só substituirá a atual se obtiver uma avaliação
-        melhor.
+        melhor. E qualquer alteração será perdida!
       </Typography>
       {message && (
         <Typography
