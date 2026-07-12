@@ -14,6 +14,7 @@ import {
 import { toast } from 'react-toastify';
 import { TimetableEntry } from '../types/timetable-entry.type';
 import { updateTimetableEntry } from '../../courses/_services/courses.service';
+import { getErrorMessageUtil } from '@/utils/get-error-message.util';
 
 export type RenderTimetableEntryProps = {
   readonly entry: (TimetableEntry | null)[][];
@@ -32,16 +33,6 @@ type SelectedCell = {
   dayIndex: number;
   entry: TimetableEntry;
 };
-
-function getMoveErrorMessage(error: unknown) {
-  if (typeof error === 'string') return error;
-  if (error && typeof error === 'object') {
-    const data = error as { error?: string; message?: string };
-    if (typeof data.error === 'string') return data.error;
-    if (typeof data.message === 'string') return data.message;
-  }
-  return 'Não foi possivel atualizar a grade horaria';
-}
 
 export function RenderTimetableEntry({ entry }: RenderTimetableEntryProps) {
   const [grid, setGrid] = useState(entry);
@@ -62,13 +53,13 @@ export function RenderTimetableEntry({ entry }: RenderTimetableEntryProps) {
   ) {
     setIsMoving(true);
     const toastLoading = toast.loading('Movendo disciplina...');
-    try {
-      await updateTimetableEntry(selectedCell.entry.id, {
-        day: String(targetDayIndex),
-        slot_index: targetSlotIndex,
-        teacher_id: selectedCell.entry.teacher_id ?? '',
-      });
+    const response = await updateTimetableEntry(selectedCell.entry.id, {
+      day: String(targetDayIndex),
+      slot_index: targetSlotIndex,
+      teacher_id: selectedCell.entry.teacher_id ?? '',
+    });
 
+    if (response.success) {
       setGrid((previous) => {
         const next = previous.map((slots) => [...slots]);
         next[selectedCell.slotIndex][selectedCell.dayIndex] = null;
@@ -86,14 +77,17 @@ export function RenderTimetableEntry({ entry }: RenderTimetableEntryProps) {
         isLoading: false,
         autoClose: 1500,
       });
-    } catch (error) {
+    } else {
       toast.update(toastLoading, {
         type: 'error',
-        render: getMoveErrorMessage(error),
+        render: getErrorMessageUtil(
+          response?.error,
+          'Não foi possivel atualizar a grade horaria',
+        ),
         isLoading: false,
         autoClose: 3000,
       });
-    } finally {
+
       setSelected(null);
       setIsMoving(false);
     }

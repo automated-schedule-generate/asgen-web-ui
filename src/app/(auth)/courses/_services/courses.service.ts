@@ -9,6 +9,7 @@ import {
 import { CourseData } from '../_types/course.types';
 import { TimetableEntry } from '../../timetable/types/timetable-entry.type';
 import axios from 'axios';
+import { IServerActionsReturning } from '@/interfaces/server-actions-returning.interface';
 
 export async function getAllCourses({
   page = 1,
@@ -134,7 +135,7 @@ export async function updateTimetableEntry(
     slot_index: number;
     teacher_id: string;
   },
-) {
+): Promise<IServerActionsReturning<IResponseRequest<TimetableEntry | null>>> {
   const api = await getApi();
 
   try {
@@ -143,12 +144,21 @@ export async function updateTimetableEntry(
       updated,
     );
 
-    return data;
+    return {
+      success: true,
+      data,
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw error?.response?.data || error?.message;
+      return {
+        success: false,
+        error: error?.response?.data || error?.message,
+      };
     }
-    console.log(error);
-    throw new Error('Não foi possivel atualizar a grade horaria');
+
+    return {
+      success: false,
+      error: new Error('Não foi possivel atualizar a grade horaria'),
+    };
   }
 }
