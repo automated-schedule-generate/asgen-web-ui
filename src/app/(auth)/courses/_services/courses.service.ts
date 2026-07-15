@@ -10,6 +10,7 @@ import { CourseData } from '../_types/course.types';
 import { TimetableEntry } from '../../timetable/types/timetable-entry.type';
 import axios from 'axios';
 import { IServerActionsReturning } from '@/interfaces/server-actions-returning.interface';
+import { TimetableProgressEnum } from '../../timetable/enums/timetable-progress.enum';
 
 export async function getAllCourses({
   page = 1,
@@ -159,6 +160,37 @@ export async function updateTimetableEntry(
     return {
       success: false,
       error: new Error('Não foi possivel atualizar a grade horaria'),
+    };
+  }
+}
+
+export async function findTimetableProgress(): Promise<
+  IServerActionsReturning<{ status: TimetableProgressEnum }>
+> {
+  const api = await getApi();
+
+  try {
+    const { data } = await api.get<
+      IResponseRequest<{ status: TimetableProgressEnum }>
+    >('/course/timetable-progress');
+    return {
+      success: true,
+      data: data.data,
+    };
+  } catch (error) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      return {
+        success: false,
+        error: error?.response?.data || error?.message,
+      };
+    }
+
+    return {
+      success: false,
+      error: new Error(
+        'Não foi possivel encontrar o progresso da grade horaria',
+      ),
     };
   }
 }
