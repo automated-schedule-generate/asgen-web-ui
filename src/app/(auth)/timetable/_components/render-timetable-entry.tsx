@@ -87,10 +87,9 @@ export function RenderTimetableEntry({ entry }: RenderTimetableEntryProps) {
         isLoading: false,
         autoClose: 3000,
       });
-
-      setSelected(null);
-      setIsMoving(false);
     }
+    setSelected(null);
+    setIsMoving(false);
   }
 
   function handleCellClick(
