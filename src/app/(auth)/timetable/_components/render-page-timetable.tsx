@@ -14,6 +14,7 @@ import {
 import { GenerateTimetable } from './generate-timetable';
 import { RenderCourseWithTimetable } from './render-course-with-timetable';
 import { CourseData } from '../../courses/_types/course.types';
+import { Semester } from '../../semesters/_interfaces/semester.interface';
 import { useCallback, useState } from 'react';
 import { Controller, useWatch } from 'react-hook-form';
 import {
@@ -26,15 +27,21 @@ import { toast } from 'react-toastify';
 
 interface RenderPageProps {
   readonly courses: CourseData[];
+  readonly semesters: Semester[];
 }
 
-export function RenderPageTimetable({ courses }: RenderPageProps) {
+export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
   const [coursesWithTimetable, setCoursesWithTimetable] = useState<
     CourseData[]
   >([]);
   const [showInfo, setShowInfo] = useState(true);
   const { control, handleSubmit, setValue } = useFormWithZod(
     TimetableFilterSchema,
+    {
+      defaultValues: {
+        semester_id: semesters[0]?.id ?? '',
+      },
+    },
   );
 
   const courseId = useWatch({ control, name: 'course_id' });
@@ -45,11 +52,16 @@ export function RenderPageTimetable({ courses }: RenderPageProps) {
     : Number(selectedCourse?.total_semesters ?? 0);
 
   const fetchTimetable = useCallback(
-    async ({ course_id, course_semester }: TimetableFilterType) => {
+    async ({
+      course_id,
+      course_semester,
+      semester_id,
+    }: TimetableFilterType) => {
       try {
         const data = await getCourseWithTimetable({
           course_id: course_id === '0' ? undefined : course_id,
           course_semester: course_semester || undefined,
+          semester_id: semester_id || undefined,
         });
 
         setCoursesWithTimetable(data);
@@ -150,6 +162,26 @@ export function RenderPageTimetable({ courses }: RenderPageProps) {
                     {Array.from({ length: totalSemesters }, (_, index) => (
                       <MenuItem key={index + 1} value={String(index + 1)}>
                         {index + 1}º período
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </>
+              )}
+            />
+            <Controller
+              name="semester_id"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <FormLabel>Selecione um semestre</FormLabel>
+                  <Select
+                    {...field}
+                    value={field.value ?? semesters[0]?.id}
+                    displayEmpty
+                  >
+                    {semesters.map((semester) => (
+                      <MenuItem key={semester.id} value={semester.id}>
+                        {semester.year}.{semester.semester}
                       </MenuItem>
                     ))}
                   </Select>
