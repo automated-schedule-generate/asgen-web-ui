@@ -1,9 +1,13 @@
 'use client';
 
 import { Button, Typography, Box } from '@mui/material';
-import { generateTimetableAllCourses } from '../../courses/_services/courses.service';
+import {
+  findTimetableProgress,
+  generateTimetableAllCourses,
+} from '../../courses/_services/courses.service';
 import React from 'react';
-import { toast } from 'react-toastify';
+import { toast, type Id } from 'react-toastify';
+import { TimetableProgressEnum } from '../enums/timetable-progress.enum';
 
 type Message = {
   status: 'success' | 'error';
@@ -12,20 +16,66 @@ type Message = {
 
 export function GenerateTimetable() {
   const [message, setMessage] = React.useState<Message>();
-  const [loading, setLoading] = React.useState(false);
+  const [requesting, setRequesting] = React.useState(false);
+  const [isGenerating, setIsGenerating] = React.useState<TimetableProgressEnum>(
+    TimetableProgressEnum.NOT_STARTED,
+  );
+  const toastIdRef = React.useRef<Id | null>(null);
 
-  const generateTimetable = React.useCallback(async () => {
-    setLoading(true);
-    const toastId = toast.loading('Gerando nova grade de horários...');
-    try {
-      const data = await generateTimetableAllCourses();
-      setMessage({ status: 'success', value: data.message });
-      toast.update(toastId, {
-        render: data.message,
+  const loading = requesting || isGenerating === TimetableProgressEnum.STARTED;
+
+  const fetchTimetableProgress = React.useCallback(() => {
+    findTimetableProgress().then((response) => {
+      if (response.success && response.data?.status) {
+        setIsGenerating(response.data.status);
+      }
+    });
+  }, []);
+
+  React.useEffect(() => {
+    fetchTimetableProgress();
+  }, [fetchTimetableProgress]);
+
+  React.useEffect(() => {
+    if (isGenerating === TimetableProgressEnum.STARTED) {
+      const render = 'A grade de horários ainda está sendo gerada...';
+      if (toastIdRef.current === null) {
+        toastIdRef.current = toast.loading(render);
+      } else {
+        toast.update(toastIdRef.current, { render, isLoading: true });
+      }
+
+      const interval = setInterval(fetchTimetableProgress, 5000);
+      return () => {
+        clearInterval(interval);
+        toast.dismiss();
+        toastIdRef.current = null;
+      };
+    }
+
+    if (
+      isGenerating === TimetableProgressEnum.COMPLETED &&
+      toastIdRef.current !== null
+    ) {
+      toast.update(toastIdRef.current, {
+        render: 'A grade de horários foi gerada com sucesso!',
         type: 'success',
         isLoading: false,
         autoClose: 3000,
       });
+      toastIdRef.current = null;
+    }
+  }, [isGenerating, fetchTimetableProgress]);
+
+  const generateTimetable = React.useCallback(async () => {
+    setRequesting(true);
+    const toastId = (toastIdRef.current ??= toast.loading(
+      'Gerando nova grade de horários...',
+    ));
+    try {
+      const data = await generateTimetableAllCourses();
+      setMessage({ status: 'success', value: data.message });
+      setIsGenerating(TimetableProgressEnum.STARTED);
     } catch (error) {
       const errorMessage = 'Ocorreu um erro ao gerar a nova grade';
       setMessage({ status: 'error', value: errorMessage });
@@ -35,9 +85,10 @@ export function GenerateTimetable() {
         isLoading: false,
         autoClose: 3000,
       });
+      toastIdRef.current = null;
       console.log(error);
     } finally {
-      setLoading(false);
+      setRequesting(false);
     }
   }, []);
 
