@@ -2,18 +2,9 @@
 
 import React, { useState } from 'react';
 import { Drawer, List } from '@mui/material';
-import {
-  Home,
-  Attribution,
-  SquareFoot,
-  School,
-  Groups,
-  Visibility,
-  People,
-  Tune,
-} from '@mui/icons-material';
 import { MenuItem } from './menu-item.component';
 import { usePathname } from 'next/navigation';
+import { navigationMenuItems as menuItems } from '../_constants/navigation-menu.constant';
 
 export function DrawerMenu() {
   const [open, setOpen] = useState(false);
@@ -26,20 +17,6 @@ export function DrawerMenu() {
   };
   const drawerWidth = open ? 240 : 60;
   const pathname = usePathname();
-  const menuItems = [
-    { text: 'Início', icon: <Home />, path: '/dashboard' },
-    { text: 'Cursos', icon: <School />, path: '/courses' },
-    { text: 'Disciplinas', icon: <SquareFoot />, path: '/subjects' },
-    { text: 'Turmas', icon: <Groups />, path: '/classes' },
-    { text: 'Professores', icon: <Attribution />, path: '/teachers' },
-    {
-      text: 'Gestão de Usuários',
-      icon: <People />,
-      path: '/users',
-    },
-    { text: 'Preferências', icon: <Tune />, path: '/teachers/preferences' },
-    { text: 'Visualizar grades', icon: <Visibility />, path: '/timetable' },
-  ];
 
   return (
     <Drawer

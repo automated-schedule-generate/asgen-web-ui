@@ -9,54 +9,12 @@ import {
   Avatar,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import {
-  School as SchoolIcon,
-  Groups as GroupsIcon,
-  Visibility as VisibilityIcon,
-  SquareFoot as SquareFootIcon,
-  Attribution as AttributionIcon,
-  Tune,
-  People,
-} from '@mui/icons-material';
 import { useUser } from '@/contexts/user.context';
+import { navigationMenuItems } from '../../_constants/navigation-menu.constant';
 
-const dashboardCards = [
-  {
-    title: 'Cursos',
-    icon: <SchoolIcon sx={{ fontSize: 30 }} />,
-    path: '/courses',
-  },
-  {
-    title: 'Disciplinas',
-    icon: <SquareFootIcon sx={{ fontSize: 30 }} />,
-    path: '/subjects',
-  },
-  {
-    title: 'Turmas',
-    icon: <GroupsIcon sx={{ fontSize: 30 }} />,
-    path: '/classes',
-  },
-  {
-    title: 'Professores',
-    icon: <AttributionIcon sx={{ fontSize: 30 }} />,
-    path: '/teachers',
-  },
-  {
-    title: 'Gestão de Usuários',
-    icon: <People />,
-    path: '/users',
-  },
-  {
-    title: 'Preferencias',
-    icon: <Tune sx={{ fontSize: 30 }} />,
-    path: '/teachers/preferences',
-  },
-  {
-    title: 'Visualização das grades',
-    icon: <VisibilityIcon sx={{ fontSize: 30 }} />,
-    path: '/timetable',
-  },
-];
+const dashboardCards = navigationMenuItems.filter(
+  (v) => v.path !== '/dashboard',
+);
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -103,9 +61,9 @@ export default function DashboardPage() {
             justifyItems: 'center',
           }}
         >
-          {dashboardCards.map(({ title, icon, path }) => (
+          {dashboardCards.map(({ text, icon, path }) => (
             <Card
-              key={title}
+              key={text}
               onClick={() => router.push(path)}
               sx={{
                 borderRadius: 5,
@@ -146,7 +104,7 @@ export default function DashboardPage() {
                     fontSize: '0.85rem',
                   }}
                 >
-                  {title}
+                  {text}
                 </Typography>
               </CardActionArea>
             </Card>

@@ -33,6 +33,12 @@ export function GenerateTimetable() {
   }, []);
 
   React.useEffect(() => {
+    return () => {
+      toast.dismiss();
+    };
+  }, []);
+
+  React.useEffect(() => {
     fetchTimetableProgress();
   }, [fetchTimetableProgress]);
 
@@ -48,8 +54,6 @@ export function GenerateTimetable() {
       const interval = setInterval(fetchTimetableProgress, 5000);
       return () => {
         clearInterval(interval);
-        toast.dismiss();
-        toastIdRef.current = null;
       };
     }
 

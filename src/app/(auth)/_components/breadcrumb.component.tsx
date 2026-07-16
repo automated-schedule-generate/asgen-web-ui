@@ -5,19 +5,16 @@ import { Breadcrumbs, Link, Typography } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { ConfirmDialogBlue } from '@/components/utilities/confirm-dialog-blue.component';
+import { navigationMenuItems } from '../_constants/navigation-menu.constant';
 
-const routeTranslations: Record<string, string> = {
-  home: 'Início',
-  dashboard: 'Painel',
-  subjects: 'Disciplinas',
-  create: 'Adicionar',
-  classes: 'Turmas',
-  courses: 'Cursos',
-  semesters: 'Semestres',
-  teachers: 'Professores',
-  preferences: 'Preferências',
-  functions: 'Gestão de funções',
-};
+const routeTranslations = navigationMenuItems.reduce(
+  (acc, item) => {
+    acc[item.name] = item.text;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
+routeTranslations['dashboard'] = 'Painel';
 
 export default function AutoBreadcrumbs() {
   const pathname = usePathname();
