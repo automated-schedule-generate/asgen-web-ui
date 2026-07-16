@@ -90,7 +90,7 @@ export async function getCourseWithTimetable(params?: {
   course_id?: string;
   course_semester?: string;
   teacher_id?: string;
-}): Promise<CourseData[]> {
+}): Promise<IServerActionsReturning<CourseData[]>> {
   const api = await getApi();
   try {
     const {
@@ -102,15 +102,23 @@ export async function getCourseWithTimetable(params?: {
       },
     );
 
-    return data.items;
+    return {
+      success: true,
+      data: data.items,
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const returnError = error?.response?.data || error?.message;
-      console.log(returnError);
-      throw returnError;
+
+      return {
+        success: false,
+        error: returnError,
+      };
     }
-    console.log(error);
-    throw new Error('Erro ao buscar turma');
+    return {
+      success: false,
+      error: new Error('Erro ao buscar a grade de horarios'),
+    };
   }
 }
 

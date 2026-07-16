@@ -15,7 +15,7 @@ import { GenerateTimetable } from './generate-timetable';
 import { RenderCourseWithTimetable } from './render-course-with-timetable';
 import { CourseData } from '../../courses/_types/course.types';
 import { Semester } from '../../semesters/_interfaces/semester.interface';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useWatch } from 'react-hook-form';
 import {
   TimetableFilterSchema,
@@ -31,6 +31,7 @@ interface RenderPageProps {
 }
 
 export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
+  const [disableAll, setDisableAll] = useState(true);
   const [coursesWithTimetable, setCoursesWithTimetable] = useState<
     CourseData[]
   >([]);
@@ -40,6 +41,7 @@ export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
     {
       defaultValues: {
         semester_id: semesters[0]?.id ?? '',
+        course_id: '0',
       },
     },
   );
@@ -58,13 +60,18 @@ export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
       semester_id,
     }: TimetableFilterType) => {
       try {
-        const data = await getCourseWithTimetable({
+        const response = await getCourseWithTimetable({
           course_id: course_id === '0' ? undefined : course_id,
           course_semester: course_semester || undefined,
           semester_id: semester_id || undefined,
         });
 
-        setCoursesWithTimetable(data);
+        if (response.success && response.data) {
+          setCoursesWithTimetable(response.data);
+        }
+        if (!response.success) {
+          console.log(response?.error);
+        }
       } catch (error) {
         console.log(error);
         throw error;
@@ -73,26 +80,50 @@ export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
     [],
   );
 
-  async function fetchSubmit(data: TimetableFilterType) {
-    const toastLoading = toast.loading('Buscando...');
-    try {
-      await fetchTimetable(data);
-      setShowInfo(data?.course_semester?.trim() === '');
-      toast.update(toastLoading, {
-        type: 'success',
-        render: 'Grade encontrada com sucesso!',
-        isLoading: false,
-        autoClose: 1500,
-      });
-    } catch {
-      toast.update(toastLoading, {
-        type: 'error',
-        render: 'Erro ao buscar Grade!',
-        isLoading: false,
-        autoClose: 1000,
-      });
-    }
-  }
+  const fetchSubmit = useCallback(
+    async (data: TimetableFilterType) => {
+      localStorage.setItem('filter-timetable', JSON.stringify(data));
+      const toastLoading = toast.loading('Buscando...');
+      try {
+        await fetchTimetable(data);
+        setShowInfo(data?.course_semester?.trim() === '');
+        toast.update(toastLoading, {
+          type: 'success',
+          render: 'Grade encontrada com sucesso!',
+          isLoading: false,
+          autoClose: 1500,
+        });
+      } catch {
+        toast.update(toastLoading, {
+          type: 'error',
+          render: 'Erro ao buscar Grade!',
+          isLoading: false,
+          autoClose: 1000,
+        });
+      }
+    },
+    [fetchTimetable],
+  );
+
+  useEffect(() => {
+    const filter = localStorage.getItem('filter-timetable') ?? '{}';
+    const filterParsed = JSON.parse(filter);
+    const data: TimetableFilterType = {
+      course_id: filterParsed?.course_id ?? '0',
+      course_semester: filterParsed?.course_semester,
+      semester_id: filterParsed?.semester_id ?? semesters[0]?.id ?? '',
+    };
+
+    setValue('course_id', data.course_id);
+    setValue('course_semester', data?.course_semester);
+    setValue('semester_id', data?.semester_id);
+
+    const shouldFetch =
+      data.course_id?.trim() !== '' && data.course_id?.trim() !== '0';
+    Promise.resolve()
+      .then(() => (shouldFetch ? fetchSubmit(data) : undefined))
+      .finally(() => setDisableAll(false));
+  }, [setValue, semesters, fetchSubmit]);
 
   return (
     <Box>
@@ -122,13 +153,17 @@ export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
                   <Autocomplete
                     disablePortal
                     disableClearable
+                    disabled={disableAll}
                     options={courses.map((course: CourseData) => ({
                       label: course.name,
                       value: course.id,
                     }))}
-                    defaultValue={{
-                      label: courses[0].name,
-                      value: courses[0].id,
+                    value={{
+                      label: field.value
+                        ? courses.find((course) => course.id === field.value)
+                            ?.name
+                        : '',
+                      value: field.value || '',
                     }}
                     renderInput={(params) => (
                       <TextField
@@ -156,7 +191,7 @@ export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
                     {...field}
                     value={field.value ?? ''}
                     displayEmpty
-                    disabled={isSemesterDisabled}
+                    disabled={disableAll || isSemesterDisabled}
                   >
                     <MenuItem value="">Todos os períodos</MenuItem>
                     {Array.from({ length: totalSemesters }, (_, index) => (
@@ -178,6 +213,7 @@ export function RenderPageTimetable({ courses, semesters }: RenderPageProps) {
                     {...field}
                     value={field.value ?? semesters[0]?.id}
                     displayEmpty
+                    disabled={disableAll}
                   >
                     {semesters.map((semester) => (
                       <MenuItem key={semester.id} value={semester.id}>
